@@ -7,12 +7,27 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class PrivateInfo
 {
     private final String name;
-    private final String password;
+    private final String hashedPassword;
 
-    public PrivateInfo(final String name, final String password)
+    private PrivateInfo(final String name, final String hashed)
     {
         this.name = name;
-        this.password = password;
+        this.hashedPassword = hashed;
+    }
+
+    public static PrivateInfo fromPlaintext(String name, String plaintextPassword)
+    {
+        return new PrivateInfo(name, hash(plaintextPassword));
+    }
+
+    private static String hash(String plaintextPassword)
+    {
+        return null;
+    }
+
+    public static PrivateInfo fromHashed(String name, String hashedPassword)
+    {
+        return new PrivateInfo(name, hashedPassword);
     }
 
     @Override
@@ -20,7 +35,7 @@ public class PrivateInfo
     {
         return new ToStringBuilder(this)
                 .append("name", name)
-                .append("password", password)
+                .append("hashedPassword", hashedPassword)
                 .toString();
     }
 
@@ -42,7 +57,7 @@ public class PrivateInfo
         PrivateInfo rhs = (PrivateInfo) obj;
         return new EqualsBuilder()
                 .append(this.name, rhs.name)
-                .append(this.password, rhs.password)
+                .append(this.hashedPassword, rhs.hashedPassword)
                 .isEquals();
     }
 
@@ -51,7 +66,7 @@ public class PrivateInfo
     {
         return new HashCodeBuilder()
                 .append(name)
-                .append(password)
+                .append(hashedPassword)
                 .toHashCode();
     }
 }

@@ -1,5 +1,6 @@
 package com.jasoncabot.gardenpath.model;
 
+import com.jasoncabot.gardenpath.persistence.GameMemento;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
@@ -15,17 +16,44 @@ public class Player
 
     private Collection<Fence> fences;
 
-    public Player(final String id, final String name)
+    public static Player fromMemento(final GameMemento memento, final boolean p1)
     {
-        this.identifier = id;
-        this.name = name;
-        this.position = -1;
-        this.isPlayerOne = false;
-        this.fences = new ArrayList<>(NUM_FENCES);
-        for (int i = 0; i < NUM_FENCES; i++)
+        final Player player = new Player();
+        player.fences = new ArrayList<>(NUM_FENCES);
+        player.isPlayerOne = p1;
+        if (p1)
         {
-            fences.add(new Fence());
+            player.identifier = memento.getPlayer1Id();
+            player.name = memento.getPlayer1Name();
+            player.position = memento.getPlayer1Position();
+            player.fences.add(Fence.get(memento.getPlayer1Fence1()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence2()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence3()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence4()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence5()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence6()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence7()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence8()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence9()));
+            player.fences.add(Fence.get(memento.getPlayer1Fence10()));
         }
+        else
+        {
+            player.identifier = memento.getPlayer2Id();
+            player.name = memento.getPlayer2Name();
+            player.position = memento.getPlayer2Position();
+            player.fences.add(Fence.get(memento.getPlayer2Fence1()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence2()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence3()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence4()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence5()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence6()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence7()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence8()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence9()));
+            player.fences.add(Fence.get(memento.getPlayer2Fence10()));
+        }
+        return player;
     }
 
     public String getIdentifier()

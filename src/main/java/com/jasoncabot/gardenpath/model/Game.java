@@ -1,6 +1,7 @@
 package com.jasoncabot.gardenpath.model;
 
 import com.jasoncabot.gardenpath.persistence.GameMemento;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -21,6 +22,55 @@ public class Game
     {
         this.id = -1;
         this.state = State.UNKNOWN;
+    }
+
+    public static Game fromMemento(final GameMemento memento)
+    {
+        Validate.notNull(memento);
+
+        final Game game = new Game();
+
+        game.lastMoveAt = memento.getLastMoveAt();
+        game.state = State.valueOf(memento.getState());
+        game.id = memento.getId();
+        game.privateInfo = PrivateInfo.fromHashed(memento.getName(), memento.getHashedPassphrase());
+
+        return game;
+    }
+
+    public static Game fromMemento(final GameMemento memento, final String myIdentifier)
+    {
+        Validate.notBlank(myIdentifier);
+
+        final Game game = fromMemento(memento);
+
+        final Player one = Player.fromMemento(memento, true);
+        final Player two = Player.fromMemento(memento, false);
+
+        final boolean weArePlayer1 = myIdentifier.equals(one.getIdentifier());
+        if (weArePlayer1)
+        {
+            game.me = one;
+            game.you = two;
+            game.isMyTurn = memento.isPlayer1Turn();
+        }
+        else
+        {
+            final boolean weArePlayer2 = myIdentifier.equals(two.getIdentifier());
+
+            if (weArePlayer2)
+            {
+                game.me = two;
+                game.you = one;
+                game.isMyTurn = !memento.isPlayer1Turn();
+            }
+            else
+            {
+                throw new IllegalArgumentException("No players have id of " + myIdentifier);
+            }
+        }
+
+        return game;
     }
 
     public long getId()
@@ -51,11 +101,6 @@ public class Game
     public State getState()
     {
         return state;
-    }
-
-    public static Game fromMemento(final GameMemento memento)
-    {
-        return new Game();
     }
 
     @Override
