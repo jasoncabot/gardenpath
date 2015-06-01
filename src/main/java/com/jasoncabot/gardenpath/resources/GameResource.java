@@ -2,6 +2,7 @@ package com.jasoncabot.gardenpath.resources;
 
 import com.jasoncabot.gardenpath.GameService;
 import com.jasoncabot.gardenpath.model.Game;
+import com.jasoncabot.gardenpath.persistence.GameDao;
 import com.jasoncabot.gardenpath.services.GameServiceImpl;
 
 import javax.ws.rs.GET;
@@ -18,7 +19,7 @@ public class GameResource
 
     public GameResource()
     {
-        this.service = new GameServiceImpl();
+        this.service = new GameServiceImpl(new GameDao());
     }
 
     public GameResource(final GameService service)
