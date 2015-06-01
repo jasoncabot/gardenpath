@@ -1,0 +1,25 @@
+.cell {
+    fill: #754736;
+}
+
+.cell:hover {
+    fill: #643625;
+}
+
+.ghostwall {
+    fill: #grey;
+}
+
+#player1 {
+    fill: #CCC;
+}
+
+#player2 {
+    fill: #DEF;
+}
+
+#game_area {
+    width: 530px;
+    height: 530px;
+    background-color: #823721;
+}
