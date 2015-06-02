@@ -50,13 +50,21 @@ public class Fence
     }
 
     @JsonIgnore
-    public boolean isVertical() {
+    public boolean isVertical()
+    {
         return startIndex + 20 == endIndex;
     }
 
     @JsonIgnore
-    public boolean isHorizontal() {
+    public boolean isHorizontal()
+    {
         return startIndex + 2 == endIndex;
+    }
+
+    @JsonIgnore
+    public boolean isValid()
+    {
+        return true;
     }
 
     @Override

@@ -79,7 +79,6 @@ public class FenceTest
                     noDuplicates.add(fence);
                 }
             }
-
         }
 
         assertThat(noDuplicates.size()).isEqualTo(all.size());
@@ -108,4 +107,73 @@ public class FenceTest
     {
         assertThat(Fence.get(0, 2).isHorizontal());
     }
+
+    @Test
+    public void shouldBeInvalidIfStartAndEndAreTheSame()
+    {
+        assertThat(Fence.get(0, 0).isValid()).isFalse();
+    }
+
+    @Test
+    public void shouldBeInvalidIfSpanIsNotTwoPostsInHorizontalOrVerticalDirection()
+    {
+        assertThat(Fence.get(10, 30).isValid()).isFalse();
+    }
+
+    @Test
+    public void shouldBeInvalidIfVerticalAndOnLeftOrRightWall()
+    {
+        for (int start = 0; start < 80; start += 10)
+        {
+            assertThat(Fence.get(start, start + 20).isValid()).isFalse();
+        }
+        for (int start = 9; start < 89; start += 10)
+        {
+            assertThat(Fence.get(start, start + 20).isValid()).isFalse();
+        }
+    }
+
+    @Test
+    public void shouldBeInvalidIfHorizontalAndOnTopOrBottomWall()
+    {
+        for (int start = 0; start < 8; start += 1)
+        {
+            assertThat(Fence.get(start, start + 2).isValid()).isFalse();
+        }
+        for (int start = 90; start < 99; start += 1)
+        {
+            assertThat(Fence.get(start, start + 2).isValid()).isFalse();
+        }
+    }
+
+    @Test
+    public void shouldBeInvalidIfHorizontalAndSpansOverTheRightHandWall()
+    {
+        for (int start = 8; start < 98; start += 10)
+        {
+            assertThat(Fence.get(start, start + 2).isValid()).isFalse();
+            assertThat(Fence.get(start + 1, start + 1 + 2).isValid()).isFalse();
+        }
+    }
+
+    @Test
+    public void shouldBeTheCorrectNumberOfValidFences()
+    {
+        final List<Fence> all = new ArrayList<>(4950);
+        for (int startingPost = 0; startingPost < TOTAL_FENCE_POSTS; startingPost++)
+        {
+            for (int endingPost = 0; endingPost < TOTAL_FENCE_POSTS; endingPost++)
+            {
+                if (endingPost > startingPost)
+                {
+                    final int uniqueId = (startingPost * TOTAL_FENCE_POSTS) + endingPost;
+                    final Fence fence = Fence.get(uniqueId);
+                    all.add(fence);
+                }
+            }
+        }
+
+        assertThat(all.stream().filter(Fence::isValid).count()).isEqualTo(64);
+    }
+
 }
