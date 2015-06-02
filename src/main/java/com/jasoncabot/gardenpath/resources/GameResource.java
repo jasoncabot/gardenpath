@@ -6,13 +6,21 @@ import com.jasoncabot.gardenpath.persistence.GameDao;
 import com.jasoncabot.gardenpath.services.GameServiceImpl;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.net.HttpURLConnection;
 import java.util.Collection;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/")
+@Path("/games")
 public class GameResource
 {
     private final GameService service;
@@ -28,9 +36,38 @@ public class GameResource
     }
 
     @GET
-    @Path("games")
     public Collection<Game> listGames()
     {
         return service.findPublicGames();
+    }
+
+    @POST
+    public Game create(@QueryParam("name") final String playerName, @QueryParam("id") final String playerId, @QueryParam("gameName") final String gameName,
+            @QueryParam("gamePassword") final String gamePassword)
+    {
+        if (isBlank(playerName) || isBlank(playerId))
+        {
+            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+                    .entity("id and name are mandatory when creating game")
+                    .build());
+        }
+
+        if ((isNotBlank(gameName) && isBlank(gamePassword)) || (isBlank(gameName) && isNotBlank(gamePassword)))
+        {
+            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+                    .entity("gameName and gamePassword are both mandatory if one is specified")
+                    .build());
+        }
+
+        boolean isPrivateGame = isNotBlank(gameName) && isNotBlank(gamePassword);
+
+        if (isPrivateGame)
+        {
+            return service.createPrivateGame(playerId, playerName, gameName, gamePassword);
+        }
+        else
+        {
+            return service.createPublicGame(playerId, playerName);
+        }
     }
 }

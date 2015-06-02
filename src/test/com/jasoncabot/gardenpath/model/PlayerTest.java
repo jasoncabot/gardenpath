@@ -53,7 +53,7 @@ public class PlayerTest
     @Test
     public void shouldReadPlayer1DataFromMemento()
     {
-        final Player me = Player.fromMemento(memento, true);
+        final Player me = Player.fromMemento(memento, true).get();
         assertThat(me.getIdentifier()).isEqualTo("id1");
         assertThat(me.getName()).isEqualTo("name1");
         assertThat(me.getPosition()).isEqualTo(1);
@@ -62,7 +62,7 @@ public class PlayerTest
     @Test
     public void shouldReadPlayer2DataFromMemento()
     {
-        final Player me = Player.fromMemento(memento, false);
+        final Player me = Player.fromMemento(memento, false).get();
         assertThat(me.getIdentifier()).isEqualTo("id2");
         assertThat(me.getName()).isEqualTo("name2");
         assertThat(me.getPosition()).isEqualTo(2);
@@ -71,7 +71,7 @@ public class PlayerTest
     @Test
     public void shouldReadPlayer1FenceDataFromMemento()
     {
-        final Player me = Player.fromMemento(memento, true);
+        final Player me = Player.fromMemento(memento, true).get();
         assertThat(me.getFences().stream().mapToInt(Fence::hashCode).toArray())
                 .containsSequence(1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020);
     }
@@ -79,7 +79,7 @@ public class PlayerTest
     @Test
     public void shouldReadPlayer2FenceDataFromMemento()
     {
-        final Player me = Player.fromMemento(memento, false);
+        final Player me = Player.fromMemento(memento, false).get();
         assertThat(me.getFences().stream().mapToInt(Fence::hashCode).toArray())
                 .containsSequence(2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030);
     }
@@ -87,7 +87,21 @@ public class PlayerTest
     @Test
     public void shouldBeTheCorrectPlayerWhenDeserialisingFromMemento()
     {
-        assertThat(Player.fromMemento(memento, true).isPlayerOne()).isTrue();
-        assertThat(Player.fromMemento(memento, false).isPlayerOne()).isFalse();
+        assertThat(Player.fromMemento(memento, true).get().isPlayerOne()).isTrue();
+        assertThat(Player.fromMemento(memento, false).get().isPlayerOne()).isFalse();
+    }
+
+    @Test
+    public void shouldNotHavePlayerIfIdentifierIsNotPresentInMemento()
+    {
+        when(memento.getPlayer1Id()).thenReturn(null);
+        assertThat(Player.fromMemento(memento, true).isPresent()).isFalse();
+    }
+
+    @Test
+    public void shouldNotHavePlayerIfIdentifierIsBlankInMemento()
+    {
+        when(memento.getPlayer1Id()).thenReturn("");
+        assertThat(Player.fromMemento(memento, true).isPresent()).isFalse();
     }
 }

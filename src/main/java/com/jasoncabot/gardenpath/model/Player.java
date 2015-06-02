@@ -1,10 +1,14 @@
 package com.jasoncabot.gardenpath.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jasoncabot.gardenpath.persistence.GameMemento;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class Player
 {
@@ -16,7 +20,7 @@ public class Player
 
     private Collection<Fence> fences;
 
-    public static Player fromMemento(final GameMemento memento, final boolean p1)
+    public static Optional<Player> fromMemento(final GameMemento memento, final boolean p1)
     {
         final Player player = new Player();
         player.fences = new ArrayList<>(NUM_FENCES);
@@ -53,9 +57,15 @@ public class Player
             player.fences.add(Fence.get(memento.getPlayer2Fence9()));
             player.fences.add(Fence.get(memento.getPlayer2Fence10()));
         }
-        return player;
+
+        if (isBlank(player.identifier))
+        {
+            return Optional.empty();
+        }
+        return Optional.of(player);
     }
 
+    @JsonIgnore
     public String getIdentifier()
     {
         return identifier;
@@ -66,6 +76,7 @@ public class Player
         return name;
     }
 
+    @JsonIgnore
     public boolean isPlayerOne()
     {
         return isPlayerOne;

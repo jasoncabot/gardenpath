@@ -22,12 +22,6 @@ public class GameTest
         when(memento.isPlayer1Turn()).thenReturn(true);
     }
 
-    @Test
-    public void aNewlyCreatedGameShouldBeInUnknownState()
-    {
-        assertThat(new Game().getState()).isEqualTo(Game.State.UNKNOWN);
-    }
-
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionWhenMementoIsNullWhenCreatingGame()
     {

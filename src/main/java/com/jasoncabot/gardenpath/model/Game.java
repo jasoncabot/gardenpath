@@ -7,6 +7,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Date;
+import java.util.Optional;
+
+import static java.util.Arrays.asList;
 
 public class Game
 {
@@ -23,7 +26,7 @@ public class Game
     private State state;
     private PrivateInfo privateInfo;
 
-    public Game()
+    private Game()
     {
         this.id = -1;
         this.state = State.UNKNOWN;
@@ -49,31 +52,27 @@ public class Game
 
         final Game game = fromMemento(memento);
 
-        final Player one = Player.fromMemento(memento, true);
-        final Player two = Player.fromMemento(memento, false);
+        asList(Player.fromMemento(memento, true), Player.fromMemento(memento, false))
+                .stream()
+                .filter(Optional::isPresent)
+                .forEach(optional -> {
+                    final Player player = optional.get();
+                    if (myIdentifier.equals(player.getIdentifier()))
+                    {
+                        game.me = player;
+                    }
+                    else
+                    {
+                        game.you = player;
+                    }
+                });
 
-        final boolean weArePlayer1 = myIdentifier.equals(one.getIdentifier());
-        if (weArePlayer1)
+        if (game.me == null)
         {
-            game.me = one;
-            game.you = two;
-            game.isMyTurn = memento.isPlayer1Turn();
+            throw new IllegalArgumentException("No players have id of " + myIdentifier);
         }
-        else
-        {
-            final boolean weArePlayer2 = myIdentifier.equals(two.getIdentifier());
 
-            if (weArePlayer2)
-            {
-                game.me = two;
-                game.you = one;
-                game.isMyTurn = !memento.isPlayer1Turn();
-            }
-            else
-            {
-                throw new IllegalArgumentException("No players have id of " + myIdentifier);
-            }
-        }
+        game.isMyTurn = game.me.isPlayerOne() && memento.isPlayer1Turn();
 
         return game;
     }
@@ -151,7 +150,7 @@ public class Game
                 .toString();
     }
 
-    enum State
+    public enum State
     {
         UNKNOWN,
         WAITING_OPPONENT,

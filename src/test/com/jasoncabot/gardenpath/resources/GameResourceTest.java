@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -38,7 +39,7 @@ public class GameResourceTest
     @Test
     public void shouldListPublicGamesWhenAskingToListAllGames() throws Exception
     {
-        final Collection<Game> games = Collections.singletonList(new Game());
+        final Collection<Game> games = Collections.singletonList(mock(Game.class));
         when(mockGameService.findPublicGames()).thenReturn(games);
         assertThat(resource.listGames()).isEqualTo(games);
     }
