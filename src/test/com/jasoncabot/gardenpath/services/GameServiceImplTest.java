@@ -9,9 +9,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -33,7 +32,7 @@ public class GameServiceImplTest
     @Test
     public void shouldNeverReturnNullFromFindPublicGames() throws Exception
     {
-        when(mockDao.findAll()).thenReturn(null);
+        when(mockDao.findAll()).thenReturn(Stream.empty());
         final Collection<Game> games = service.findPublicGames();
         assertThat(games).isNotNull();
         assertThat(games).hasSize(0);
@@ -42,10 +41,10 @@ public class GameServiceImplTest
     @Test
     public void shouldConvertAllDaoMementosIntoProperGameObjects() throws Exception
     {
-        final List<GameMemento> expectedGames = asList(new GameMemento(), new GameMemento(), new GameMemento());
+        final Stream<GameMemento> expectedGames = Stream.of(new GameMemento(), new GameMemento(), new GameMemento());
         when(mockDao.findAll()).thenReturn(expectedGames);
         final Collection<Game> actualGames = service.findPublicGames();
-        assertThat(actualGames).hasSameSizeAs(expectedGames);
+        assertThat(actualGames).hasSize(3);
     }
 
 }

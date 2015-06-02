@@ -4,10 +4,8 @@ import com.jasoncabot.gardenpath.GameService;
 import com.jasoncabot.gardenpath.model.Game;
 import com.jasoncabot.gardenpath.persistence.GameDao;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -26,8 +24,7 @@ public class GameServiceImpl implements GameService
     public Collection<Game> findPublicGames()
     {
         logger.entering(GameServiceImpl.class.getName(), "findPublicGames");
-        final List<Game> games = Optional.ofNullable(dao.findAll())
-                .orElse(new ArrayList<>()).stream()
+        final List<Game> games = dao.findAll()
                 .map(Game::fromMemento)
                 .collect(Collectors.toList());
         logger.exiting(GameServiceImpl.class.getName(), "findPublicGames");

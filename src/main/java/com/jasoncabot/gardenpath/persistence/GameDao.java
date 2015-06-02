@@ -1,12 +1,11 @@
 package com.jasoncabot.gardenpath.persistence;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.stream.Stream;
 
 public class GameDao
 {
-    public Collection<GameMemento> findAll()
+    public Stream<GameMemento> findAll()
     {
-        return Collections.singletonList(new GameMemento());
+        return Stream.of(new GameMemento());
     }
 }

@@ -10,6 +10,11 @@ import java.util.Date;
 
 public class Game
 {
+    public static final int NUMBER_OF_SQUARES = 9;
+    public static final int NUMBER_OF_FENCE_POSTS = NUMBER_OF_SQUARES + 1;
+    public static final int TOTAL_SQUARES = NUMBER_OF_SQUARES * NUMBER_OF_SQUARES;
+    public static final int TOTAL_FENCE_POSTS = NUMBER_OF_FENCE_POSTS * NUMBER_OF_FENCE_POSTS;
+
     private long id;
     private Player me;
     private Player you;

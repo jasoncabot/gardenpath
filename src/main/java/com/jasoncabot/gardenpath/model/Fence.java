@@ -3,10 +3,12 @@ package com.jasoncabot.gardenpath.model;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_FENCE_POSTS;
+import static com.jasoncabot.gardenpath.model.Game.TOTAL_FENCE_POSTS;
+
 public class Fence
 {
-
-    public static final int BOARD_SIZE = 10;
+    public static final int LENGTH = 2;
 
     private int startIndex = -1;
     private int endIndex = -1;
@@ -24,8 +26,8 @@ public class Fence
     public static Fence get(int id)
     {
         // convert our unique id back into start and end indexes
-        int e = id % (BOARD_SIZE * BOARD_SIZE);
-        int s = id / (BOARD_SIZE * BOARD_SIZE) % (BOARD_SIZE * BOARD_SIZE);
+        int s = id % TOTAL_FENCE_POSTS;
+        int e = id / TOTAL_FENCE_POSTS % TOTAL_FENCE_POSTS;
         return Fence.get(s, e);
     }
 
@@ -71,7 +73,7 @@ public class Fence
     @Override
     public int hashCode()
     {
-        return (startIndex * (BOARD_SIZE * BOARD_SIZE)) + endIndex;
+        return (startIndex * TOTAL_FENCE_POSTS) + endIndex;
     }
 
     @Override
