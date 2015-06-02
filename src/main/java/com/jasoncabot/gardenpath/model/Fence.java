@@ -106,7 +106,7 @@ public class Fence
         return startIndex + 2 == endIndex;
     }
 
-    @JsonIgnore
+    @JsonProperty("hasBeenPlayed")
     public boolean isValid()
     {
         // start will always be less then end, this is ensured when we construct this fence
