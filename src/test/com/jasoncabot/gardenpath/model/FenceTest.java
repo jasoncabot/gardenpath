@@ -1,5 +1,6 @@
 package com.jasoncabot.gardenpath.model;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import static com.jasoncabot.gardenpath.model.Fence.LENGTH;
 import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_FENCE_POSTS;
+import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_SQUARES;
 import static com.jasoncabot.gardenpath.model.Game.TOTAL_FENCE_POSTS;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -175,6 +177,28 @@ public class FenceTest
 
         assertThat(all.stream().filter(Fence::isValid).filter(Fence::isHorizontal).count()).isEqualTo(64);
         assertThat(all.stream().filter(Fence::isValid).filter(Fence::isVertical).count()).isEqualTo(64);
+    }
+
+    @Test
+    public void shouldBlockFenceInACross()
+    {
+        final SoftAssertions softly = new SoftAssertions();
+
+        for (int verticalOffset = 0; verticalOffset < (NUMBER_OF_SQUARES * NUMBER_OF_FENCE_POSTS); verticalOffset += NUMBER_OF_FENCE_POSTS)
+        {
+            for (int verticalStart = verticalOffset + 1; verticalStart < verticalOffset + NUMBER_OF_SQUARES; verticalStart++)
+            {
+                int horizontalStart = (verticalStart + NUMBER_OF_FENCE_POSTS) - 1;
+
+                final Fence vertical = Fence.get(verticalStart, verticalStart + (LENGTH * NUMBER_OF_FENCE_POSTS));
+                final Fence horizontal = Fence.get(horizontalStart, horizontalStart + LENGTH);
+
+                softly.assertThat(vertical.blocksFence(horizontal)).as(vertical + " should block " + horizontal).isTrue();
+                softly.assertThat(horizontal.blocksFence(vertical)).as(horizontal + " should block " + vertical).isTrue();
+            }
+        }
+
+        softly.assertAll();
     }
 
 }

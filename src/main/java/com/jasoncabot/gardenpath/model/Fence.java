@@ -41,6 +41,40 @@ public class Fence
         return fence;
     }
 
+    public static boolean blocks(final Fence one, final Fence two)
+    {
+        if (one.isHorizontal())
+        {
+            if (two.isVertical())
+            {
+                // we can only interfere in 1 place
+                return one.startIndex == two.startIndex + NUMBER_OF_SQUARES;
+            }
+            else
+            {
+                // 3 possible interferences
+                return (two.startIndex == one.startIndex) ||
+                        (two.startIndex + 1 == one.startIndex) ||
+                        (two.startIndex - 1 == one.startIndex);
+            }
+        }
+        else
+        {
+            if (two.isHorizontal())
+            {
+                // we can only interfere in 1 place
+                return one.startIndex + NUMBER_OF_SQUARES == two.startIndex;
+            }
+            else
+            {
+                // 3 possible interferences
+                return (two.startIndex == one.startIndex) ||
+                        (two.startIndex + NUMBER_OF_FENCE_POSTS == one.startIndex) ||
+                        (two.startIndex - NUMBER_OF_FENCE_POSTS == one.startIndex);
+            }
+        }
+    }
+
     public int getStartIndex()
     {
         return startIndex;
@@ -127,6 +161,11 @@ public class Fence
                 .append(startIndex, fence.startIndex)
                 .append(endIndex, fence.endIndex)
                 .isEquals();
+    }
+
+    public boolean blocksFence(final Fence other)
+    {
+        return blocks(this, other);
     }
 
     @Override
