@@ -85,6 +85,11 @@ public class Fence
         return endIndex;
     }
 
+    public int getMidpointIndex()
+    {
+        return (startIndex + endIndex) / 2;
+    }
+
     @JsonIgnore
     public boolean isVertical()
     {
@@ -166,6 +171,40 @@ public class Fence
     public boolean blocksFence(final Fence other)
     {
         return blocks(this, other);
+    }
+
+    public boolean blocksMove(final int start, final int end)
+    {
+        int fenceStartRowNum = startIndex / NUMBER_OF_FENCE_POSTS;
+        int a = start > end ? end : start;
+        int b = start > end ? start : end;
+
+        if (b - a == NUMBER_OF_SQUARES && !isVertical())
+        {
+            if (a == ((startIndex - fenceStartRowNum) - NUMBER_OF_SQUARES) && (b == startIndex - fenceStartRowNum))
+            {
+                return true;
+            }
+
+            if (a == (((startIndex - fenceStartRowNum) - NUMBER_OF_SQUARES) + 1) && (b == (startIndex - fenceStartRowNum) + 1))
+            {
+                return true;
+            }
+        }
+        else if (b - a == 1 && !isHorizontal())
+        {
+            if (a == (startIndex - (fenceStartRowNum + 1)) && (b == (startIndex - fenceStartRowNum)))
+            {
+                return true;
+            }
+
+            if (a == ((startIndex - (fenceStartRowNum + 1)) + NUMBER_OF_SQUARES) && (b == (startIndex - fenceStartRowNum) + NUMBER_OF_SQUARES))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

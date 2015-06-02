@@ -12,6 +12,7 @@ import static com.jasoncabot.gardenpath.model.Fence.LENGTH;
 import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_FENCE_POSTS;
 import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_SQUARES;
 import static com.jasoncabot.gardenpath.model.Game.TOTAL_FENCE_POSTS;
+import static com.jasoncabot.gardenpath.model.Game.TOTAL_SQUARES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FenceTest
@@ -36,54 +37,12 @@ public class FenceTest
     }
 
     @Test
-    public void shouldGenerateUniqueIdentifiersForEveryFence()
-    {
-
-        final List<Fence> all = new ArrayList<>();
-        final Set<Fence> noDuplicates = new HashSet<>();
-
-        for (int rows = 0; rows < NUMBER_OF_FENCE_POSTS; rows++)
-        {
-            for (int cols = 0; cols < (NUMBER_OF_FENCE_POSTS - LENGTH); cols++)
-            {
-                final int hStart = cols + (rows * NUMBER_OF_FENCE_POSTS);
-                final int hEnd = hStart + LENGTH;
-
-                final int vStart = rows + (cols * NUMBER_OF_FENCE_POSTS);
-                final int vEnd = vStart + (LENGTH * NUMBER_OF_FENCE_POSTS);
-
-                all.add(Fence.get(hStart, hEnd));
-                all.add(Fence.get(vStart, vEnd));
-                noDuplicates.add(Fence.get(hStart, hEnd));
-                noDuplicates.add(Fence.get(vStart, vEnd));
-            }
-        }
-
-        assertThat(noDuplicates).hasSameSizeAs(all);
-    }
-
-    @Test
     public void shouldConvertFromUniqueIdentifierIntoUniqueFence()
     {
+        final List<Fence> all = validFences();
+        final Set<Fence> noDuplicates = new HashSet<>(all);
 
-        final List<Fence> all = new ArrayList<>();
-        final Set<Fence> noDuplicates = new HashSet<>();
-
-        for (int startingPost = 0; startingPost < TOTAL_FENCE_POSTS; startingPost++)
-        {
-            for (int endingPost = 0; endingPost < TOTAL_FENCE_POSTS; endingPost++)
-            {
-                if (endingPost > startingPost)
-                {
-                    final int uniqueId = (startingPost * TOTAL_FENCE_POSTS) + endingPost;
-                    final Fence fence = Fence.get(uniqueId);
-                    all.add(fence);
-                    noDuplicates.add(fence);
-                }
-            }
-        }
-
-        assertThat(noDuplicates.size()).isEqualTo(all.size());
+        assertThat(all).hasSameSizeAs(noDuplicates);
     }
 
     @Test
@@ -161,22 +120,8 @@ public class FenceTest
     @Test
     public void shouldBeTheCorrectNumberOfValidFences()
     {
-        final List<Fence> all = new ArrayList<>(4950);
-        for (int startingPost = 0; startingPost < TOTAL_FENCE_POSTS; startingPost++)
-        {
-            for (int endingPost = 0; endingPost < TOTAL_FENCE_POSTS; endingPost++)
-            {
-                if (endingPost > startingPost)
-                {
-                    final int uniqueId = (startingPost * TOTAL_FENCE_POSTS) + endingPost;
-                    final Fence fence = Fence.get(uniqueId);
-                    all.add(fence);
-                }
-            }
-        }
-
-        assertThat(all.stream().filter(Fence::isValid).filter(Fence::isHorizontal).count()).isEqualTo(64);
-        assertThat(all.stream().filter(Fence::isValid).filter(Fence::isVertical).count()).isEqualTo(64);
+        assertThat(validFences().stream().filter(Fence::isVertical).count()).isEqualTo(64);
+        assertThat(validFences().stream().filter(Fence::isHorizontal).count()).isEqualTo(64);
     }
 
     @Test
@@ -201,4 +146,87 @@ public class FenceTest
         softly.assertAll();
     }
 
+    @Test
+    public void shouldBlockMovementThroughFenceButNothingElse()
+    {
+        final SoftAssertions softly = new SoftAssertions();
+
+        validFences().stream().forEach(fence -> {
+            int midpoint = fence.getMidpointIndex();
+            int topRight = (((midpoint / NUMBER_OF_FENCE_POSTS) - 1) * NUMBER_OF_SQUARES) + (midpoint % NUMBER_OF_FENCE_POSTS);
+            int bottomRight = ((midpoint / NUMBER_OF_FENCE_POSTS) * NUMBER_OF_SQUARES) + (midpoint % NUMBER_OF_FENCE_POSTS);
+            int topLeft = topRight - 1;
+            int bottomLeft = bottomRight - 1;
+
+            if (fence.isHorizontal())
+            {
+                softly.assertThat(fence.blocksMove(topLeft, bottomLeft))
+                        .as("Move from " + topLeft + " to " + bottomLeft + " should be blocked by " + fence).isTrue();
+                softly.assertThat(fence.blocksMove(topRight, bottomRight))
+                        .as("Move from " + topRight + " to " + bottomRight + " should be blocked by " + fence).isTrue();
+                softly.assertThat(fence.blocksMove(bottomLeft, topLeft))
+                        .as("Move from " + bottomLeft + " to " + topLeft + " should be blocked by " + fence).isTrue();
+                softly.assertThat(fence.blocksMove(bottomRight, topRight))
+                        .as("Move from " + bottomRight + " to " + topRight + " should be blocked by " + fence).isTrue();
+
+            }
+            else if (fence.isVertical())
+            {
+                softly.assertThat(fence.blocksMove(topLeft, topRight))
+                        .as("Move from " + topLeft + " to " + topRight + " should be blocked by " + fence).isTrue();
+                softly.assertThat(fence.blocksMove(topRight, topLeft))
+                        .as("Move from " + topRight + " to " + topLeft + " should be blocked by " + fence).isTrue();
+                softly.assertThat(fence.blocksMove(bottomLeft, bottomRight))
+                        .as("Move from " + bottomLeft + " to " + bottomRight + " should be blocked by " + fence).isTrue();
+                softly.assertThat(fence.blocksMove(bottomRight, bottomLeft))
+                        .as("Move from " + bottomRight + " to " + bottomLeft + " should be blocked by " + fence).isTrue();
+            }
+
+            // Try every other possible move on the board, even though there will be plenty of moves that are not valid
+            // it's a good exhaustive test for just the fence blocking behaviour to ensure no weirdness
+            for (int a = 0; a < TOTAL_SQUARES; a++)
+            {
+                for (int b = 0; b < TOTAL_SQUARES; b++)
+                {
+                    boolean isBlockedMove = (fence.isHorizontal()
+                            && (a == topLeft && b == bottomLeft)
+                            || (a == topRight && b == bottomRight)
+                            || (a == bottomLeft && b == topLeft)
+                            || (a == bottomRight && b == topRight))
+                            || (fence.isVertical()
+                            && (a == topLeft && b == topRight)
+                            || (a == topRight && b == topLeft)
+                            || (a == bottomLeft && b == bottomRight)
+                            || (a == bottomRight && b == bottomLeft));
+
+                    if (!isBlockedMove)
+                    {
+                        softly.assertThat(fence.blocksMove(a, b))
+                                .as("Move from " + a + " to " + b + " should not be blocked by " + fence).isFalse();
+                    }
+                }
+            }
+        });
+
+        softly.assertAll();
+    }
+
+    private List<Fence> validFences()
+    {
+        final List<Fence> all = new ArrayList<>(4950);
+        for (int startingPost = 0; startingPost < TOTAL_FENCE_POSTS; startingPost++)
+        {
+            for (int endingPost = startingPost; endingPost < TOTAL_FENCE_POSTS; endingPost++)
+            {
+                final int uniqueId = (startingPost * TOTAL_FENCE_POSTS) + endingPost;
+                final Fence fence = Fence.get(uniqueId);
+                if (fence.isValid())
+                {
+                    all.add(fence);
+                }
+            }
+        }
+
+        return all;
+    }
 }
