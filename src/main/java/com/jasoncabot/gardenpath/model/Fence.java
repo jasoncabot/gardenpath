@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_FENCE_POSTS;
+import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_SQUARES;
 import static com.jasoncabot.gardenpath.model.Game.TOTAL_FENCE_POSTS;
 
 public class Fence
@@ -64,6 +66,45 @@ public class Fence
     @JsonIgnore
     public boolean isValid()
     {
+        // start will always be less then end, this is ensured when we construct this fence
+        if (startIndex == endIndex)
+        {
+            return false;
+        }
+
+        // basic validation
+        if (!(startIndex == (endIndex - (NUMBER_OF_FENCE_POSTS * LENGTH)) || startIndex == (endIndex - LENGTH)))
+        {
+            return false;
+        }
+
+        if (isVertical())
+        {
+            // we cannot be on the left or right wall
+            if (((startIndex % NUMBER_OF_FENCE_POSTS) == 0) || ((startIndex + 1) % NUMBER_OF_FENCE_POSTS) == 0)
+            {
+                return false;
+            }
+        }
+        else if (isHorizontal())
+        {
+            // we cannot be on the top or bottom wall
+            // if our fence is on the top wall and we horizontal
+            if (startIndex < NUMBER_OF_FENCE_POSTS || startIndex >= (NUMBER_OF_FENCE_POSTS * NUMBER_OF_SQUARES))
+            {
+                return false;
+            }
+
+            // we cannot span/loop over the right hand wall
+            for (int i = 1; i <= LENGTH; i++)
+            {
+                if (((startIndex + i) % NUMBER_OF_FENCE_POSTS) == 0)
+                {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 

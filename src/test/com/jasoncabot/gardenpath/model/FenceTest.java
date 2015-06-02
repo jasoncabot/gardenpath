@@ -173,7 +173,8 @@ public class FenceTest
             }
         }
 
-        assertThat(all.stream().filter(Fence::isValid).count()).isEqualTo(64);
+        assertThat(all.stream().filter(Fence::isValid).filter(Fence::isHorizontal).count()).isEqualTo(64);
+        assertThat(all.stream().filter(Fence::isValid).filter(Fence::isVertical).count()).isEqualTo(64);
     }
 
 }
