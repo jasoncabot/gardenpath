@@ -1,6 +1,7 @@
 package com.jasoncabot.gardenpath.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -75,16 +76,19 @@ public class Fence
         }
     }
 
+    @JsonProperty("start")
     public int getStartIndex()
     {
         return startIndex;
     }
 
+    @JsonProperty("end")
     public int getEndIndex()
     {
         return endIndex;
     }
 
+    @JsonIgnore
     public int getMidpointIndex()
     {
         return (startIndex + endIndex) / 2;
