@@ -96,4 +96,16 @@ public class FenceTest
     {
         assertThat(Fence.get(1001).hashCode()).isEqualTo(110);
     }
+
+    @Test
+    public void shouldKnowIfFenceIsVertical()
+    {
+        assertThat(Fence.get(0, 20).isVertical());
+    }
+
+    @Test
+    public void shouldKnowIfFenceIsHorizontal()
+    {
+        assertThat(Fence.get(0, 2).isHorizontal());
+    }
 }

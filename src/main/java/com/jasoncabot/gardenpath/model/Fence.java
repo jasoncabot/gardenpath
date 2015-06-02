@@ -1,9 +1,9 @@
 package com.jasoncabot.gardenpath.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_FENCE_POSTS;
 import static com.jasoncabot.gardenpath.model.Game.TOTAL_FENCE_POSTS;
 
 public class Fence
@@ -12,16 +12,6 @@ public class Fence
 
     private int startIndex = -1;
     private int endIndex = -1;
-
-    public int getStartIndex()
-    {
-        return startIndex;
-    }
-
-    public int getEndIndex()
-    {
-        return endIndex;
-    }
 
     public static Fence get(int id)
     {
@@ -47,6 +37,26 @@ public class Fence
             fence.endIndex = start;
         }
         return fence;
+    }
+
+    public int getStartIndex()
+    {
+        return startIndex;
+    }
+
+    public int getEndIndex()
+    {
+        return endIndex;
+    }
+
+    @JsonIgnore
+    public boolean isVertical() {
+        return startIndex + 20 == endIndex;
+    }
+
+    @JsonIgnore
+    public boolean isHorizontal() {
+        return startIndex + 2 == endIndex;
     }
 
     @Override
