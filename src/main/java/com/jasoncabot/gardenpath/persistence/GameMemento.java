@@ -1,12 +1,15 @@
 package com.jasoncabot.gardenpath.persistence;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class GameMemento
 {
-
     private static final String DEFAULT_STATE = "UNKNOWN";
-
+    public static String[] UPDATEABLE_FIELDS = new String[] {
+            "state", "last_move_at", "name", "hashed_password", "is_player_one_turn",
+            "p1_id", "p1_name", "p1_position", "p1_f1", "p1_f2", "p1_f3", "p1_f4", "p1_f5", "p1_f6", "p1_f7", "p1_f8", "p1_f9", "p1_f10",
+            "p2_id", "p2_name", "p2_position", "p2_f1", "p2_f2", "p2_f3", "p2_f4", "p2_f5", "p2_f6", "p2_f7", "p2_f8", "p2_f9", "p2_f10"
+    };
     private long id;
     private String name;
     private String player1Name;
@@ -37,7 +40,7 @@ public class GameMemento
     private int player2Fence9;
     private int player2Fence10;
     private String state;
-    private Date lastMoveAt;
+    private Instant lastMoveAt;
     private boolean isPlayer1Turn;
 
     public GameMemento()
@@ -345,12 +348,12 @@ public class GameMemento
         this.state = state;
     }
 
-    public Date getLastMoveAt()
+    public Instant getLastMoveAt()
     {
         return lastMoveAt;
     }
 
-    void setLastMoveAt(Date lastMoveAt)
+    void setLastMoveAt(Instant lastMoveAt)
     {
         this.lastMoveAt = lastMoveAt;
     }

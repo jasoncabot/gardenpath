@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
@@ -22,7 +22,7 @@ public class Game
     private Player me;
     private Player you;
     private boolean isMyTurn;
-    private Date lastMoveAt;
+    private Instant lastMoveAt;
     private State state;
     private PrivateInfo privateInfo;
 
@@ -97,7 +97,7 @@ public class Game
         return isMyTurn;
     }
 
-    public Date getLastMoveAt()
+    public Instant getLastMoveAt()
     {
         return lastMoveAt;
     }

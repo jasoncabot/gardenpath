@@ -2,7 +2,6 @@ package com.jasoncabot.gardenpath.services;
 
 import com.jasoncabot.gardenpath.GameService;
 import com.jasoncabot.gardenpath.model.Game;
-import com.jasoncabot.gardenpath.model.Player;
 import com.jasoncabot.gardenpath.model.PrivateInfo;
 import com.jasoncabot.gardenpath.persistence.GameDao;
 
@@ -26,7 +25,7 @@ public class GameServiceImpl implements GameService
     public Collection<Game> findPublicGames()
     {
         logger.entering(GameServiceImpl.class.getName(), "findPublicGames");
-        final List<Game> games = dao.findAll()
+        final List<Game> games = dao.findAll(Game.State.WAITING_OPPONENT.toString())
                 .map(Game::fromMemento)
                 .collect(Collectors.toList());
         logger.exiting(GameServiceImpl.class.getName(), "findPublicGames");

@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -32,7 +33,7 @@ public class GameServiceImplTest
     @Test
     public void shouldNeverReturnNullFromFindPublicGames() throws Exception
     {
-        when(mockDao.findAll()).thenReturn(Stream.empty());
+        when(mockDao.findAll(anyString())).thenReturn(Stream.empty());
         final Collection<Game> games = service.findPublicGames();
         assertThat(games).isNotNull();
         assertThat(games).hasSize(0);
@@ -42,7 +43,17 @@ public class GameServiceImplTest
     public void shouldConvertAllDaoMementosIntoProperGameObjects() throws Exception
     {
         final Stream<GameMemento> expectedGames = Stream.of(new GameMemento(), new GameMemento(), new GameMemento());
-        when(mockDao.findAll()).thenReturn(expectedGames);
+        when(mockDao.findAll(anyString())).thenReturn(expectedGames);
+        final Collection<Game> actualGames = service.findPublicGames();
+        assertThat(actualGames).hasSize(3);
+    }
+
+    @Test
+    public void shouldFindAllGamesWaitingForOpponent()
+    {
+        final Stream<GameMemento> expectedGames = Stream.of(new GameMemento(), new GameMemento(), new GameMemento());
+        when(mockDao.findAll(anyString())).thenReturn(Stream.empty());
+        when(mockDao.findAll(Game.State.WAITING_OPPONENT.toString())).thenReturn(expectedGames);
         final Collection<Game> actualGames = service.findPublicGames();
         assertThat(actualGames).hasSize(3);
     }
