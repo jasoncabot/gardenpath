@@ -2,8 +2,10 @@ package com.jasoncabot.gardenpath.services;
 
 import com.jasoncabot.gardenpath.GameService;
 import com.jasoncabot.gardenpath.model.Game;
+import com.jasoncabot.gardenpath.model.Player;
 import com.jasoncabot.gardenpath.model.PrivateInfo;
 import com.jasoncabot.gardenpath.persistence.GameDao;
+import com.jasoncabot.gardenpath.persistence.GameMemento;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +28,7 @@ public class GameServiceImpl implements GameService
     {
         logger.entering(GameServiceImpl.class.getName(), "findPublicGames");
         final List<Game> games = dao.findAll(Game.State.WAITING_OPPONENT.toString())
-                .map(Game::fromMemento)
+                .map(memento -> Game.builder().withAnonymousMemento(memento).build())
                 .collect(Collectors.toList());
         logger.exiting(GameServiceImpl.class.getName(), "findPublicGames");
         return games;
@@ -36,7 +38,10 @@ public class GameServiceImpl implements GameService
     public Game createPublicGame(final String playerId, final String playerName)
     {
         logger.entering(GameServiceImpl.class.getName(), "createPublicGame", new Object[] { playerId, playerName });
-        final Game game = Game.fromMemento(dao.create(playerId, playerName), playerId);
+        final Player me = Player.builder().withUserData(playerId, playerName).withDefaultFences().setPlayerOne().build();
+        final Game game = Game.builder().withMe(me).build();
+        game.start();
+        dao.save(game);
         logger.exiting(GameServiceImpl.class.getName(), "createPublicGame", game);
         return game;
     }
@@ -45,7 +50,10 @@ public class GameServiceImpl implements GameService
     public Game createPrivateGame(final String playerId, final String playerName, final String gameName, final String gamePassword)
     {
         logger.entering(GameServiceImpl.class.getName(), "createPrivateGame", new Object[] { playerId, playerName, gameName });
-        final Game game = Game.fromMemento(dao.create(playerId, playerName, PrivateInfo.fromPlaintext(gameName, gamePassword)), playerId);
+        final Player me = Player.builder().withUserData(playerId, playerName).withDefaultFences().setPlayerOne().build();
+        final Game game = Game.builder().withMe(me).withPrivateInfo(PrivateInfo.fromPlaintext(gameName, gamePassword)).build();
+        game.start();
+        dao.save(game);
         logger.exiting(GameServiceImpl.class.getName(), "createPrivateGame", game);
         return game;
     }
@@ -54,21 +62,26 @@ public class GameServiceImpl implements GameService
     public Game joinPublicGame(final long gameId, final String playerId, final String playerName)
     {
         logger.entering(GameServiceImpl.class.getName(), "joinPublicGame", new Object[] { gameId, playerId, playerName });
-//        final Game game = Game.fromMemento(dao.find(gameId));
-//        game.join(Player.withId(playerId).withName(playerName).build());
-//        dao.save(game.toMemento());
-//        logger.exiting(GameServiceImpl.class.getName(), "joinPublicGame", game);
-        return null;
+        final GameMemento memento = dao.find(gameId);
+        final Game game = Game.builder().withMemento(memento, playerId).build();
+        final Player me = Player.builder().withUserData(playerId, playerName).withDefaultFences().build();
+        game.join(me);
+        dao.save(game);
+        logger.exiting(GameServiceImpl.class.getName(), "joinPublicGame", game);
+        return game;
     }
 
     @Override
-    public Game joinPrivateGame(long gameId, String playerId, String playerName, String gameName, String gamePassword)
+    public Game joinPrivateGame(String gameName, String gamePassword, String playerId, String playerName)
     {
-        logger.entering(GameServiceImpl.class.getName(), "joinPrivateGame", new Object[] { gameId, playerId, playerName, gameName });
-//        final Game game = Game.fromMemento(dao.find(gameId, PrivateInfo.fromPlaintext(gameName, gamePassword)));
-//        game.join(Player.withId(playerId).withName(playerName).build());
-//        dao.save(game.toMemento());
-//        logger.exiting(GameServiceImpl.class.getName(), "joinPrivateGame", game);
-        return null;
+        logger.entering(GameServiceImpl.class.getName(), "joinPrivateGame", new Object[] { gameName, playerId, playerName });
+        final GameMemento memento = dao.find(PrivateInfo.fromPlaintext(gameName, gamePassword));
+        final Game game = Game.builder().withMemento(memento, playerId).build();
+        final Player me = Player.builder().withUserData(playerId, playerName).withDefaultFences().build();
+        game.join(me);
+        dao.save(game);
+        logger.exiting(GameServiceImpl.class.getName(), "joinPrivateGame", game);
+        return game;
     }
+
 }

@@ -1,6 +1,12 @@
 package com.jasoncabot.gardenpath.persistence;
 
+import com.jasoncabot.gardenpath.model.Game;
+import com.jasoncabot.gardenpath.model.Player;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.time.Instant;
+
+import static java.util.Arrays.asList;
 
 public class GameMemento
 {
@@ -46,6 +52,75 @@ public class GameMemento
     public GameMemento()
     {
         state = DEFAULT_STATE;
+    }
+
+    public static GameMemento fromGame(final Game game)
+    {
+        final GameMemento memento = new GameMemento();
+
+        memento.setId(game.getId());
+        memento.setState(game.getState().toString());
+        memento.setLastMoveAt(game.getLastMoveAt());
+        memento.setIsPlayer1Turn(((game.isMyTurn() && game.getMe() != null && game.getMe().isPlayerOne())
+                || (!game.isMyTurn() && game.getYou() != null && game.getYou().isPlayerOne())));
+
+        if (game.getPrivateInfo() != null)
+        {
+            memento.setName(game.getPrivateInfo().getName());
+            memento.setHashedPassphrase(game.getPrivateInfo().getHashedPassword());
+        }
+
+        Player one = null;
+        Player two = null;
+        for (final Player player : asList(game.getMe(), game.getYou()))
+        {
+            if (player != null)
+            {
+                if (player.isPlayerOne())
+                {
+                    one = player;
+                }
+                else
+                {
+                    two = player;
+                }
+            }
+        }
+
+        if (one != null)
+        {
+            memento.setPlayer1Id(one.getIdentifier());
+            memento.setPlayer1Name(one.getName());
+            memento.setPlayer1Position(one.getPosition());
+            memento.setPlayer1Fence1(one.getFences().get(0).hashCode());
+            memento.setPlayer1Fence2(one.getFences().get(1).hashCode());
+            memento.setPlayer1Fence3(one.getFences().get(2).hashCode());
+            memento.setPlayer1Fence4(one.getFences().get(3).hashCode());
+            memento.setPlayer1Fence5(one.getFences().get(4).hashCode());
+            memento.setPlayer1Fence6(one.getFences().get(5).hashCode());
+            memento.setPlayer1Fence7(one.getFences().get(6).hashCode());
+            memento.setPlayer1Fence8(one.getFences().get(7).hashCode());
+            memento.setPlayer1Fence9(one.getFences().get(8).hashCode());
+            memento.setPlayer1Fence10(one.getFences().get(9).hashCode());
+        }
+        if (two != null)
+        {
+            memento.setPlayer2Id(two.getIdentifier());
+            memento.setPlayer2Name(two.getName());
+            memento.setPlayer2Position(two.getPosition());
+            memento.setPlayer2Fence1(two.getFences().get(0).hashCode());
+            memento.setPlayer2Fence2(two.getFences().get(1).hashCode());
+            memento.setPlayer2Fence3(two.getFences().get(2).hashCode());
+            memento.setPlayer2Fence4(two.getFences().get(3).hashCode());
+            memento.setPlayer2Fence5(two.getFences().get(4).hashCode());
+            memento.setPlayer2Fence6(two.getFences().get(5).hashCode());
+            memento.setPlayer2Fence7(two.getFences().get(6).hashCode());
+            memento.setPlayer2Fence8(two.getFences().get(7).hashCode());
+            memento.setPlayer2Fence9(two.getFences().get(8).hashCode());
+            memento.setPlayer2Fence10(two.getFences().get(9).hashCode());
+        }
+
+        return memento;
     }
 
     public long getId()
@@ -366,5 +441,44 @@ public class GameMemento
     void setIsPlayer1Turn(boolean isPlayer1Turn)
     {
         this.isPlayer1Turn = isPlayer1Turn;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("name", name)
+                .append("player1Name", player1Name)
+                .append("player2Name", player2Name)
+                .append("hashedPassphrase", hashedPassphrase)
+                .append("player1Id", player1Id)
+                .append("player2Id", player2Id)
+                .append("player1Position", player1Position)
+                .append("player2Position", player2Position)
+                .append("player1Fence1", player1Fence1)
+                .append("player1Fence2", player1Fence2)
+                .append("player1Fence3", player1Fence3)
+                .append("player1Fence4", player1Fence4)
+                .append("player1Fence5", player1Fence5)
+                .append("player1Fence6", player1Fence6)
+                .append("player1Fence7", player1Fence7)
+                .append("player1Fence8", player1Fence8)
+                .append("player1Fence9", player1Fence9)
+                .append("player1Fence10", player1Fence10)
+                .append("player2Fence1", player2Fence1)
+                .append("player2Fence2", player2Fence2)
+                .append("player2Fence3", player2Fence3)
+                .append("player2Fence4", player2Fence4)
+                .append("player2Fence5", player2Fence5)
+                .append("player2Fence6", player2Fence6)
+                .append("player2Fence7", player2Fence7)
+                .append("player2Fence8", player2Fence8)
+                .append("player2Fence9", player2Fence9)
+                .append("player2Fence10", player2Fence10)
+                .append("state", state)
+                .append("lastMoveAt", lastMoveAt)
+                .append("isPlayer1Turn", isPlayer1Turn)
+                .toString();
     }
 }

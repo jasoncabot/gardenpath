@@ -7,6 +7,7 @@ import com.jasoncabot.gardenpath.services.GameServiceImpl;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -68,6 +69,36 @@ public class GameResource
         else
         {
             return service.createPublicGame(playerId, playerName);
+        }
+    }
+
+    @PUT
+    public Game joinGame(@QueryParam("gameId") final Long gameId, @QueryParam("name") final String playerName, @QueryParam("id") final String playerId,
+            @QueryParam("gameName") final String gameName,
+            @QueryParam("gamePassword") final String gamePassword)
+    {
+        if (isBlank(playerName) || isBlank(playerId))
+        {
+            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+                    .entity("id and name are mandatory when joining game")
+                    .build());
+        }
+
+        boolean isPrivateGame = isNotBlank(gameName) && isNotBlank(gamePassword);
+
+        if (isPrivateGame)
+        {
+            return service.joinPrivateGame(gameName, gamePassword, playerId, playerName);
+        }
+        else
+        {
+            if (gameId == null)
+            {
+                throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+                        .entity("gameId is mandatory when joining game")
+                        .build());
+            }
+            return service.joinPublicGame(gameId, playerId, playerName);
         }
     }
 }

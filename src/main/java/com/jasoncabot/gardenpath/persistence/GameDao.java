@@ -8,6 +8,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,49 +47,15 @@ public class GameDao
         final Stream.Builder<GameMemento> builder = Stream.builder();
         try (Connection conn = getConnection())
         {
-            final PreparedStatement findAllGames = conn.prepareStatement("SELECT * FROM games WHERE state = ?;");
+            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
+            final PreparedStatement findAllGames = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE state = ?;");
             findAllGames.setString(1, state);
             findAllGames.execute();
             try (final ResultSet resultSet = findAllGames.getResultSet())
             {
                 while (resultSet.next())
                 {
-                    final GameMemento memento = new GameMemento();
-                    // game info
-                    memento.setId(resultSet.getLong("id"));
-                    memento.setState(resultSet.getString("state"));
-                    memento.setLastMoveAt(resultSet.getTimestamp("last_move_at").toInstant());
-                    memento.setName(resultSet.getString("name"));
-                    memento.setHashedPassphrase(resultSet.getString("hashed_password"));
-                    memento.setIsPlayer1Turn(resultSet.getBoolean("is_player_one_turn"));
-                    // player 1
-                    memento.setPlayer1Id(resultSet.getString("p1_id"));
-                    memento.setPlayer1Name(resultSet.getString("p1_name"));
-                    memento.setPlayer1Position(resultSet.getInt("p1_position"));
-                    memento.setPlayer1Fence1(resultSet.getInt("p1_f1"));
-                    memento.setPlayer1Fence2(resultSet.getInt("p1_f2"));
-                    memento.setPlayer1Fence3(resultSet.getInt("p1_f3"));
-                    memento.setPlayer1Fence4(resultSet.getInt("p1_f4"));
-                    memento.setPlayer1Fence5(resultSet.getInt("p1_f5"));
-                    memento.setPlayer1Fence6(resultSet.getInt("p1_f6"));
-                    memento.setPlayer1Fence7(resultSet.getInt("p1_f7"));
-                    memento.setPlayer1Fence8(resultSet.getInt("p1_f8"));
-                    memento.setPlayer1Fence9(resultSet.getInt("p1_f9"));
-                    memento.setPlayer1Fence10(resultSet.getInt("p1_f10"));
-                    // player 2
-                    memento.setPlayer2Id(resultSet.getString("p2_id"));
-                    memento.setPlayer2Name(resultSet.getString("p2_name"));
-                    memento.setPlayer2Position(resultSet.getInt("p2_position"));
-                    memento.setPlayer2Fence1(resultSet.getInt("p2_f1"));
-                    memento.setPlayer2Fence2(resultSet.getInt("p2_f2"));
-                    memento.setPlayer2Fence3(resultSet.getInt("p2_f3"));
-                    memento.setPlayer2Fence4(resultSet.getInt("p2_f4"));
-                    memento.setPlayer2Fence5(resultSet.getInt("p2_f5"));
-                    memento.setPlayer2Fence6(resultSet.getInt("p2_f6"));
-                    memento.setPlayer2Fence7(resultSet.getInt("p2_f7"));
-                    memento.setPlayer2Fence8(resultSet.getInt("p2_f8"));
-                    memento.setPlayer2Fence9(resultSet.getInt("p2_f9"));
-                    memento.setPlayer2Fence10(resultSet.getInt("p2_f10"));
+                    final GameMemento memento = getMemento(resultSet);
                     // build it!
                     builder.accept(memento);
                 }
@@ -101,24 +69,115 @@ public class GameDao
         return builder.build();
     }
 
+    public GameMemento find(long gameId)
+    {
+        try (Connection conn = getConnection())
+        {
+            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
+            final PreparedStatement findAllGames = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ?;");
+            findAllGames.setLong(1, gameId);
+            findAllGames.execute();
+            try (final ResultSet resultSet = findAllGames.getResultSet())
+            {
+                if (resultSet.next())
+                {
+                    return getMemento(resultSet);
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+        }
+        throw new NotFoundException("Could not find game with id " + gameId);
+    }
+
+    public GameMemento find(final PrivateInfo info)
+    {
+        try (Connection conn = getConnection())
+        {
+            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
+            final PreparedStatement findAllGames = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE name = ? AND hashed_password = ?;");
+            findAllGames.setString(1, info.getName());
+            findAllGames.setString(2, info.getHashedPassword());
+            findAllGames.execute();
+            try (final ResultSet resultSet = findAllGames.getResultSet())
+            {
+                if (resultSet.next())
+                {
+                    return getMemento(resultSet);
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+        }
+        throw new NotFoundException("Could not find matching game");
+    }
+
+    private GameMemento getMemento(final ResultSet resultSet) throws SQLException
+    {
+        final GameMemento memento = new GameMemento();
+        // game info
+        memento.setId(resultSet.getLong("id"));
+        memento.setState(resultSet.getString("state"));
+        memento.setLastMoveAt(resultSet.getTimestamp("last_move_at").toInstant());
+        memento.setName(resultSet.getString("name"));
+        memento.setHashedPassphrase(resultSet.getString("hashed_password"));
+        memento.setIsPlayer1Turn(resultSet.getBoolean("is_player_one_turn"));
+        // player 1
+        memento.setPlayer1Id(resultSet.getString("p1_id"));
+        memento.setPlayer1Name(resultSet.getString("p1_name"));
+        memento.setPlayer1Position(resultSet.getInt("p1_position"));
+        memento.setPlayer1Fence1(resultSet.getInt("p1_f1"));
+        memento.setPlayer1Fence2(resultSet.getInt("p1_f2"));
+        memento.setPlayer1Fence3(resultSet.getInt("p1_f3"));
+        memento.setPlayer1Fence4(resultSet.getInt("p1_f4"));
+        memento.setPlayer1Fence5(resultSet.getInt("p1_f5"));
+        memento.setPlayer1Fence6(resultSet.getInt("p1_f6"));
+        memento.setPlayer1Fence7(resultSet.getInt("p1_f7"));
+        memento.setPlayer1Fence8(resultSet.getInt("p1_f8"));
+        memento.setPlayer1Fence9(resultSet.getInt("p1_f9"));
+        memento.setPlayer1Fence10(resultSet.getInt("p1_f10"));
+        // player 2
+        memento.setPlayer2Id(resultSet.getString("p2_id"));
+        memento.setPlayer2Name(resultSet.getString("p2_name"));
+        memento.setPlayer2Position(resultSet.getInt("p2_position"));
+        memento.setPlayer2Fence1(resultSet.getInt("p2_f1"));
+        memento.setPlayer2Fence2(resultSet.getInt("p2_f2"));
+        memento.setPlayer2Fence3(resultSet.getInt("p2_f3"));
+        memento.setPlayer2Fence4(resultSet.getInt("p2_f4"));
+        memento.setPlayer2Fence5(resultSet.getInt("p2_f5"));
+        memento.setPlayer2Fence6(resultSet.getInt("p2_f6"));
+        memento.setPlayer2Fence7(resultSet.getInt("p2_f7"));
+        memento.setPlayer2Fence8(resultSet.getInt("p2_f8"));
+        memento.setPlayer2Fence9(resultSet.getInt("p2_f9"));
+        memento.setPlayer2Fence10(resultSet.getInt("p2_f10"));
+        return memento;
+    }
+
+    @Deprecated
     public GameMemento create(final String player1Id, final String player1Name)
     {
         return create(player1Id, player1Name, Optional.<PrivateInfo>empty());
     }
 
+    @Deprecated
     public GameMemento create(final String player1Id, final String player1Name, final PrivateInfo info)
     {
         Validate.notNull(info);
         return create(player1Id, player1Name, Optional.of(info));
     }
 
+    @Deprecated
     private GameMemento create(final String player1Id, final String player1Name, final Optional<PrivateInfo> info)
     {
         final GameMemento memento = new GameMemento();
         memento.setPlayer1Name(player1Name);
         memento.setPlayer1Id(player1Id);
         memento.setLastMoveAt(Instant.now());
-        memento.setState(Game.State.WAITING_OPPONENT.toString());
+        memento.setState("WAITING_OPPONENT");
         if (info.isPresent())
         {
             memento.setName(info.get().getName());
@@ -128,10 +187,21 @@ public class GameDao
         memento.setId(insert(memento));
 
         return memento;
-
     }
 
-    public void update(final GameMemento memento)
+    public void save(final Game game)
+    {
+        if (game.getId() == null)
+        {
+            game.setId(insert(GameMemento.fromGame(game)));
+        }
+        else
+        {
+            update(GameMemento.fromGame(game));
+        }
+    }
+
+    private void update(final GameMemento memento)
     {
         try (Connection conn = getConnection())
         {
@@ -139,7 +209,8 @@ public class GameDao
                     .map(name -> name + "=?")
                     .collect(Collectors.joining(", "));
 
-            final PreparedStatement preparedStatement = conn.prepareStatement("UPDATE games SET " + updates + " WHERE id = ?;");
+            final String sql = "UPDATE games SET " + updates + " WHERE id = ?;";
+            final PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, memento.getState());
             preparedStatement.setTimestamp(2, Timestamp.from(memento.getLastMoveAt()));
             preparedStatement.setString(3, memento.getName());
@@ -172,7 +243,11 @@ public class GameDao
             preparedStatement.setInt(30, memento.getPlayer2Fence9());
             preparedStatement.setInt(31, memento.getPlayer2Fence10());
             preparedStatement.setLong(32, memento.getId());
-            preparedStatement.executeUpdate();
+            if (preparedStatement.executeUpdate() != 1)
+            {
+                logger.warning("Failed to update memento. " + memento);
+                throw new InternalServerErrorException("Game not updated");
+            }
         }
         catch (SQLException e)
         {
@@ -180,7 +255,7 @@ public class GameDao
         }
     }
 
-    public long insert(final GameMemento memento)
+    private long insert(final GameMemento memento)
     {
         long id = 0;
         try (Connection conn = getConnection())

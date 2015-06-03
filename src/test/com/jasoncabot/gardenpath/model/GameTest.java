@@ -25,19 +25,7 @@ public class GameTest
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionWhenMementoIsNullWhenCreatingGame()
     {
-        Game.fromMemento(null);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void shouldThrowExceptionWhenNullIdentifierSpecifiedWhenCreatingGameWithPlayer()
-    {
-        Game.fromMemento(memento, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenEmptyIdentifierSpecifiedWhenCreatingGameWithPlayer()
-    {
-        Game.fromMemento(memento, "");
+        Game.builder().withAnonymousMemento(null).build();
     }
 
     @Test
@@ -46,7 +34,7 @@ public class GameTest
         for (final Game.State state : Game.State.values())
         {
             when(memento.getState()).thenReturn(state.toString());
-            final Game constructed = Game.fromMemento(memento);
+            final Game constructed = Game.builder().withAnonymousMemento(memento).build();
             assertThat(constructed.getState()).isEqualTo(state);
         }
     }
@@ -55,15 +43,7 @@ public class GameTest
     public void shouldThrowExceptionWhenCreatingGameFromInvalidStateInMemento()
     {
         when(memento.getState()).thenReturn("INVALID_STATE_THAT_DOES_NOT_EXIST");
-        Game.fromMemento(memento);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfCreatingGameFromMementoWithInvalidPlayer()
-    {
-        when(memento.getPlayer1Id()).thenReturn("id-one");
-        when(memento.getPlayer2Id()).thenReturn("id-two");
-        Game.fromMemento(memento, "id-invalid");
+        Game.builder().withAnonymousMemento(memento).build();
     }
 
     @Test
@@ -71,7 +51,7 @@ public class GameTest
     {
         final String playerId = "id-one";
         when(memento.getPlayer1Id()).thenReturn(playerId);
-        final Game game = Game.fromMemento(memento, playerId);
+        final Game game = Game.builder().withMemento(memento, playerId).build();
         assertThat(game.getMe().getIdentifier()).isEqualTo(playerId);
         assertThat(game.isMyTurn()).isTrue();
     }
@@ -81,7 +61,7 @@ public class GameTest
     {
         final String playerId = "id-two";
         when(memento.getPlayer2Id()).thenReturn(playerId);
-        final Game game = Game.fromMemento(memento, playerId);
+        final Game game = Game.builder().withMemento(memento, playerId).build();
         assertThat(game.getMe().getIdentifier()).isEqualTo(playerId);
         assertThat(game.isMyTurn()).isFalse();
     }

@@ -5,7 +5,7 @@ import com.jasoncabot.gardenpath.persistence.GameMemento;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -18,7 +18,7 @@ public class Player
     private boolean isPlayerOne;
     private int position;
 
-    private Collection<Fence> fences;
+    private List<Fence> fences;
 
     public static Optional<Player> fromMemento(final GameMemento memento, final boolean p1)
     {
@@ -65,6 +65,11 @@ public class Player
         return Optional.of(player);
     }
 
+    public static Builder builder()
+    {
+        return new Builder();
+    }
+
     @JsonIgnore
     public String getIdentifier()
     {
@@ -87,7 +92,7 @@ public class Player
         return position;
     }
 
-    public Collection<Fence> getFences()
+    public List<Fence> getFences()
     {
         return fences;
     }
@@ -102,5 +107,53 @@ public class Player
                 .append("position", position)
                 .append("fences", fences)
                 .toString();
+    }
+
+    public static class Builder
+    {
+        private String identifier;
+        private String name;
+        private boolean isPlayerOne;
+        private int position;
+        private List<Fence> fences = new ArrayList<>(10);
+
+        public Player build()
+        {
+            final Player player = new Player();
+            player.identifier = identifier;
+            player.name = name;
+            player.isPlayerOne = isPlayerOne;
+            player.position = position;
+            player.fences = fences;
+            return player;
+        }
+
+        public Builder withUserData(String playerId, String playerName)
+        {
+            this.identifier = playerId;
+            this.name = playerName;
+            return this;
+        }
+
+        public Builder setPlayerOne()
+        {
+            this.isPlayerOne = true;
+            return this;
+        }
+
+        public Builder withPosition(final int position)
+        {
+            this.position = position;
+            return this;
+        }
+
+        public Builder withDefaultFences()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                this.fences.add(Fence.get(0));
+            }
+            return this;
+        }
     }
 }
