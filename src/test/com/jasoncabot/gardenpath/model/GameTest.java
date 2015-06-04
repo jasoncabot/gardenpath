@@ -11,6 +11,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GameTest
 {
+    private Game readyToBeJoined;
+
     @Mock
     private GameMemento memento;
 
@@ -20,6 +22,8 @@ public class GameTest
         initMocks(this);
         when(memento.getState()).thenReturn("UNKNOWN");
         when(memento.isPlayer1Turn()).thenReturn(true);
+
+        readyToBeJoined = Game.builder().withYou(Player.builder().withUserData("opponent", "person").withDefaultFences().setPlayerOne().build()).build();
     }
 
     @Test(expected = NullPointerException.class)
@@ -64,5 +68,45 @@ public class GameTest
         final Game game = Game.builder().withMemento(memento, playerId).build();
         assertThat(game.getMe().getIdentifier()).isEqualTo(playerId);
         assertThat(game.isMyTurn()).isFalse();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenJoiningGameThatAlreadyHasPlayerAsMe()
+    {
+        final Player me = Player.builder().withUserData("id", "name").build();
+        final Player existingPlayer = Player.builder().withUserData("id", "name").build();
+        final Game game = Game.builder().withMe(existingPlayer).build();
+        game.join(me);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionWhenJoiningGameWithoutOpponent()
+    {
+        final Player me = Player.builder().withUserData("p2", "me").build();
+        final Game game = Game.builder().withYou(null).build();
+        game.join(me);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfJoiningGameWithPlayerOneWhenPlayerOneAlreadyExists()
+    {
+        final Player me = Player.builder().withUserData("me", "name").withDefaultFences().setPlayerOne().build();
+        readyToBeJoined.join(me);
+    }
+
+    @Test
+    public void shouldUpdateGameStateToInProgress()
+    {
+        final Player me = Player.builder().withUserData("me", "name").withDefaultFences().build();
+        readyToBeJoined.join(me);
+        assertThat(readyToBeJoined.getState()).isEqualTo(Game.State.IN_PROGRESS);
+    }
+
+    @Test
+    public void shouldNotBeMyTurn()
+    {
+        final Player me = Player.builder().withUserData("me", "name").withDefaultFences().build();
+        readyToBeJoined.join(me);
+        assertThat(readyToBeJoined.isMyTurn()).isFalse();
     }
 }

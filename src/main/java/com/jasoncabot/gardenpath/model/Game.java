@@ -91,6 +91,12 @@ public class Game
         }
 
         this.me = joiner;
+
+        if (!(me.isPlayerOne() ^ you.isPlayerOne()))
+        {
+            throw new IllegalArgumentException("Cannot join game if two players are both player 1");
+        }
+
         this.state = State.IN_PROGRESS;
         this.isMyTurn = me.isPlayerOne();
         this.lastMoveAt = Instant.now();
@@ -99,8 +105,8 @@ public class Game
     public void start()
     {
         this.state = State.WAITING_OPPONENT;
-        this.lastMoveAt = Instant.now();
         this.isMyTurn = true;
+        this.lastMoveAt = Instant.now();
     }
 
     @Override
@@ -167,6 +173,12 @@ public class Game
         public Builder withMe(final Player me)
         {
             this.me = me;
+            return this;
+        }
+
+        public Builder withYou(final Player you)
+        {
+            this.you = you;
             return this;
         }
 
