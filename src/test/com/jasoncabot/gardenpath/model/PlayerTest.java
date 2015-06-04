@@ -1,6 +1,7 @@
 package com.jasoncabot.gardenpath.model;
 
 import com.jasoncabot.gardenpath.persistence.GameMemento;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -114,5 +115,41 @@ public class PlayerTest
         final Player two = Player.builder().build();
         two.moveToStart();
         assertThat(two.getPosition()).isEqualTo(76);
+    }
+
+    @Test
+    public void shouldHaveCorrectWinningPositionsForPlayer1()
+    {
+        final SoftAssertions softly = new SoftAssertions();
+        final Player.Builder builder = Player.builder().setPlayerOne();
+        for (int position = 0; position < 81; position++) {
+            if (position >= 72 && position <= 80)
+            {
+                softly.assertThat(builder.withPosition(position).build().isInWinningPosition()).as("p1 position " + position + " is winning").isTrue();
+            }
+            else
+            {
+                softly.assertThat(builder.withPosition(position).build().isInWinningPosition()).as("p1 position " + position + " is not winning").isFalse();
+            }
+        }
+        softly.assertAll();
+    }
+
+    @Test
+    public void shouldHaveCorrectWinningPositionsForPlayer2()
+    {
+        final SoftAssertions softly = new SoftAssertions();
+        final Player.Builder builder = Player.builder();
+        for (int position = 0; position < 81; position++) {
+            if (position >= 0 && position <= 8)
+            {
+                softly.assertThat(builder.withPosition(position).build().isInWinningPosition()).as("p2 position " + position + " is winning").isTrue();
+            }
+            else
+            {
+                softly.assertThat(builder.withPosition(position).build().isInWinningPosition()).as("p2 position " + position + " is not winning").isFalse();
+            }
+        }
+        softly.assertAll();
     }
 }

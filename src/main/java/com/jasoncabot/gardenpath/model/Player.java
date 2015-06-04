@@ -97,6 +97,17 @@ public class Player
         return fences;
     }
 
+    public void moveToStart()
+    {
+        position = isPlayerOne ? 4 : 76;
+    }
+
+    @JsonIgnore
+    public boolean isInWinningPosition()
+    {
+        return isPlayerOne ? (position >= 72 && position <= 80) : (position >= 0 && position <= 8);
+    }
+
     @Override
     public String toString()
     {
@@ -107,11 +118,6 @@ public class Player
                 .append("position", position)
                 .append("fences", fences)
                 .toString();
-    }
-
-    public void moveToStart()
-    {
-        position = isPlayerOne ? 4 : 76;
     }
 
     public static class Builder
