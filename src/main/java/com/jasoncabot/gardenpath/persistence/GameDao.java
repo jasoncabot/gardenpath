@@ -38,7 +38,7 @@ public class GameDao
         }
         catch (NamingException | SQLException e)
         {
-            throw new RuntimeException("Failed to lookup datasource. Ensure that application server has datasource '" + JNDI_DATASOURCE_NAME + "' defined", e);
+            throw new InternalServerErrorException("Failed to lookup datasource. Ensure that application server has datasource '" + JNDI_DATASOURCE_NAME + "' defined", e);
         }
     }
 

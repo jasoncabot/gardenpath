@@ -2,6 +2,7 @@ package com.jasoncabot.gardenpath.resources;
 
 import com.jasoncabot.gardenpath.GameService;
 import com.jasoncabot.gardenpath.model.Game;
+import com.jasoncabot.gardenpath.model.GameException;
 import com.jasoncabot.gardenpath.persistence.GameDao;
 import com.jasoncabot.gardenpath.services.GameServiceImpl;
 
@@ -40,7 +41,7 @@ public class GameResource
     @Path("{gameId}/fence")
     @POST
     public Game createFence(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId, @QueryParam("start") final Integer start,
-            @QueryParam("end") final Integer end)
+            @QueryParam("end") final Integer end) throws GameException
     {
         if (start == null || end == null)
         {
@@ -55,6 +56,7 @@ public class GameResource
     @Path("{gameId}/move")
     @POST
     public Game createMove(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId, @QueryParam("end") final Integer end)
+            throws GameException
     {
         if (end == null)
         {
@@ -105,7 +107,7 @@ public class GameResource
     @PUT
     public Game joinGame(@QueryParam("gameId") final Long gameId, @QueryParam("name") final String playerName, @QueryParam("id") final String playerId,
             @QueryParam("gameName") final String gameName,
-            @QueryParam("gamePassword") final String gamePassword)
+            @QueryParam("gamePassword") final String gamePassword) throws GameException
     {
         if (isBlank(playerName) || isBlank(playerId))
         {

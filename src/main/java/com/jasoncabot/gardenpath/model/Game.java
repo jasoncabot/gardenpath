@@ -90,24 +90,24 @@ public class Game
         return privateInfo;
     }
 
-    public void join(final Player joiner)
+    public void join(final Player joiner) throws GameException
     {
         Validate.notNull(joiner);
 
         if (me != null)
         {
-            throw new IllegalArgumentException("Cannot join game you are already part of");
+            throw new GameException("Cannot join game you are already part of");
         }
         else if (you == null)
         {
-            throw new IllegalArgumentException("Cannot join game without an opponent");
+            throw new GameException("Cannot join game without an opponent");
         }
 
         this.me = joiner;
 
         if (!(me.isPlayerOne() ^ you.isPlayerOne()))
         {
-            throw new IllegalArgumentException("Cannot join game if two players are both player 1");
+            throw new GameException("Cannot join game if two players are both player 1");
         }
 
         me.moveToStart();
@@ -125,49 +125,49 @@ public class Game
         this.lastMoveAt = Instant.now();
     }
 
-    public void move(final int end)
+    public void move(final int end) throws GameException
     {
         if (!(getState() == State.IN_PROGRESS))
         {
-            throw new IllegalArgumentException("Can only move when game is in progress");
+            throw new GameException("Can only move when game is in progress");
         }
         if (!isMyTurn())
         {
-            throw new IllegalArgumentException("Can only move on your turn");
+            throw new GameException("Can only move on your turn");
         }
         if (!canMoveTo(end))
         {
-            throw new IllegalArgumentException("Not a valid move");
+            throw new GameException("Not a valid move");
         }
         me.updatePosition(end);
         endPlay();
     }
 
-    public void fence(final Fence fence)
+    public void fence(final Fence fence) throws GameException
     {
         if (!(getState() == State.IN_PROGRESS))
         {
-            throw new IllegalArgumentException("Can only play fence when game is in progress");
+            throw new GameException("Can only play fence when game is in progress");
         }
         if (!isMyTurn())
         {
-            throw new IllegalArgumentException("Can only play fence on your turn");
+            throw new GameException("Can only play fence on your turn");
         }
         if (!fence.isValid())
         {
-            throw new IllegalArgumentException("Fence between " + fence.getStartIndex() + " and " + fence.getEndIndex() + " is not valid");
+            throw new GameException("Fence between " + fence.getStartIndex() + " and " + fence.getEndIndex() + " is not valid");
         }
         if (!me.hasFreeFence())
         {
-            throw new IllegalArgumentException("No free fences");
+            throw new GameException("No free fences");
         }
         if (fencesOnBoard().filter(f -> f.blocksFence(fence)).findFirst().isPresent())
         {
-            throw new IllegalArgumentException("Fence is blocked");
+            throw new GameException("Fence is blocked");
         }
         if (!playersCanReachWinningPositions(Stream.concat(fencesOnBoard(), Stream.of(fence))))
         {
-            throw new IllegalArgumentException("Both players must be able to reach the end");
+            throw new GameException("Both players must be able to reach the end");
         }
         me.playFence(fence);
         endPlay();

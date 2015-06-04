@@ -3,6 +3,7 @@ package com.jasoncabot.gardenpath.services;
 import com.jasoncabot.gardenpath.GameService;
 import com.jasoncabot.gardenpath.model.Fence;
 import com.jasoncabot.gardenpath.model.Game;
+import com.jasoncabot.gardenpath.model.GameException;
 import com.jasoncabot.gardenpath.model.Player;
 import com.jasoncabot.gardenpath.model.PrivateInfo;
 import com.jasoncabot.gardenpath.persistence.GameDao;
@@ -60,7 +61,7 @@ public class GameServiceImpl implements GameService
     }
 
     @Override
-    public Game joinPublicGame(final long gameId, final String playerId, final String playerName)
+    public Game joinPublicGame(final long gameId, final String playerId, final String playerName) throws GameException
     {
         logger.entering(GameServiceImpl.class.getName(), "joinPublicGame", new Object[] { gameId, playerId, playerName });
         final GameMemento memento = dao.find(gameId);
@@ -73,7 +74,7 @@ public class GameServiceImpl implements GameService
     }
 
     @Override
-    public Game joinPrivateGame(String gameName, String gamePassword, String playerId, String playerName)
+    public Game joinPrivateGame(String gameName, String gamePassword, String playerId, String playerName) throws GameException
     {
         logger.entering(GameServiceImpl.class.getName(), "joinPrivateGame", new Object[] { gameName, playerId, playerName });
         final GameMemento memento = dao.find(PrivateInfo.fromPlaintext(gameName, gamePassword));
@@ -86,7 +87,7 @@ public class GameServiceImpl implements GameService
     }
 
     @Override
-    public Game addFence(final long gameId, final String playerId, final int start, final int end)
+    public Game addFence(final long gameId, final String playerId, final int start, final int end) throws GameException
     {
         logger.entering(GameServiceImpl.class.getName(), "addFence", new Object[] { gameId, playerId, start, end });
         final GameMemento memento = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
@@ -98,7 +99,7 @@ public class GameServiceImpl implements GameService
     }
 
     @Override
-    public Game move(final long gameId, final String playerId, final int end)
+    public Game move(final long gameId, final String playerId, final int end) throws GameException
     {
         logger.entering(GameServiceImpl.class.getName(), "move", new Object[] { gameId, playerId, end });
         final GameMemento memento = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());

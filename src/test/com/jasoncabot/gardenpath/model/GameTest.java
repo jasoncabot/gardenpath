@@ -70,8 +70,8 @@ public class GameTest
         assertThat(game.isMyTurn()).isFalse();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenJoiningGameThatAlreadyHasPlayerAsMe()
+    @Test(expected = GameException.class)
+    public void shouldThrowExceptionWhenJoiningGameThatAlreadyHasPlayerAsMe() throws GameException
     {
         final Player me = Player.builder().withUserData("id", "name").build();
         final Player existingPlayer = Player.builder().withUserData("id", "name").build();
@@ -79,23 +79,23 @@ public class GameTest
         game.join(me);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenJoiningGameWithoutOpponent()
+    @Test(expected = GameException.class)
+    public void shouldThrowExceptionWhenJoiningGameWithoutOpponent() throws GameException
     {
         final Player me = Player.builder().withUserData("p2", "me").build();
         final Game game = Game.builder().withYou(null).build();
         game.join(me);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionIfJoiningGameWithPlayerOneWhenPlayerOneAlreadyExists()
+    @Test(expected = GameException.class)
+    public void shouldThrowExceptionIfJoiningGameWithPlayerOneWhenPlayerOneAlreadyExists() throws GameException
     {
         final Player me = Player.builder().withUserData("me", "name").withDefaultFences().setPlayerOne().build();
         readyToBeJoined.join(me);
     }
 
     @Test
-    public void shouldUpdateGameStateToInProgress()
+    public void shouldUpdateGameStateToInProgress() throws GameException
     {
         final Player me = Player.builder().withUserData("me", "name").withDefaultFences().build();
         readyToBeJoined.join(me);
@@ -103,7 +103,7 @@ public class GameTest
     }
 
     @Test
-    public void shouldNotBeMyTurn()
+    public void shouldNotBeMyTurn() throws GameException
     {
         final Player me = Player.builder().withUserData("me", "name").withDefaultFences().build();
         readyToBeJoined.join(me);
@@ -111,7 +111,7 @@ public class GameTest
     }
 
     @Test
-    public void shouldUpdatePositionOfPlayersWhenJoining()
+    public void shouldUpdatePositionOfPlayersWhenJoining() throws GameException
     {
         final Player me = Player.builder().withUserData("me", "name").withDefaultFences().build();
         readyToBeJoined.join(me);
