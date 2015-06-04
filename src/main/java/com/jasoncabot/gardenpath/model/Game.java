@@ -9,8 +9,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.time.Instant;
 import java.util.Optional;
-
-import static java.util.Arrays.asList;
+import java.util.stream.Stream;
 
 public class Game
 {
@@ -193,8 +192,7 @@ public class Game
         {
             this.withAnonymousMemento(memento);
 
-            asList(Player.fromMemento(memento, true), Player.fromMemento(memento, false))
-                    .stream()
+            Stream.of(Player.fromMemento(memento, true), Player.fromMemento(memento, false))
                     .filter(Optional::isPresent)
                     .forEach(optional -> {
                         final Player player = optional.get();
