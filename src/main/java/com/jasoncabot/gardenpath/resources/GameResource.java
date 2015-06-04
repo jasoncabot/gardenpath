@@ -13,10 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.net.HttpURLConnection;
 import java.util.Collection;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -45,9 +42,7 @@ public class GameResource
     {
         if (start == null || end == null)
         {
-            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-                    .entity("start and end are mandatory when playing fence")
-                    .build());
+            throw new GameException("start and end are mandatory when playing fence");
         }
 
         return service.addFence(gameId, playerId, start, end);
@@ -60,9 +55,7 @@ public class GameResource
     {
         if (end == null)
         {
-            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-                    .entity("end is mandatory when moving")
-                    .build());
+            throw new GameException("end is mandatory when moving");
         }
 
         return service.move(gameId, playerId, end);
@@ -87,16 +80,12 @@ public class GameResource
     {
         if (isBlank(playerName) || isBlank(playerId))
         {
-            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-                    .entity("id and name are mandatory when creating game")
-                    .build());
+            throw new GameException("id and name are mandatory when creating game");
         }
 
         if ((isNotBlank(gameName) && isBlank(gamePassword)) || (isBlank(gameName) && isNotBlank(gamePassword)))
         {
-            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-                    .entity("gameName and gamePassword are both mandatory if one is specified")
-                    .build());
+            throw new GameException("gameName and gamePassword are both mandatory if one is specified");
         }
 
         boolean isPrivateGame = isNotBlank(gameName) && isNotBlank(gamePassword);
@@ -118,9 +107,7 @@ public class GameResource
     {
         if (isBlank(playerName) || isBlank(playerId))
         {
-            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-                    .entity("id and name are mandatory when joining game")
-                    .build());
+            throw new GameException("id and name are mandatory when joining game");
         }
 
         boolean isPrivateGame = isNotBlank(gameName) && isNotBlank(gamePassword);
@@ -133,9 +120,7 @@ public class GameResource
         {
             if (gameId == null)
             {
-                throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-                        .entity("gameId is mandatory when joining game")
-                        .build());
+                throw new GameException("gameId is mandatory when joining game");
             }
             return service.joinPublicGame(gameId, playerId, playerName);
         }
