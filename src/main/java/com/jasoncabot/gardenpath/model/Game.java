@@ -99,6 +99,12 @@ public class Game
         return asList(me, you).stream().filter(Player::isInWinningPosition).findFirst();
     }
 
+    @JsonProperty("winner")
+    public Player getWinningPlayer()
+    {
+        return getWinner().orElse(null);
+    }
+
     public void join(final Player joiner) throws GameException
     {
         Validate.notNull(joiner);
