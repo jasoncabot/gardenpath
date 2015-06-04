@@ -156,39 +156,7 @@ public class GameDao
         memento.setPlayer2Fence10(resultSet.getInt("p2_f10"));
         return memento;
     }
-
-    @Deprecated
-    public GameMemento create(final String player1Id, final String player1Name)
-    {
-        return create(player1Id, player1Name, Optional.<PrivateInfo>empty());
-    }
-
-    @Deprecated
-    public GameMemento create(final String player1Id, final String player1Name, final PrivateInfo info)
-    {
-        Validate.notNull(info);
-        return create(player1Id, player1Name, Optional.of(info));
-    }
-
-    @Deprecated
-    private GameMemento create(final String player1Id, final String player1Name, final Optional<PrivateInfo> info)
-    {
-        final GameMemento memento = new GameMemento();
-        memento.setPlayer1Name(player1Name);
-        memento.setPlayer1Id(player1Id);
-        memento.setLastMoveAt(Instant.now());
-        memento.setState("WAITING_OPPONENT");
-        if (info.isPresent())
-        {
-            memento.setName(info.get().getName());
-            memento.setHashedPassphrase(info.get().getHashedPassword());
-        }
-
-        memento.setId(insert(memento));
-
-        return memento;
-    }
-
+    
     public void save(final Game game)
     {
         if (game.getId() == null)
