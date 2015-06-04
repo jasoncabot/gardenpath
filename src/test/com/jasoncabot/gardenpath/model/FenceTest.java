@@ -151,7 +151,7 @@ public class FenceTest
     {
         final SoftAssertions softly = new SoftAssertions();
 
-        validFences().stream().forEach(fence -> {
+        validFences().stream().parallel().forEach(fence -> {
             int midpoint = fence.getMidpointIndex();
             int topRight = (((midpoint / NUMBER_OF_FENCE_POSTS) - 1) * NUMBER_OF_SQUARES) + (midpoint % NUMBER_OF_FENCE_POSTS);
             int bottomRight = ((midpoint / NUMBER_OF_FENCE_POSTS) * NUMBER_OF_SQUARES) + (midpoint % NUMBER_OF_FENCE_POSTS);
