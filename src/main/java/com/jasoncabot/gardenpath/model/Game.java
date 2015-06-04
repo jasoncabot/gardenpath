@@ -1,6 +1,7 @@
 package com.jasoncabot.gardenpath.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jasoncabot.gardenpath.persistence.GameMemento;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -15,6 +16,8 @@ import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Arrays.asList;
 
 public class Game
 {
@@ -88,6 +91,12 @@ public class Game
     public PrivateInfo getPrivateInfo()
     {
         return privateInfo;
+    }
+
+    @JsonIgnore
+    public Optional<Player> getWinner()
+    {
+        return asList(me, you).stream().filter(Player::isInWinningPosition).findFirst();
     }
 
     public void join(final Player joiner) throws GameException
@@ -276,6 +285,11 @@ public class Game
     {
         this.isMyTurn = false;
         this.lastMoveAt = Instant.now();
+
+        if (getWinner().isPresent())
+        {
+            this.state = State.GAME_OVER;
+        }
     }
 
     @Override
