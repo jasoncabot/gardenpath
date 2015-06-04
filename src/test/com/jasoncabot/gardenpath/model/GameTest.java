@@ -136,4 +136,25 @@ public class GameTest
         assertThat(Game.adjacent(9, 8)).isFalse();
         assertThat(Game.adjacent(72, 71)).isFalse();
     }
+
+    @Test
+    public void shouldBeOurTurnWhenGameConstructedFromMementoAndWeArePlayer2AndItIsNotPlayer1Turn()
+    {
+        when(memento.isPlayer1Turn()).thenReturn(false);
+        when(memento.getPlayer1Id()).thenReturn("one");
+        when(memento.getPlayer2Id()).thenReturn("two");
+        assertThat(Game.builder().withMemento(memento, "one").build().isMyTurn()).isFalse();
+        assertThat(Game.builder().withMemento(memento, "two").build().isMyTurn()).isTrue();
+    }
+
+    @Test
+    public void shouldBeOurTurnWhenGameConstructedFromMementoAndWeArePlayer1AndItIsPlayer1Turn()
+    {
+        when(memento.isPlayer1Turn()).thenReturn(true);
+        when(memento.getPlayer1Id()).thenReturn("one");
+        when(memento.getPlayer2Id()).thenReturn("two");
+        assertThat(Game.builder().withMemento(memento, "one").build().isMyTurn()).isTrue();
+        assertThat(Game.builder().withMemento(memento, "two").build().isMyTurn()).isFalse();
+    }
+
 }

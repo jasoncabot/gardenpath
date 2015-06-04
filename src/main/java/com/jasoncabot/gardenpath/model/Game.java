@@ -387,7 +387,7 @@ public class Game
                         }
                     });
 
-            this.isMyTurn = this.me != null && this.me.isPlayerOne() && memento.isPlayer1Turn();
+            this.isMyTurn = this.me != null && (me.isPlayerOne() && memento.isPlayer1Turn() || (!me.isPlayerOne() && !memento.isPlayer1Turn()));
             return this;
         }
 
