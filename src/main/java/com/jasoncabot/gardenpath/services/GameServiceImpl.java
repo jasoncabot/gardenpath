@@ -1,6 +1,7 @@
 package com.jasoncabot.gardenpath.services;
 
 import com.jasoncabot.gardenpath.GameService;
+import com.jasoncabot.gardenpath.model.Fence;
 import com.jasoncabot.gardenpath.model.Game;
 import com.jasoncabot.gardenpath.model.Player;
 import com.jasoncabot.gardenpath.model.PrivateInfo;
@@ -90,6 +91,8 @@ public class GameServiceImpl implements GameService
         logger.entering(GameServiceImpl.class.getName(), "addFence", new Object[] { gameId, playerId, start, end });
         final GameMemento memento = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
         final Game game = Game.builder().withMemento(memento, playerId).build();
+        game.fence(Fence.get(start, end));
+        dao.save(game);
         logger.exiting(GameServiceImpl.class.getName(), "addFence", game);
         return game;
     }
@@ -100,8 +103,9 @@ public class GameServiceImpl implements GameService
         logger.entering(GameServiceImpl.class.getName(), "move", new Object[] { gameId, playerId, end });
         final GameMemento memento = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
         final Game game = Game.builder().withMemento(memento, playerId).build();
+        game.move(end);
+        dao.save(game);
         logger.exiting(GameServiceImpl.class.getName(), "move", game);
         return game;
     }
-
 }

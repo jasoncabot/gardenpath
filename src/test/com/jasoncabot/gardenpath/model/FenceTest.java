@@ -188,21 +188,24 @@ public class FenceTest
             {
                 for (int b = 0; b < TOTAL_SQUARES; b++)
                 {
-                    boolean isBlockedMove = (fence.isHorizontal()
-                            && (a == topLeft && b == bottomLeft)
-                            || (a == topRight && b == bottomRight)
-                            || (a == bottomLeft && b == topLeft)
-                            || (a == bottomRight && b == topRight))
-                            || (fence.isVertical()
-                            && (a == topLeft && b == topRight)
-                            || (a == topRight && b == topLeft)
-                            || (a == bottomLeft && b == bottomRight)
-                            || (a == bottomRight && b == bottomLeft));
-
-                    if (!isBlockedMove)
+                    if (Game.adjacent(a, b))
                     {
-                        softly.assertThat(fence.blocksMove(a, b))
-                                .as("Move from " + a + " to " + b + " should not be blocked by " + fence).isFalse();
+                        boolean isBlockedMove = (fence.isHorizontal()
+                                && (a == topLeft && b == bottomLeft)
+                                || (a == topRight && b == bottomRight)
+                                || (a == bottomLeft && b == topLeft)
+                                || (a == bottomRight && b == topRight))
+                                || (fence.isVertical()
+                                && (a == topLeft && b == topRight)
+                                || (a == topRight && b == topLeft)
+                                || (a == bottomLeft && b == bottomRight)
+                                || (a == bottomRight && b == bottomLeft));
+
+                        if (!isBlockedMove)
+                        {
+                            softly.assertThat(fence.blocksMove(a, b))
+                                    .as("Move from " + a + " to " + b + " should not be blocked by " + fence).isFalse();
+                        }
                     }
                 }
             }

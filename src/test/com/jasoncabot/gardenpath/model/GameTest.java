@@ -118,4 +118,22 @@ public class GameTest
         assertThat(readyToBeJoined.getMe().getPosition()).isNotZero();
         assertThat(readyToBeJoined.getYou().getPosition()).isNotZero();
     }
+
+    @Test
+    public void shouldBeAdjacentToAllTouchingPositions()
+    {
+        assertThat(Game.adjacent(40, 31)).isTrue();
+        assertThat(Game.adjacent(40, 49)).isTrue();
+        assertThat(Game.adjacent(40, 39)).isTrue();
+        assertThat(Game.adjacent(40, 41)).isTrue();
+    }
+
+    @Test
+    public void shouldNotBeAdjacentIfWrappingAcrossWall()
+    {
+        assertThat(Game.adjacent(8, 9)).isFalse();
+        assertThat(Game.adjacent(71, 72)).isFalse();
+        assertThat(Game.adjacent(9, 8)).isFalse();
+        assertThat(Game.adjacent(72, 71)).isFalse();
+    }
 }

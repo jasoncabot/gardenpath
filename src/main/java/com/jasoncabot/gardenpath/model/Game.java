@@ -8,7 +8,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.PriorityQueue;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Game
@@ -34,6 +39,14 @@ public class Game
     public static Builder builder()
     {
         return new Builder();
+    }
+
+    static boolean adjacent(final int a, final int b)
+    {
+        return (b == a - NUMBER_OF_SQUARES
+                || (b == a + NUMBER_OF_SQUARES)
+                || (b == a + 1 && b % NUMBER_OF_SQUARES > 0)
+                || (b == a - 1 && a % NUMBER_OF_SQUARES > 0));
     }
 
     public Long getId()
@@ -109,6 +122,159 @@ public class Game
     {
         this.state = State.WAITING_OPPONENT;
         this.isMyTurn = true;
+        this.lastMoveAt = Instant.now();
+    }
+
+    public void move(final int end)
+    {
+        if (!(getState() == State.IN_PROGRESS))
+        {
+            throw new IllegalArgumentException("Can only move when game is in progress");
+        }
+        if (!isMyTurn())
+        {
+            throw new IllegalArgumentException("Can only move on your turn");
+        }
+        if (!canMoveTo(end))
+        {
+            throw new IllegalArgumentException("Not a valid move");
+        }
+        me.updatePosition(end);
+        endPlay();
+    }
+
+    public void fence(final Fence fence)
+    {
+        if (!(getState() == State.IN_PROGRESS))
+        {
+            throw new IllegalArgumentException("Can only play fence when game is in progress");
+        }
+        if (!isMyTurn())
+        {
+            throw new IllegalArgumentException("Can only play fence on your turn");
+        }
+        if (!fence.isValid())
+        {
+            throw new IllegalArgumentException("Fence between " + fence.getStartIndex() + " and " + fence.getEndIndex() + " is not valid");
+        }
+        if (!me.hasFreeFence())
+        {
+            throw new IllegalArgumentException("No free fences");
+        }
+        if (fencesOnBoard().filter(f -> f.blocksFence(fence)).findFirst().isPresent())
+        {
+            throw new IllegalArgumentException("Fence is blocked");
+        }
+        if (!playersCanReachWinningPositions(Stream.concat(fencesOnBoard(), Stream.of(fence))))
+        {
+            throw new IllegalArgumentException("Both players must be able to reach the end");
+        }
+        me.playFence(fence);
+        endPlay();
+    }
+
+    private boolean playersCanReachWinningPositions(final Stream<Fence> fences)
+    {
+        boolean iCanReachWinningPosition = pathExists(me.getPosition(), me.getWinningPositions(), fences);
+        boolean youCanReachWinningPosition = pathExists(you.getPosition(), you.getWinningPositions(), fences);
+        return iCanReachWinningPosition && youCanReachWinningPosition;
+    }
+
+    private boolean canMoveTo(final int end)
+    {
+        final int start = me.getPosition();
+        final int opponent = you.getPosition();
+
+        // We can't move on top of the opponent
+        if (end == opponent)
+        {
+            return false;
+        }
+
+        // We must move on the board
+        if (end < 0 || end >= TOTAL_SQUARES)
+        {
+            return false;
+        }
+
+        // There must be no fence blocking a basic move of one square
+        if (adjacent(start, end))
+        {
+            return noFenceBetween(start, end);
+        }
+        else
+        {
+            // we must be able to move from our square to the opponents square, then from our opponents square to the new square
+            return adjacent(start, opponent) && noFenceBetween(start, opponent) && adjacent(opponent, end) && noFenceBetween(opponent, end);
+        }
+    }
+
+    private boolean noFenceBetween(int start, int end)
+    {
+        return noFenceBetween(start, end, fencesOnBoard());
+    }
+
+    private boolean noFenceBetween(int start, int end, final Stream<Fence> fences)
+    {
+        return adjacent(start, end) && !fences.anyMatch(f -> f.blocksMove(start, end));
+    }
+
+    private List<PathNode> buildNodes(final Stream<Fence> fences)
+    {
+        final List<PathNode> allNodes = new ArrayList<>(TOTAL_SQUARES);
+        for (int a = 0; a < TOTAL_SQUARES; a++)
+        {
+            allNodes.add(new PathNode(a));
+        }
+
+        allNodes.forEach(parent ->
+                parent.getChildren().addAll(allNodes.stream().filter(node ->
+                                adjacent(parent.getPosition(), node.getPosition()) && noFenceBetween(parent.getPosition(), node.getPosition(), fences)
+                ).collect(Collectors.toList())));
+
+        return allNodes;
+    }
+
+    private boolean pathExists(final int start, final int[] ending, final Stream<Fence> fences)
+    {
+        final List<PathNode> nodes = buildNodes(fences);
+
+        // start on our current position and try to get to the end
+        final PriorityQueue<PathNode> toExplore = new PriorityQueue<>();
+        toExplore.add(nodes.get(start));
+
+        PathNode current;
+        while (!toExplore.isEmpty())
+        {
+            current = toExplore.remove();
+
+            if (Arrays.binarySearch(ending, current.getPosition()) >= 0)
+            {
+                return true;
+            }
+
+            if (!current.isVisited())
+            {
+                toExplore.addAll(current.getChildren());
+            }
+            current.setVisited(true);
+        }
+        return false;
+    }
+
+    private Stream<Fence> fencesOnBoard()
+    {
+        return Stream.concat(
+                me.getFences().stream()
+                        .filter(Fence::isValid),
+                you.getFences().stream()
+                        .filter(Fence::isValid)
+        );
+    }
+
+    void endPlay()
+    {
+        this.isMyTurn = false;
         this.lastMoveAt = Instant.now();
     }
 
