@@ -45,8 +45,7 @@ public class GameDao
         final Stream.Builder<GameMemento> builder = Stream.builder();
         try (Connection conn = getConnection())
         {
-            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findAllGames = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE state = ?;");
+            final PreparedStatement findAllGames = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE state = ?;");
             findAllGames.setString(1, state);
             findAllGames.execute();
             try (final ResultSet resultSet = findAllGames.getResultSet())
@@ -71,8 +70,7 @@ public class GameDao
     {
         try (Connection conn = getConnection())
         {
-            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ?;");
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE id = ?;");
             findGame.setLong(1, gameId);
             findGame.execute();
             try (final ResultSet resultSet = findGame.getResultSet())
@@ -94,8 +92,7 @@ public class GameDao
     {
         try (Connection conn = getConnection())
         {
-            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE name = ? AND hashed_password = ?;");
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE name = ? AND hashed_password = ?;");
             findGame.setString(1, info.getName());
             findGame.setString(2, info.getHashedPassword());
             findGame.execute();
@@ -118,9 +115,8 @@ public class GameDao
     {
         try (Connection conn = getConnection())
         {
-            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findGame = conn
-                    .prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?) AND state = ?");
+            final PreparedStatement findGame = conn.prepareStatement(
+                    "SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?) AND state = ?");
             findGame.setLong(1, gameId);
             findGame.setString(2, playerId);
             findGame.setString(3, playerId);
@@ -145,8 +141,7 @@ public class GameDao
     {
         try (Connection conn = getConnection())
         {
-            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?)");
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?)");
             findGame.setLong(1, gameId);
             findGame.setString(2, playerId);
             findGame.setString(3, playerId);
@@ -227,39 +222,8 @@ public class GameDao
                     .map(name -> name + "=?")
                     .collect(Collectors.joining(", "));
 
-            final String sql = "UPDATE games SET " + updates + " WHERE id = ?;";
-            final PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setString(1, memento.getState());
-            preparedStatement.setTimestamp(2, Timestamp.from(memento.getLastMoveAt()));
-            preparedStatement.setString(3, memento.getName());
-            preparedStatement.setString(4, memento.getHashedPassphrase());
-            preparedStatement.setBoolean(5, memento.isPlayer1Turn());
-            preparedStatement.setString(6, memento.getPlayer1Id());
-            preparedStatement.setString(7, memento.getPlayer1Name());
-            preparedStatement.setInt(8, memento.getPlayer1Position());
-            preparedStatement.setInt(9, memento.getPlayer1Fence1());
-            preparedStatement.setInt(10, memento.getPlayer1Fence2());
-            preparedStatement.setInt(11, memento.getPlayer1Fence3());
-            preparedStatement.setInt(12, memento.getPlayer1Fence4());
-            preparedStatement.setInt(13, memento.getPlayer1Fence5());
-            preparedStatement.setInt(14, memento.getPlayer1Fence6());
-            preparedStatement.setInt(15, memento.getPlayer1Fence7());
-            preparedStatement.setInt(16, memento.getPlayer1Fence8());
-            preparedStatement.setInt(17, memento.getPlayer1Fence9());
-            preparedStatement.setInt(18, memento.getPlayer1Fence10());
-            preparedStatement.setString(19, memento.getPlayer2Id());
-            preparedStatement.setString(20, memento.getPlayer2Name());
-            preparedStatement.setInt(21, memento.getPlayer2Position());
-            preparedStatement.setInt(22, memento.getPlayer2Fence1());
-            preparedStatement.setInt(23, memento.getPlayer2Fence2());
-            preparedStatement.setInt(24, memento.getPlayer2Fence3());
-            preparedStatement.setInt(25, memento.getPlayer2Fence4());
-            preparedStatement.setInt(26, memento.getPlayer2Fence5());
-            preparedStatement.setInt(27, memento.getPlayer2Fence6());
-            preparedStatement.setInt(28, memento.getPlayer2Fence7());
-            preparedStatement.setInt(29, memento.getPlayer2Fence8());
-            preparedStatement.setInt(30, memento.getPlayer2Fence9());
-            preparedStatement.setInt(31, memento.getPlayer2Fence10());
+            final PreparedStatement preparedStatement = conn.prepareStatement("UPDATE games SET " + updates + " WHERE id = ?;");
+            updatePreparedStatement(memento, preparedStatement);
             preparedStatement.setLong(32, memento.getId());
             if (preparedStatement.executeUpdate() != 1)
             {
@@ -278,42 +242,12 @@ public class GameDao
         long id = 0;
         try (Connection conn = getConnection())
         {
-            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
+            final String fields = GameMemento.FIELDS_FOR_SELECTION;
             final String values = Stream.of(GameMemento.UPDATEABLE_FIELDS).map(name -> "?").collect(Collectors.joining(", "));
 
             final PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO games (" + fields + ") VALUES (" + values + ");"
                     , Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, memento.getState());
-            preparedStatement.setTimestamp(2, Timestamp.from(memento.getLastMoveAt()));
-            preparedStatement.setString(3, memento.getName());
-            preparedStatement.setString(4, memento.getHashedPassphrase());
-            preparedStatement.setBoolean(5, memento.isPlayer1Turn());
-            preparedStatement.setString(6, memento.getPlayer1Id());
-            preparedStatement.setString(7, memento.getPlayer1Name());
-            preparedStatement.setInt(8, memento.getPlayer1Position());
-            preparedStatement.setInt(9, memento.getPlayer1Fence1());
-            preparedStatement.setInt(10, memento.getPlayer1Fence2());
-            preparedStatement.setInt(11, memento.getPlayer1Fence3());
-            preparedStatement.setInt(12, memento.getPlayer1Fence4());
-            preparedStatement.setInt(13, memento.getPlayer1Fence5());
-            preparedStatement.setInt(14, memento.getPlayer1Fence6());
-            preparedStatement.setInt(15, memento.getPlayer1Fence7());
-            preparedStatement.setInt(16, memento.getPlayer1Fence8());
-            preparedStatement.setInt(17, memento.getPlayer1Fence9());
-            preparedStatement.setInt(18, memento.getPlayer1Fence10());
-            preparedStatement.setString(19, memento.getPlayer2Id());
-            preparedStatement.setString(20, memento.getPlayer2Name());
-            preparedStatement.setInt(21, memento.getPlayer2Position());
-            preparedStatement.setInt(22, memento.getPlayer2Fence1());
-            preparedStatement.setInt(23, memento.getPlayer2Fence2());
-            preparedStatement.setInt(24, memento.getPlayer2Fence3());
-            preparedStatement.setInt(25, memento.getPlayer2Fence4());
-            preparedStatement.setInt(26, memento.getPlayer2Fence5());
-            preparedStatement.setInt(27, memento.getPlayer2Fence6());
-            preparedStatement.setInt(28, memento.getPlayer2Fence7());
-            preparedStatement.setInt(29, memento.getPlayer2Fence8());
-            preparedStatement.setInt(30, memento.getPlayer2Fence9());
-            preparedStatement.setInt(31, memento.getPlayer2Fence10());
+            updatePreparedStatement(memento, preparedStatement);
             preparedStatement.executeUpdate();
 
             try (final ResultSet rs = preparedStatement.getGeneratedKeys())
@@ -330,5 +264,40 @@ public class GameDao
         }
 
         return id;
+    }
+
+    private void updatePreparedStatement(GameMemento memento, PreparedStatement preparedStatement) throws SQLException
+    {
+        preparedStatement.setString(1, memento.getState());
+        preparedStatement.setTimestamp(2, Timestamp.from(memento.getLastMoveAt()));
+        preparedStatement.setString(3, memento.getName());
+        preparedStatement.setString(4, memento.getHashedPassphrase());
+        preparedStatement.setBoolean(5, memento.isPlayer1Turn());
+        preparedStatement.setString(6, memento.getPlayer1Id());
+        preparedStatement.setString(7, memento.getPlayer1Name());
+        preparedStatement.setInt(8, memento.getPlayer1Position());
+        preparedStatement.setInt(9, memento.getPlayer1Fence1());
+        preparedStatement.setInt(10, memento.getPlayer1Fence2());
+        preparedStatement.setInt(11, memento.getPlayer1Fence3());
+        preparedStatement.setInt(12, memento.getPlayer1Fence4());
+        preparedStatement.setInt(13, memento.getPlayer1Fence5());
+        preparedStatement.setInt(14, memento.getPlayer1Fence6());
+        preparedStatement.setInt(15, memento.getPlayer1Fence7());
+        preparedStatement.setInt(16, memento.getPlayer1Fence8());
+        preparedStatement.setInt(17, memento.getPlayer1Fence9());
+        preparedStatement.setInt(18, memento.getPlayer1Fence10());
+        preparedStatement.setString(19, memento.getPlayer2Id());
+        preparedStatement.setString(20, memento.getPlayer2Name());
+        preparedStatement.setInt(21, memento.getPlayer2Position());
+        preparedStatement.setInt(22, memento.getPlayer2Fence1());
+        preparedStatement.setInt(23, memento.getPlayer2Fence2());
+        preparedStatement.setInt(24, memento.getPlayer2Fence3());
+        preparedStatement.setInt(25, memento.getPlayer2Fence4());
+        preparedStatement.setInt(26, memento.getPlayer2Fence5());
+        preparedStatement.setInt(27, memento.getPlayer2Fence6());
+        preparedStatement.setInt(28, memento.getPlayer2Fence7());
+        preparedStatement.setInt(29, memento.getPlayer2Fence8());
+        preparedStatement.setInt(30, memento.getPlayer2Fence9());
+        preparedStatement.setInt(31, memento.getPlayer2Fence10());
     }
 }

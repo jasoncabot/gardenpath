@@ -5,6 +5,8 @@ import com.jasoncabot.gardenpath.model.Player;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -16,6 +18,7 @@ public class GameMemento
             "p1_id", "p1_name", "p1_position", "p1_f1", "p1_f2", "p1_f3", "p1_f4", "p1_f5", "p1_f6", "p1_f7", "p1_f8", "p1_f9", "p1_f10",
             "p2_id", "p2_name", "p2_position", "p2_f1", "p2_f2", "p2_f3", "p2_f4", "p2_f5", "p2_f6", "p2_f7", "p2_f8", "p2_f9", "p2_f10"
     };
+    protected static final String FIELDS_FOR_SELECTION = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
     private long id;
     private String name;
     private String player1Name;
