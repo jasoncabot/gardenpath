@@ -111,7 +111,7 @@ public class Player
 
     public void moveToStart()
     {
-        position = 50;
+        position = isPlayerOne ? 4 : 76;
     }
 
     public static class Builder

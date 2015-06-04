@@ -104,4 +104,15 @@ public class PlayerTest
         when(memento.getPlayer1Id()).thenReturn("");
         assertThat(Player.fromMemento(memento, true).isPresent()).isFalse();
     }
+
+    @Test
+    public void shouldMovePlayersToTheirCorrectStartingPoint()
+    {
+        final Player one = Player.builder().setPlayerOne().build();
+        one.moveToStart();
+        assertThat(one.getPosition()).isEqualTo(4);
+        final Player two = Player.builder().build();
+        two.moveToStart();
+        assertThat(two.getPosition()).isEqualTo(76);
+    }
 }
