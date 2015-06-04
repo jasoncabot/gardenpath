@@ -9,6 +9,8 @@ public interface GameService
 {
     Collection<Game> findPublicGames();
 
+    Game findGame(long gameId, String playerId);
+
     Game createPublicGame(final String playerId, final String playerName);
 
     Game createPrivateGame(final String playerId, final String playerName, final String gameName, final String gamePassword);
@@ -20,4 +22,5 @@ public interface GameService
     Game addFence(final long gameId, final String playerId, final int start, final int end) throws GameException;
 
     Game move(final long gameId, final String playerId, final int end) throws GameException;
+
 }

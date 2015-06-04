@@ -37,6 +37,16 @@ public class GameServiceImpl implements GameService
     }
 
     @Override
+    public Game findGame(final long gameId, final String playerId)
+    {
+        logger.entering(GameServiceImpl.class.getName(), "findGame", new Object[] { gameId, playerId });
+        final GameMemento memento = dao.find(gameId, playerId);
+        final Game game = Game.builder().withMemento(memento, playerId).build();
+        logger.exiting(GameServiceImpl.class.getName(), "findGame", game);
+        return game;
+    }
+
+    @Override
     public Game createPublicGame(final String playerId, final String playerName)
     {
         logger.entering(GameServiceImpl.class.getName(), "createPublicGame", new Object[] { playerId, playerName });

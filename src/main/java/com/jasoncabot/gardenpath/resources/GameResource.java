@@ -74,6 +74,13 @@ public class GameResource
         return service.findPublicGames();
     }
 
+    @GET
+    @Path("{gameId}")
+    public Game show(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId)
+    {
+        return service.findGame(gameId, playerId);
+    }
+
     @POST
     public Game create(@QueryParam("name") final String playerName, @QueryParam("id") final String playerId, @QueryParam("gameName") final String gameName,
             @QueryParam("gamePassword") final String gamePassword)

@@ -2,7 +2,6 @@ package com.jasoncabot.gardenpath.persistence;
 
 import com.jasoncabot.gardenpath.model.Game;
 import com.jasoncabot.gardenpath.model.PrivateInfo;
-import org.apache.commons.lang3.Validate;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -16,8 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,7 +35,8 @@ public class GameDao
         }
         catch (NamingException | SQLException e)
         {
-            throw new InternalServerErrorException("Failed to lookup datasource. Ensure that application server has datasource '" + JNDI_DATASOURCE_NAME + "' defined", e);
+            throw new InternalServerErrorException(
+                    "Failed to lookup datasource. Ensure that application server has datasource '" + JNDI_DATASOURCE_NAME + "' defined", e);
         }
     }
 
@@ -121,11 +119,37 @@ public class GameDao
         try (Connection conn = getConnection())
         {
             final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?) AND state = ?");
+            final PreparedStatement findGame = conn
+                    .prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?) AND state = ?");
             findGame.setLong(1, gameId);
             findGame.setString(2, playerId);
             findGame.setString(3, playerId);
             findGame.setString(4, state);
+            findGame.execute();
+            try (final ResultSet resultSet = findGame.getResultSet())
+            {
+                if (resultSet.next())
+                {
+                    return getMemento(resultSet);
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+        }
+        throw new NotFoundException("Could not find matching game");
+    }
+
+    public GameMemento find(long gameId, String playerId)
+    {
+        try (Connection conn = getConnection())
+        {
+            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?)");
+            findGame.setLong(1, gameId);
+            findGame.setString(2, playerId);
+            findGame.setString(3, playerId);
             findGame.execute();
             try (final ResultSet resultSet = findGame.getResultSet())
             {
@@ -182,7 +206,7 @@ public class GameDao
         memento.setPlayer2Fence10(resultSet.getInt("p2_f10"));
         return memento;
     }
-    
+
     public void save(final Game game)
     {
         if (game.getId() == null)
