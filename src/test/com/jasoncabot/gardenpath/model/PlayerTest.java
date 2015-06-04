@@ -152,4 +152,34 @@ public class PlayerTest
         }
         softly.assertAll();
     }
+
+    @Test
+    public void shouldMovePlayerWhenUpdatingPosition()
+    {
+        final Player player = Player.builder().withPosition(5).build();
+        player.updatePosition(50);
+        assertThat(player.getPosition()).isEqualTo(50);
+    }
+
+    @Test
+    public void shouldHaveFreeFenceWhenConstructingWithDefaultFence()
+    {
+        final Player player = Player.builder().withDefaultFences().build();
+        assertThat(player.hasFreeFence()).isTrue();
+    }
+
+    @Test
+    public void shouldHaveFreeFencesUntilTheLastIsPlayed()
+    {
+        final Fence validFence = Fence.get(8385);
+        assertThat(validFence.isValid()).isTrue();
+
+        final Player player = Player.builder().withDefaultFences().build();
+        for (int i = 0; i < player.getFences().size(); i++)
+        {
+            assertThat(player.hasFreeFence()).isTrue();
+            player.playFence(validFence);
+        }
+        assertThat(player.hasFreeFence()).isFalse();
+    }
 }

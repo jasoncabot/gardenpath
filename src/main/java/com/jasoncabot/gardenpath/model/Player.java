@@ -5,6 +5,7 @@ import com.jasoncabot.gardenpath.persistence.GameMemento;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class Player
 {
     private static final int NUM_FENCES = 10;
+    private static final int[] P1_WINNING_POSITIONS = new int[] { 72, 73, 74, 75, 76, 77, 78, 79, 80 };
+    private static final int[] P2_WINNING_POSITIONS = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
     private String identifier;
     private String name;
     private boolean isPlayerOne;
@@ -105,7 +108,31 @@ public class Player
     @JsonIgnore
     public boolean isInWinningPosition()
     {
-        return isPlayerOne ? (position >= 72 && position <= 80) : (position >= 0 && position <= 8);
+        return Arrays.binarySearch(getWinningPositions(), position) >= 0;
+    }
+
+    @JsonIgnore
+    public int[] getWinningPositions()
+    {
+        return isPlayerOne ? P1_WINNING_POSITIONS : P2_WINNING_POSITIONS;
+    }
+
+    public void updatePosition(int end)
+    {
+        position = end;
+    }
+
+    @JsonIgnore
+    public boolean hasFreeFence()
+    {
+        return getFences().stream().anyMatch(f -> !f.isValid());
+    }
+
+    public void playFence(final Fence fence)
+    {
+        final Fence free = fences.stream().filter(f -> !f.isValid()).findFirst().get();
+        fences.remove(free);
+        fences.add(fence);
     }
 
     @Override
