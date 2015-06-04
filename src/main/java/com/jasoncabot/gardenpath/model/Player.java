@@ -109,6 +109,11 @@ public class Player
                 .toString();
     }
 
+    public void moveToStart()
+    {
+        position = 50;
+    }
+
     public static class Builder
     {
         private String identifier;

@@ -109,4 +109,13 @@ public class GameTest
         readyToBeJoined.join(me);
         assertThat(readyToBeJoined.isMyTurn()).isFalse();
     }
+
+    @Test
+    public void shouldUpdatePositionOfPlayersWhenJoining()
+    {
+        final Player me = Player.builder().withUserData("me", "name").withDefaultFences().build();
+        readyToBeJoined.join(me);
+        assertThat(readyToBeJoined.getMe().getPosition()).isNotZero();
+        assertThat(readyToBeJoined.getYou().getPosition()).isNotZero();
+    }
 }

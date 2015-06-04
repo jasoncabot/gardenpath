@@ -97,6 +97,9 @@ public class Game
             throw new IllegalArgumentException("Cannot join game if two players are both player 1");
         }
 
+        me.moveToStart();
+        you.moveToStart();
+
         this.state = State.IN_PROGRESS;
         this.isMyTurn = me.isPlayerOne();
         this.lastMoveAt = Instant.now();
