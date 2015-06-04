@@ -1,6 +1,7 @@
 package com.jasoncabot.gardenpath.resources;
 
 import com.jasoncabot.gardenpath.GameService;
+import com.jasoncabot.gardenpath.model.Fence;
 import com.jasoncabot.gardenpath.model.Game;
 import com.jasoncabot.gardenpath.persistence.GameDao;
 import com.jasoncabot.gardenpath.services.GameServiceImpl;
@@ -9,6 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -34,6 +36,32 @@ public class GameResource
     public GameResource(final GameService service)
     {
         this.service = service;
+    }
+
+    @Path("{gameId}/fence")
+    @POST
+    public Game createFence(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId, @QueryParam("start") final Integer start, @QueryParam("end") final Integer end)
+    {
+        if (start == null || end == null) {
+            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+                    .entity("start and end are mandatory when playing fence")
+                    .build());
+        }
+
+        return service.addFence(gameId, playerId, start, end);
+    }
+
+    @Path("{gameId}/move")
+    @POST
+    public Game createMove(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId, @QueryParam("end") final Integer end)
+    {
+        if (end == null) {
+            throw new WebApplicationException(Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+                    .entity("end is mandatory when moving")
+                    .build());
+        }
+
+        return service.move(gameId, playerId, end);
     }
 
     @GET

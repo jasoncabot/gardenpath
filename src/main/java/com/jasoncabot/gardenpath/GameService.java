@@ -15,4 +15,8 @@ public interface GameService
     Game joinPublicGame(final long gameId, final String playerId, final String playerName);
 
     Game joinPrivateGame(final String gameName, final String gamePassword, final String playerId, final String playerName);
+
+    Game addFence(final long gameId, final String playerId, final int start, final int end);
+
+    Game move(final long gameId, final String playerId, final int end);
 }

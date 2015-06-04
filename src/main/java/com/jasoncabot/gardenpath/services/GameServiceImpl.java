@@ -84,4 +84,24 @@ public class GameServiceImpl implements GameService
         return game;
     }
 
+    @Override
+    public Game addFence(final long gameId, final String playerId, final int start, final int end)
+    {
+        logger.entering(GameServiceImpl.class.getName(), "addFence", new Object[] { gameId, playerId, start, end });
+        final GameMemento memento = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
+        final Game game = Game.builder().withMemento(memento, playerId).build();
+        logger.exiting(GameServiceImpl.class.getName(), "addFence", game);
+        return game;
+    }
+
+    @Override
+    public Game move(final long gameId, final String playerId, final int end)
+    {
+        logger.entering(GameServiceImpl.class.getName(), "move", new Object[] { gameId, playerId, end });
+        final GameMemento memento = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
+        final Game game = Game.builder().withMemento(memento, playerId).build();
+        logger.exiting(GameServiceImpl.class.getName(), "move", game);
+        return game;
+    }
+
 }

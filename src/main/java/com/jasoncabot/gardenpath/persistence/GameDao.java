@@ -74,10 +74,10 @@ public class GameDao
         try (Connection conn = getConnection())
         {
             final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findAllGames = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ?;");
-            findAllGames.setLong(1, gameId);
-            findAllGames.execute();
-            try (final ResultSet resultSet = findAllGames.getResultSet())
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ?;");
+            findGame.setLong(1, gameId);
+            findGame.execute();
+            try (final ResultSet resultSet = findGame.getResultSet())
             {
                 if (resultSet.next())
                 {
@@ -97,11 +97,37 @@ public class GameDao
         try (Connection conn = getConnection())
         {
             final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
-            final PreparedStatement findAllGames = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE name = ? AND hashed_password = ?;");
-            findAllGames.setString(1, info.getName());
-            findAllGames.setString(2, info.getHashedPassword());
-            findAllGames.execute();
-            try (final ResultSet resultSet = findAllGames.getResultSet())
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE name = ? AND hashed_password = ?;");
+            findGame.setString(1, info.getName());
+            findGame.setString(2, info.getHashedPassword());
+            findGame.execute();
+            try (final ResultSet resultSet = findGame.getResultSet())
+            {
+                if (resultSet.next())
+                {
+                    return getMemento(resultSet);
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+        }
+        throw new NotFoundException("Could not find matching game");
+    }
+
+    public GameMemento find(final long gameId, final String playerId, final String state)
+    {
+        try (Connection conn = getConnection())
+        {
+            final String fields = Stream.of(GameMemento.UPDATEABLE_FIELDS).collect(Collectors.joining(", "));
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + fields + " FROM games WHERE id = ? AND (p1_id = ? OR p2_id = ?) AND state = ?");
+            findGame.setLong(1, gameId);
+            findGame.setString(2, playerId);
+            findGame.setString(3, playerId);
+            findGame.setString(4, state);
+            findGame.execute();
+            try (final ResultSet resultSet = findGame.getResultSet())
             {
                 if (resultSet.next())
                 {
