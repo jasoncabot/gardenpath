@@ -2,6 +2,7 @@ package com.jasoncabot.gardenpath.persistence;
 
 import com.jasoncabot.gardenpath.model.Game;
 import com.jasoncabot.gardenpath.model.PrivateInfo;
+import org.apache.log4j.Logger;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -15,13 +16,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GameDao
 {
-    private static final Logger logger = Logger.getLogger(GameDao.class.getName());
+    private static final Logger logger = Logger.getLogger(GameDao.class);
 
     private static final String JNDI_DATASOURCE_NAME = "jdbc/GardenpathDB";
 
@@ -60,7 +60,7 @@ public class GameDao
         }
         catch (SQLException e)
         {
-            logger.warning("Could not execute sql for finding all public games. " + e.toString());
+            logger.warn("Could not execute sql for finding all public games. ", e);
         }
 
         return builder.build();
@@ -83,7 +83,7 @@ public class GameDao
         }
         catch (SQLException e)
         {
-            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+            logger.warn("Could not execute sql for finding a particular game", e);
         }
         throw new NotFoundException("Could not find game with id " + gameId);
     }
@@ -106,7 +106,7 @@ public class GameDao
         }
         catch (SQLException e)
         {
-            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+            logger.warn("Could not execute sql for finding a particular game", e);
         }
         throw new NotFoundException("Could not find matching game");
     }
@@ -132,7 +132,7 @@ public class GameDao
         }
         catch (SQLException e)
         {
-            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+            logger.warn("Could not execute sql for finding a particular game", e);
         }
         throw new NotFoundException("Could not find matching game");
     }
@@ -156,7 +156,7 @@ public class GameDao
         }
         catch (SQLException e)
         {
-            logger.warning("Could not execute sql for finding a particular game. " + e.toString());
+            logger.warn("Could not execute sql for finding a particular game", e);
         }
         throw new NotFoundException("Could not find matching game");
     }
@@ -227,13 +227,13 @@ public class GameDao
             preparedStatement.setLong(32, memento.getId());
             if (preparedStatement.executeUpdate() != 1)
             {
-                logger.warning("Failed to update memento. " + memento);
+                logger.warn("Failed to update memento. " + memento);
                 throw new InternalServerErrorException("Game not updated");
             }
         }
         catch (SQLException e)
         {
-            logger.warning("Could not execute sql for updating game. " + e.toString());
+            logger.warn("Could not execute sql for updating game", e);
         }
     }
 
@@ -260,7 +260,7 @@ public class GameDao
         }
         catch (SQLException e)
         {
-            logger.warning("Could not execute sql for inserting game. " + e.toString());
+            logger.warn("Could not execute sql for inserting game", e);
         }
 
         return id;
