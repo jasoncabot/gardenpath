@@ -34,8 +34,6 @@ function createBoard() {
 
 }
 
-function boardView
-
 function onCellSelected(e) {
     console.log('selected cell '+e.relatedTarget);
 }
