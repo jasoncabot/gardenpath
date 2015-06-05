@@ -1,5 +1,6 @@
 package com.jasoncabot.gardenpath.resources;
 
+import com.codahale.metrics.annotation.Timed;
 import com.jasoncabot.gardenpath.GameService;
 import com.jasoncabot.gardenpath.model.Game;
 import com.jasoncabot.gardenpath.model.GameException;
@@ -37,6 +38,7 @@ public class GameResource
 
     @Path("{gameId}/fence")
     @POST
+    @Timed
     public Game createFence(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId, @QueryParam("start") final Integer start,
             @QueryParam("end") final Integer end) throws GameException
     {
@@ -50,6 +52,7 @@ public class GameResource
 
     @Path("{gameId}/move")
     @POST
+    @Timed
     public Game createMove(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId, @QueryParam("end") final Integer end)
             throws GameException
     {
@@ -62,12 +65,14 @@ public class GameResource
     }
 
     @GET
+    @Timed
     public Collection<Game> listGames()
     {
         return service.findPublicGames();
     }
 
     @GET
+    @Timed
     @Path("{gameId}")
     public Game show(@PathParam("gameId") final long gameId, @QueryParam("id") final String playerId)
     {
@@ -75,6 +80,7 @@ public class GameResource
     }
 
     @POST
+    @Timed
     public Game create(@QueryParam("name") final String playerName, @QueryParam("id") final String playerId, @QueryParam("gameName") final String gameName,
             @QueryParam("gamePassword") final String gamePassword)
     {
@@ -101,6 +107,7 @@ public class GameResource
     }
 
     @PUT
+    @Timed
     public Game joinGame(@QueryParam("gameId") final Long gameId, @QueryParam("name") final String playerName, @QueryParam("id") final String playerId,
             @QueryParam("gameName") final String gameName,
             @QueryParam("gamePassword") final String gamePassword) throws GameException
