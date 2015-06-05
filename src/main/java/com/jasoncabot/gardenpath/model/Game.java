@@ -11,6 +11,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.PriorityQueue;
@@ -176,11 +177,14 @@ public class Game
         {
             throw new GameException("No free fences");
         }
-        if (fencesOnBoard().filter(f -> f.blocksFence(fence)).findFirst().isPresent())
+        final Collection<Fence> fencesPlayed = fencesOnBoard();
+        if (fencesPlayed.stream().anyMatch(f -> f.blocksFence(fence)))
         {
             throw new GameException("Fence is blocked");
         }
-        if (!playersCanReachWinningPositions(Stream.concat(fencesOnBoard(), Stream.of(fence))))
+        final Collection<Fence> fencesWithNewlyPlayed = new ArrayList<>(fencesPlayed);
+        fencesWithNewlyPlayed.add(fence);
+        if (!playersCanReachWinningPositions(fencesWithNewlyPlayed))
         {
             throw new GameException("Both players must be able to reach the end");
         }
@@ -188,7 +192,7 @@ public class Game
         endPlay();
     }
 
-    private boolean playersCanReachWinningPositions(final Stream<Fence> fences)
+    private boolean playersCanReachWinningPositions(final Collection<Fence> fences)
     {
         boolean iCanReachWinningPosition = pathExists(me.getPosition(), me.getWinningPositions(), fences);
         boolean youCanReachWinningPosition = pathExists(you.getPosition(), you.getWinningPositions(), fences);
@@ -229,12 +233,12 @@ public class Game
         return noFenceBetween(start, end, fencesOnBoard());
     }
 
-    private boolean noFenceBetween(int start, int end, final Stream<Fence> fences)
+    private boolean noFenceBetween(int start, int end, final Collection<Fence> fences)
     {
-        return adjacent(start, end) && !fences.anyMatch(f -> f.blocksMove(start, end));
+        return adjacent(start, end) && fences.stream().noneMatch(f -> f.blocksMove(start, end));
     }
 
-    private List<PathNode> buildNodes(final Stream<Fence> fences)
+    private List<PathNode> buildNodes(final Collection<Fence> fences)
     {
         final List<PathNode> allNodes = new ArrayList<>(TOTAL_SQUARES);
         for (int a = 0; a < TOTAL_SQUARES; a++)
@@ -250,7 +254,7 @@ public class Game
         return allNodes;
     }
 
-    private boolean pathExists(final int start, final int[] ending, final Stream<Fence> fences)
+    private boolean pathExists(final int start, final int[] ending, final Collection<Fence> fences)
     {
         final List<PathNode> nodes = buildNodes(fences);
 
@@ -277,14 +281,12 @@ public class Game
         return false;
     }
 
-    private Stream<Fence> fencesOnBoard()
+    private Collection<Fence> fencesOnBoard()
     {
         return Stream.concat(
-                me.getFences().stream()
-                        .filter(Fence::isValid),
-                you.getFences().stream()
-                        .filter(Fence::isValid)
-        );
+                me.getFences().stream().filter(Fence::isValid),
+                you.getFences().stream().filter(Fence::isValid)
+        ).collect(Collectors.toList());
     }
 
     void endPlay()
