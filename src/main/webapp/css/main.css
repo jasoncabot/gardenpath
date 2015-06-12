@@ -1,25 +1,51 @@
 .cell {
-    fill: #754736;
+	width: 62px;
+	height: 62px;
+	background-color: blue;
+	border: 1px solid grey;
+	margin: 5px;
+	z-index: 1;
+	float: left;
 }
 
-.cell:hover {
-    fill: #643625;
+#board {
+	padding: 5px;
+	width: 666px;
+	height: 666px;
+	background-color: blue;
+	position: relative;
+	margin: auto;
 }
 
-.ghostwall {
-    fill: #grey;
+.post {
+	border-radius: 50%;
+	width: 9px;
+	height: 9px;
+	background-color: grey;
+	z-index: 2;
+	border: 1px solid #111;
+	position: absolute;
+	opacity: 0.1;
+}
+
+.post:hover {
+	opacity: 1;
+}
+
+.player {
+	position: absolute;
+	width: 63px;
+	height: 63px;
+	border-radius: 50%;
 }
 
 #player1 {
-    fill: #CCC;
+	background-color: orange;
+	border: 1px solid black;
 }
 
 #player2 {
-    fill: #DEF;
-}
-
-#game_area {
-    width: 530px;
-    height: 530px;
-    background-color: #823721;
+	background-color: green;
+	border: 1px solid black;
+	z-index: 3;
 }
