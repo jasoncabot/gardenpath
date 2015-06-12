@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.stream.Collectors;
@@ -97,7 +98,7 @@ public class Game
     @JsonIgnore
     public Optional<Player> getWinner()
     {
-        return asList(me, you).stream().filter(Player::isInWinningPosition).findFirst();
+        return Stream.of(me, you).filter(Objects::nonNull).filter(Player::isInWinningPosition).findFirst();
     }
 
     @JsonProperty("winner")

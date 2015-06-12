@@ -157,4 +157,30 @@ public class GameTest
         assertThat(Game.builder().withMemento(memento, "two").build().isMyTurn()).isFalse();
     }
 
+    @Test
+    public void shouldNotHaveAWinnerIfNeitherPlayerIsOnAWinningSquare()
+    {
+        final Game game = Game.builder().withMemento(memento, "one").build();
+        assertThat(game.getWinner().isPresent()).isFalse();
+    }
+
+    @Test
+    public void shouldHavePlayer1AsWinnerIfTheyArePositionedOnWinningSquare()
+    {
+        final int p1WinningPosition = 72;
+        when(memento.getPlayer1Position()).thenReturn(p1WinningPosition);
+        when(memento.getPlayer1Id()).thenReturn("one");
+        final Game game = Game.builder().withMemento(memento, "two").build();
+        assertThat(game.getWinner().get().getIdentifier()).isEqualTo("one");
+    }
+
+    @Test
+    public void shouldHavePlayer2AsWinnerIfTheyArePositionedOnWinningSquare()
+    {
+        final int p2WinningPosition = 0;
+        when(memento.getPlayer2Position()).thenReturn(p2WinningPosition);
+        when(memento.getPlayer2Id()).thenReturn("two");
+        final Game game = Game.builder().withMemento(memento, "one").build();
+        assertThat(game.getWinner().get().getIdentifier()).isEqualTo("two");
+    }
 }
