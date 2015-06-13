@@ -79,9 +79,9 @@ public class Game
         return isMyTurn;
     }
 
-    public Instant getLastMoveAt()
+    public long getLastMoveAt()
     {
-        return lastMoveAt;
+        return lastMoveAt == null ? 0 : lastMoveAt.toEpochMilli();
     }
 
     public State getState()

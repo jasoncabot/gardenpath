@@ -66,7 +66,7 @@ public class GameMemento
             memento.setId(game.getId());
         }
         memento.setState(game.getState().toString());
-        memento.setLastMoveAt(game.getLastMoveAt());
+        memento.setLastMoveAt(Instant.ofEpochMilli(game.getLastMoveAt()));
         memento.setIsPlayer1Turn(((game.isMyTurn() && game.getMe() != null && game.getMe().isPlayerOne())
                 || (!game.isMyTurn() && game.getYou() != null && game.getYou().isPlayerOne())));
 
