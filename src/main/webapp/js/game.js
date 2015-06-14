@@ -72,6 +72,7 @@ var cellWidth = 64;
 var cellSpacing = 10;
 var apiUrl = 'api/games';
 var previousFencePost = null;
+var pollingHandle = null;
 
 function player() {
     return {'id':getCookie('player_id'), 'name':getCookie('player_name')};
@@ -117,6 +118,7 @@ function login() {
 function showGames(player) {
     document.getElementById('welcomeName').innerHTML = 'Welcome ' + player.name + '!';
     document.getElementById('playerInfo').style.display = 'none';
+    document.getElementById('boardContainer').style.display = 'none';
     loadGames();
 }
 
@@ -187,7 +189,7 @@ function startGame(game) {
     document.getElementById('gameList').style.display = 'none';
     document.getElementById('boardContainer').style.display = 'block';
     createCookie('game_id', game.id, 30);
-    window.setInterval(pollForUpdates, 5000);
+    pollingHandle = window.setInterval(pollForUpdates, 5000);
     renderGame(game);
 }
 
@@ -265,14 +267,24 @@ function renderGame(game) {
 
     var infoView = document.getElementById('gameInfo');
     infoView.innerHTML = 'Game is ' + gameIsInState(game.state);
-    infoView.innerHTML = infoView.innerHTML + '<br />It&apos;s <em>' + (game.myTurn ? 'your' : 'not your') + '</em> turn';
-    if (game.winner != null) {
-        infoView.innerHTML = infoView.innerHTML + "<br />" + game.winner.name + " wins!";
+    if (game.winner == null) {
+        infoView.innerHTML = infoView.innerHTML + '<br />It&apos;s <em>' + (game.myTurn ? 'your' : 'not your') + '</em> turn';
+    } else {
+        infoView.innerHTML = infoView.innerHTML + "<br /><em>" + game.winner.name + " wins!</em>";
+        infoView.innerHTML = infoView.innerHTML + "<br /><a href='#' onclick='reset()'>end game</a>";
+
+        document.getElementById('resetGame').style.display = 'block';
     }
 
     if (previousFencePost != null) {
         previousFencePost.style.opacity = 1;
     }
+}
+
+function reset() {
+    createCookie('game_id', '', 30);
+    showGames(player());
+    window.clearInterval(pollingHandle);
 }
 
 function gameIsInState(state) {
