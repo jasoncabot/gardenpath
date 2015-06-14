@@ -62,3 +62,10 @@ body {
     background: linear-gradient(#82da35, #61bd10);
 	border: 1px solid black;
 }
+
+.fence {
+	border: 2px dotted #E6E6E6;
+    background: rgba(78, 78, 78, .75);
+	position: absolute;
+    z-index: 1;
+}

@@ -187,7 +187,17 @@ function startGame(game) {
     document.getElementById('gameList').style.display = 'none';
     document.getElementById('board').style.display = 'block';
     createCookie('game_id', game.id, 30);
+    window.setInterval(pollForUpdates, 5000);
     renderGame(game);
+}
+
+function pollForUpdates() {
+    var http = new HttpClient();
+    http.get(apiUrl + '/' + currentGame().id + '?id=' + player().id, function(status, game) {
+        if (status == 200) {
+            renderGame(game);
+        }
+    });
 }
 
 function renderGame(game) {
@@ -211,21 +221,51 @@ function renderGame(game) {
     for (var y = 0; y < 10; y++) {
         for (var x = 0; x < 10; x++) {
             var post = document.createElement('div');
+            var postId = ((y*9)+x);
             post.setAttribute('class', 'post');
-            post.setAttribute('id', 'post'+((y*9)+x));
-            post.style.left = ((cellSpacing + ((cellWidth * x) + (cellSpacing * x)))-((26/2)+6)) + 'px';
-            post.style.top = ((cellSpacing + ((cellWidth * y) + (cellSpacing * y)))-((26/2)+6)) + 'px';
+            post.setAttribute('id', 'post'+postId);
+            var pos = positionForPost(postId);
+            post.style.left = pos.x + 'px';
+            post.style.top = pos.y + 'px';
             post.addEventListener("click", postHandler, false);
+            if (previousFencePost != null && post.id == previousFencePost.id) {
+                previousFencePost = post;
+            }
             boardView.appendChild(post);
         }
     }
 
     if (game.me != null) {
         boardView.appendChild(playerView(game.me, 'me'));
+        game.me.fences.forEach(function(fence) {
+            if (fence.hasBeenPlayed) {
+                boardView.appendChild(fenceView(fence));
+            }
+        });
     }
     if (game.you != null) {
         boardView.appendChild(playerView(game.you, 'you'));
+        game.you.fences.forEach(function(fence) {
+            if (fence.hasBeenPlayed) {
+                boardView.appendChild(fenceView(fence));
+            }
+        });
     }
+
+    if (previousFencePost != null) {
+        previousFencePost.style.opacity = 1;
+    }
+}
+
+function fenceView(fence) {
+    var view = document.createElement('div');
+    view.setAttribute('class', 'fence');
+    var rect = rectForFence(fence.start, fence.end);
+    view.style.top = rect.y + 'px';
+    view.style.left = rect.x + 'px';
+    view.style.width = rect.width + 'px';
+    view.style.height = rect.height + 'px';
+    return view;
 }
 
 function playerView(player, id) {
@@ -239,8 +279,31 @@ function playerView(player, id) {
     return view;
 }
 
+function rectForFence(start, end) {
+    var startPos = positionForPost(start);
+    var endPos = positionForPost(end);
+    return {
+        'x': Math.min(startPos.x, endPos.x)
+        ,'y': Math.min(startPos.y, endPos.y)
+        ,'width': Math.max(startPos.x, endPos.x) - Math.min(startPos.x, endPos.x) + 24
+        ,'height': Math.max(startPos.y, endPos.y) - Math.min(startPos.y, endPos.y) + 24
+    };
+}
+
+function positionForPost(index) {
+    var x = index % 10;
+    var y = Math.floor(index / 10);
+    return {
+        'x': ((cellSpacing + ((cellWidth * x) + (cellSpacing * x)))-((26/2)+6)),
+        'y': ((cellSpacing + ((cellWidth * y) + (cellSpacing * y)))-((26/2)+6))
+    };
+}
+
 function positionForCell(index) {
-    return {'y':(10 + (Math.floor(index / 9))*(64+10)),'x':(((index % 9) * 64) + ((index % 9) * 10) + 10)};
+    return {
+        'x': (((index % 9) * cellWidth) + ((index % 9) * cellSpacing) + cellSpacing),
+        'y': (cellSpacing + (Math.floor(index / 9))*(cellWidth+cellSpacing))
+    };
 }
 
 function moveHandler(e) {
