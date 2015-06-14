@@ -185,7 +185,7 @@ function createGame() {
 
 function startGame(game) {
     document.getElementById('gameList').style.display = 'none';
-    document.getElementById('board').style.display = 'block';
+    document.getElementById('boardContainer').style.display = 'block';
     createCookie('game_id', game.id, 30);
     window.setInterval(pollForUpdates, 5000);
     renderGame(game);
@@ -204,6 +204,7 @@ function renderGame(game) {
     console.log('rendering game');
 
     var boardView = document.getElementById("board");
+    // TODO: reuse the existing views rather than removing and adding all new ones
     while (boardView.firstChild) {
         boardView.removeChild(boardView.firstChild);
     }
@@ -237,6 +238,9 @@ function renderGame(game) {
 
     if (game.me != null) {
         boardView.appendChild(playerView(game.me, 'me'));
+        var fenceCount = 10;
+        document.getElementById('myName').innerHTML = game.me.name + ' (me)';
+        document.getElementById('myFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
         game.me.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
                 boardView.appendChild(fenceView(fence));
@@ -245,6 +249,9 @@ function renderGame(game) {
     }
     if (game.you != null) {
         boardView.appendChild(playerView(game.you, 'you'));
+        var fenceCount = 10;
+        document.getElementById('yourName').innerHTML = game.you.name + ' (you)';
+        document.getElementById('yourFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
         game.you.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
                 boardView.appendChild(fenceView(fence));
@@ -252,9 +259,26 @@ function renderGame(game) {
         });
     }
 
+    var infoView = document.getElementById('gameInfo');
+    infoView.innerHTML = 'Game is ' + gameIsInState(game.state);
+    infoView.innerHTML = infoView.innerHTML + '<br />It is currently ' + (game.isMyTurn ? '' : '<em>not</em> ') + 'your turn';
+    if (game.winner != null) {
+        infoView.innerHTML = infoView.innerHTML + "<br />" + game.winner.name + " wins!";
+    }
+
     if (previousFencePost != null) {
         previousFencePost.style.opacity = 1;
     }
+}
+
+function gameIsInState(state) {
+    switch (state) {
+        case 'UNKNOWN': return 'in an unknown state';
+        case 'WAITING_OPPONENT': return 'waiting for opponent';
+        case 'IN_PROGRESS': return 'in progress';
+        case 'GAME_OVER': return 'over';
+    }
+    return state;
 }
 
 function fenceView(fence) {
