@@ -238,10 +238,10 @@ function renderGame(game) {
 
     if (game.me != null) {
         boardView.appendChild(playerView(game.me, 'me'));
-        var fenceCount = game.me.fences.filter(function (f) {
+        var fenceCount = 10 - game.me.fences.filter(function (f) {
             return f.hasBeenPlayed;
         }).length;
-        document.getElementById('myName').innerHTML = (game.myTurn ? '* ' : '') + game.me.name + ' (me)';
+        document.getElementById('myName').innerHTML = (game.myTurn ? '* ' : '') + game.me.name;
         document.getElementById('myFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
         game.me.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
@@ -251,10 +251,10 @@ function renderGame(game) {
     }
     if (game.you != null) {
         boardView.appendChild(playerView(game.you, 'you'));
-        var fenceCount = game.you.fences.filter(function (f) {
+        var fenceCount = 10 - game.you.fences.filter(function (f) {
             return f.hasBeenPlayed;
         }).length;
-        document.getElementById('yourName').innerHTML = (game.myTurn ? '' : '* ') + game.you.name + ' (you)';
+        document.getElementById('yourName').innerHTML = (game.myTurn ? '' : '* ') + game.you.name;
         document.getElementById('yourFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
         game.you.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
