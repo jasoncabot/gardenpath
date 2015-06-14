@@ -242,7 +242,7 @@ function renderGame(game) {
             return f.hasBeenPlayed;
         }).length;
         document.getElementById('myName').innerHTML = (game.myTurn ? '* ' : '') + game.me.name;
-        document.getElementById('myFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
+        document.getElementById('myFenceCount').innerHTML = fenceCount + (fenceCount == 1 ? ' fence' : ' fences') + ' remaining';
         game.me.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
                 boardView.appendChild(fenceView(fence));
@@ -255,7 +255,7 @@ function renderGame(game) {
             return f.hasBeenPlayed;
         }).length;
         document.getElementById('yourName').innerHTML = (game.myTurn ? '' : '* ') + game.you.name;
-        document.getElementById('yourFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
+        document.getElementById('yourFenceCount').innerHTML = fenceCount + (fenceCount == 1 ? ' fence' : ' fences') + ' remaining';
         game.you.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
                 boardView.appendChild(fenceView(fence));
