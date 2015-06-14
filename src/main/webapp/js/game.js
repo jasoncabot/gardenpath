@@ -261,7 +261,7 @@ function renderGame(game) {
 
     var infoView = document.getElementById('gameInfo');
     infoView.innerHTML = 'Game is ' + gameIsInState(game.state);
-    infoView.innerHTML = infoView.innerHTML + '<br />It is currently ' + (game.isMyTurn ? '' : '<em>not</em> ') + 'your turn';
+    infoView.innerHTML = infoView.innerHTML + '<br />It&apos;s <em>' + (game.myTurn ? 'your' : 'not your') + '</em> turn';
     if (game.winner != null) {
         infoView.innerHTML = infoView.innerHTML + "<br />" + game.winner.name + " wins!";
     }
