@@ -239,7 +239,7 @@ function renderGame(game) {
     if (game.me != null) {
         boardView.appendChild(playerView(game.me, 'me'));
         var fenceCount = 10;
-        document.getElementById('myName').innerHTML = game.me.name + ' (me)';
+        document.getElementById('myName').innerHTML = (game.myTurn ? '* ' : '') + game.me.name + ' (me)';
         document.getElementById('myFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
         game.me.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
@@ -250,7 +250,7 @@ function renderGame(game) {
     if (game.you != null) {
         boardView.appendChild(playerView(game.you, 'you'));
         var fenceCount = 10;
-        document.getElementById('yourName').innerHTML = game.you.name + ' (you)';
+        document.getElementById('yourName').innerHTML = (game.myTurn ? '' : '* ') + game.you.name + ' (you)';
         document.getElementById('yourFenceCount').innerHTML = fenceCount + (fenceCount == 0 ? ' fence' : ' fences') + ' remaining';
         game.you.fences.forEach(function(fence) {
             if (fence.hasBeenPlayed) {
