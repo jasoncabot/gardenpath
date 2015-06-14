@@ -12,18 +12,37 @@
 <body>
 <main role="main">
 
-<div id="board">
-</div>
+    <div id="playerInfo" style="display:none">
+        <h1>Start Playing</h1>
+        <form onsubmit="return login()">
+            <label for="player_name">Name:</label>
+            <input type="text" id="player_name" name="name" value="" placeholder="player" required="required" autofocus="autofocus" />
+            <input type="submit" value="Start" />
+        </form>
+    </div>
+
+    <div id="gameList" style="display:none">
+        <h1 id="welcomeName">Welcome </h1>
+        <h1>Games</h1>
+        <table id="publicGames">
+            <tr>
+                <th>Game</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+        </table>
+        <div>
+            or why not <a href="#" onclick="createGame()">create a game</a>
+        </div>
+    </div>
+
+    <div id="board" style="display:none;">
+    </div>
 
 </main>
-<footer role="contentinfo">
-    <small>Copyright &copy; Jason Cabot
-        <time datetime="2015">2015</time>
-    </small>
-</footer>
 <script type="text/javascript">
 (function() {
-    createBoard();
+    setup();
 })();
 </script>
 </body>
