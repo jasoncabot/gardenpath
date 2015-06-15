@@ -295,6 +295,9 @@ function renderGame(game) {
 
 function reset() {
     createCookie('game_id', '', 30);
+    ['myName', 'myFenceCount', 'yourName', 'yourFenceCount', 'gameInfo'].forEach(function(eid) {
+        document.getElementById(eid).innerHTML = '';
+    });
     showGames(player());
     window.clearInterval(pollingHandle);
 }
