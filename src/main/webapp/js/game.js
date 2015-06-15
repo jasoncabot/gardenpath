@@ -73,6 +73,8 @@ var cellSpacing = 10;
 var apiUrl = 'api/games';
 var previousFencePost = null;
 var pollingHandle = null;
+var defaultTitle = null;
+var lastUpdatedAt = null;
 
 function player() {
     return {'id':getCookie('player_id'), 'name':getCookie('player_name')};
@@ -83,6 +85,8 @@ function currentGame() {
 }
 
 function setup() {
+    defaultTitle = document.title;
+
     var p = player();
     var gid = currentGame().id;
     if (p.id.length == 0 || p.name.length == 0) {
@@ -190,13 +194,19 @@ function startGame(game) {
     document.getElementById('boardContainer').style.display = 'block';
     createCookie('game_id', game.id, 30);
     pollingHandle = window.setInterval(pollForUpdates, 5000);
+    window.addEventListener('focus', function() {
+        document.title = defaultTitle;
+    });
     renderGame(game);
 }
 
 function pollForUpdates() {
     var http = new HttpClient();
     http.get(apiUrl + '/' + currentGame().id + '?id=' + player().id, function(status, game) {
-        if (status == 200) {
+        if (status == 200 && lastUpdatedAt != game.lastMoveAt) {
+            if (!document.hasFocus()) {
+                document.title = "* " + defaultTitle;
+            }
             renderGame(game);
         }
     });
@@ -279,6 +289,8 @@ function renderGame(game) {
     if (previousFencePost != null) {
         previousFencePost.style.opacity = 1;
     }
+
+    lastUpdatedAt = game.lastMoveAt;
 }
 
 function reset() {
