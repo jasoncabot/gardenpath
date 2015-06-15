@@ -224,7 +224,7 @@ function renderGame(game) {
     for (var y = 0; y < 10; y++) {
         for (var x = 0; x < 10; x++) {
             var post = document.createElement('div');
-            var postId = ((y*9)+x);
+            var postId = ((y*10)+x);
             post.setAttribute('class', 'post');
             post.setAttribute('id', 'post'+postId);
             var pos = positionForPost(postId);
