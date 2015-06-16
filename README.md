@@ -84,4 +84,6 @@ Fences must be placed between two posts and can be encoded as a single number. F
 
 ## Client
 
-Not much done on this yet...
+![Gameplay](/res/screenshot1.png)
+
+
