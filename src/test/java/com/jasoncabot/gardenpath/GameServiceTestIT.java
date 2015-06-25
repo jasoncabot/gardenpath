@@ -1,8 +1,10 @@
 package com.jasoncabot.gardenpath;
 
 import com.jasoncabot.gardenpath.model.Game;
+import com.jasoncabot.gardenpath.model.GameException;
 import com.jasoncabot.gardenpath.persistence.InMemoryGameDao;
 import com.jasoncabot.gardenpath.services.GameServiceImpl;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,11 +15,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GameServiceTestIT
 {
     private GameService service;
+    private InMemoryGameDao dao;
 
     @Before
     public void setUp()
     {
-        this.service = new GameServiceImpl(new InMemoryGameDao());
+        dao = new InMemoryGameDao();
+        this.service = new GameServiceImpl(dao);
+    }
+
+    @After
+    public void tearDown()
+    {
+        dao.clear();
     }
 
     @Test
@@ -55,6 +65,36 @@ public class GameServiceTestIT
     {
         service.createPrivateGame("one", "player_one", "game", "secret");
         service.joinPrivateGame("game", "secret1", "two", "player_two");
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void shouldNotBeAbleToJoinPrivateGameUsingPublicMethod()
+    {
+        final Game privateGame = service.createPrivateGame("one", "player_one", "game", "secret");
+        service.joinPublicGame(privateGame.getId(), "two", "player_two");
+    }
+
+    @Test(expected = GameException.class)
+    public void shouldNotBeAbleToCreateGameWithSameNameAndPasswordAsAnotherGameWaitingOpponent()
+    {
+        service.createPrivateGame("player_one_id", "player_one", "game", "secret");
+        service.createPrivateGame("player_two_id", "player_two", "game", "secret");
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void shouldNotBeAbleToJoinPublicGameInProgress()
+    {
+        final Game game = service.createPublicGame("one", "player_one");
+        service.joinPublicGame(game.getId(), "two", "player_two");
+        service.joinPublicGame(game.getId(), "three", "player_three");
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void shouldNotBeAbleToJoinPrivateGameInProgress()
+    {
+        service.createPrivateGame("one", "player_one", "game_name", "game_pass");
+        service.joinPrivateGame("game_name", "game_pass", "two", "player_two");
+        service.joinPrivateGame("game_name", "game_pass", "three", "player_three");
     }
 
 }

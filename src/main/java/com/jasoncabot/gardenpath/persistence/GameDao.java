@@ -66,12 +66,13 @@ public class GameDao
         return builder.build();
     }
 
-    public GameMemento find(long gameId)
+    public GameMemento findPublicGameInState(long gameId, String state)
     {
         try (Connection conn = getConnection())
         {
-            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE id = ?;");
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE id = ? AND state = ? AND name IS NULL and hashed_password IS NULL;");
             findGame.setLong(1, gameId);
+            findGame.setString(2, state);
             findGame.execute();
             try (final ResultSet resultSet = findGame.getResultSet())
             {
@@ -88,13 +89,14 @@ public class GameDao
         throw new NotFoundException("Could not find game with id " + gameId);
     }
 
-    public GameMemento find(final PrivateInfo info)
+    public GameMemento findPrivateGameInState(final PrivateInfo info, final String state)
     {
         try (Connection conn = getConnection())
         {
-            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE name = ? AND hashed_password = ?;");
+            final PreparedStatement findGame = conn.prepareStatement("SELECT id, " + GameMemento.FIELDS_FOR_SELECTION + " FROM games WHERE name = ? AND hashed_password = ? AND state = ?;");
             findGame.setString(1, info.getName());
             findGame.setString(2, info.getHashedPassword());
+            findGame.setString(3, state);
             findGame.execute();
             try (final ResultSet resultSet = findGame.getResultSet())
             {

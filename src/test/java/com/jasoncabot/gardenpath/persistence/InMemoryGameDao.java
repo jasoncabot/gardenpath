@@ -1,5 +1,6 @@
 package com.jasoncabot.gardenpath.persistence;
 
+import javax.ws.rs.InternalServerErrorException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -17,6 +18,18 @@ public class InMemoryGameDao extends GameDao
         catch (ClassNotFoundException | SQLException e)
         {
             throw new RuntimeException("Failed to create in memory database", e);
+        }
+    }
+
+    public void clear()
+    {
+        try (Connection conn = getConnection())
+        {
+            conn.prepareStatement("TRUNCATE TABLE games;").execute();
+        }
+        catch (SQLException e)
+        {
+            throw new InternalServerErrorException("Could not clear games table", e);
         }
     }
 }

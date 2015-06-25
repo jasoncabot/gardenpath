@@ -10,6 +10,7 @@ import com.jasoncabot.gardenpath.persistence.GameDao;
 import com.jasoncabot.gardenpath.persistence.GameMemento;
 import org.apache.log4j.Logger;
 
+import javax.ws.rs.NotFoundException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,8 +63,19 @@ public class GameServiceImpl implements GameService
     public Game createPrivateGame(final String playerId, final String playerName, final String gameName, final String gamePassword)
     {
         logger.trace(String.format("ENTER:createPrivateGame(%s, %s, %s, [omitted])", playerId, playerName, gameName));
+        final PrivateInfo privateInfo = PrivateInfo.fromPlaintext(gameName, gamePassword);
+        try
+        {
+            dao.findPrivateGameInState(privateInfo, Game.State.WAITING_OPPONENT.toString());
+            throw new GameException("Unable to create private game '" + gameName + "'");
+        }
+        catch (NotFoundException e)
+        {
+            // great - there isn't already a private game using this name and password
+            // this is better than a db unique constraint as we require it only where state = WAITING_OPPONENT
+        }
         final Player me = Player.builder().withUserData(playerId, playerName).withDefaultFences().setPlayerOne().build();
-        final Game game = Game.builder().withMe(me).withPrivateInfo(PrivateInfo.fromPlaintext(gameName, gamePassword)).build();
+        final Game game = Game.builder().withMe(me).withPrivateInfo(privateInfo).build();
         game.start();
         dao.save(game);
         logger.trace(String.format("EXIT:createPrivateGame(%s)", game));
@@ -74,7 +86,7 @@ public class GameServiceImpl implements GameService
     public Game joinPublicGame(final long gameId, final String playerId, final String playerName) throws GameException
     {
         logger.trace(String.format("ENTER:joinPublicGame(%s, %s, %s)", gameId, playerId, playerName));
-        final GameMemento memento = dao.find(gameId);
+        final GameMemento memento = dao.findPublicGameInState(gameId, Game.State.WAITING_OPPONENT.toString());
         final Game game = Game.builder().withMemento(memento, playerId).build();
         final Player me = Player.builder().withUserData(playerId, playerName).withDefaultFences().build();
         game.join(me);
@@ -87,7 +99,7 @@ public class GameServiceImpl implements GameService
     public Game joinPrivateGame(final String gameName, final String gamePassword, final String playerId, final String playerName) throws GameException
     {
         logger.trace(String.format("ENTER:joinPrivateGame(%s, [omitted], %s, %s)", gameName, playerId, playerName));
-        final GameMemento memento = dao.find(PrivateInfo.fromPlaintext(gameName, gamePassword));
+        final GameMemento memento = dao.findPrivateGameInState(PrivateInfo.fromPlaintext(gameName, gamePassword), Game.State.WAITING_OPPONENT.toString());
         final Game game = Game.builder().withMemento(memento, playerId).build();
         final Player me = Player.builder().withUserData(playerId, playerName).withDefaultFences().build();
         game.join(me);
