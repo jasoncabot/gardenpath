@@ -1,16 +1,23 @@
 package com.jasoncabot.gardenpath;
 
 import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.MetricSet;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.jersey2.InstrumentedResourceMethodApplicationListener;
+import com.codahale.metrics.jvm.BufferPoolMetricSet;
+import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
+import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
+import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import com.jasoncabot.gardenpath.resources.GameResource;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
-import java.net.InetSocketAddress;
+import java.lang.management.ManagementFactory;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -25,6 +32,11 @@ public class GardenPathApplication extends Application
     {
         super();
 
+        registerAll("gc", new GarbageCollectorMetricSet(), metrics);
+        registerAll("buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()), metrics);
+        registerAll("memory", new MemoryUsageGaugeSet(), metrics);
+        registerAll("threads", new ThreadStatesGaugeSet(), metrics);
+
         final JmxReporter reporter = JmxReporter.forRegistry(metrics)
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
@@ -38,6 +50,21 @@ public class GardenPathApplication extends Application
                 .filter(MetricFilter.ALL)
                 .build(graphite);
         graphiteReporter.start(1, TimeUnit.MINUTES);
+    }
+
+    private void registerAll(String prefix, MetricSet metricSet, MetricRegistry registry)
+    {
+        for (Map.Entry<String, Metric> entry : metricSet.getMetrics().entrySet())
+        {
+            if (entry.getValue() instanceof MetricSet)
+            {
+                registerAll(prefix + "." + entry.getKey(), (MetricSet) entry.getValue(), registry);
+            }
+            else
+            {
+                registry.register(prefix + "." + entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     @Override
