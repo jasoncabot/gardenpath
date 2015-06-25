@@ -398,8 +398,8 @@ public class Game
 
             Stream.of(Player.fromMemento(memento, true), Player.fromMemento(memento, false))
                     .filter(Optional::isPresent)
-                    .forEach(optional -> {
-                        final Player player = optional.get();
+                    .forEach(potentialPlayer -> {
+                        final Player player = potentialPlayer.get();
                         if (myIdentifier != null && myIdentifier.equals(player.getIdentifier()))
                         {
                             this.me = player;
