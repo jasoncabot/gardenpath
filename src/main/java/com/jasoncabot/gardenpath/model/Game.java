@@ -388,6 +388,7 @@ public class Game
             this.state = State.valueOf(memento.getState());
             this.id = memento.getId();
             this.privateInfo = PrivateInfo.fromHashed(memento.getName(), memento.getHashedPassphrase());
+            this.you = Player.fromMemento(memento, true).orElse(null);
 
             return this;
         }
@@ -395,6 +396,9 @@ public class Game
         public Builder withMemento(final GameMemento memento, final String myIdentifier)
         {
             this.withAnonymousMemento(memento);
+
+            this.me = null;
+            this.you = null;
 
             Stream.of(Player.fromMemento(memento, true), Player.fromMemento(memento, false))
                     .filter(Optional::isPresent)

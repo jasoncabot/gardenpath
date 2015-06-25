@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import javax.ws.rs.NotFoundException;
 
+import java.util.Collection;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GameServiceTestIT
@@ -95,6 +97,14 @@ public class GameServiceTestIT
         service.createPrivateGame("one", "player_one", "game_name", "game_pass");
         service.joinPrivateGame("game_name", "game_pass", "two", "player_two");
         service.joinPrivateGame("game_name", "game_pass", "three", "player_three");
+    }
+
+    @Test
+    public void shouldListPlayersNameInPublicGames()
+    {
+        service.createPublicGame("id", "Jason");
+        final Collection<Game> publicGames = service.findPublicGames();
+        assertThat(publicGames.iterator().next().getYou().getName()).isEqualTo("Jason");
     }
 
 }
