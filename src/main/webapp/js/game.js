@@ -148,16 +148,19 @@ function loadGames() {
 
             var idCell = row.insertCell();
             idCell.appendChild(document.createTextNode(game.id));
+            var nameCell = row.insertCell();
+            nameCell.appendChild(document.createTextNode(game.you.name));
             var age = row.insertCell();
             age.appendChild(document.createTextNode(formatTime(game.lastMoveAt)));
-            var join = row.insertCell();
-            var a = document.createElement('a');
+            var joinCell = row.insertCell();
+            var join = document.createElement('button');
+            join.setAttribute('class', 'btn btn-default');
+            join.setAttribute('type', 'button');
             var linkText = document.createTextNode("Join");
-            a.appendChild(linkText);
-            a.title = "Join game " + game.id;
+            join.appendChild(linkText);
+            join.title = "Join game " + game.id;
             var joinUrl = apiUrl + '?id='+p.id+'&name='+p.name+'&gameId='+game.id;
-            a.href = joinUrl;
-            a.onclick = function(e) {
+            join.onclick = function(e) {
                 e.preventDefault();
                 http.put(joinUrl, function(postStatus, joined) {
                     if (postStatus != 200) {
@@ -168,7 +171,7 @@ function loadGames() {
                     startGame(joined);
                 });
             }
-            join.appendChild(a);
+            joinCell.appendChild(join);
 
         });
         document.getElementById('gameList').style.display = 'block';

@@ -1,13 +1,7 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-    background-color: #E6E6E6;
-}
 
 .cell {
-	width: 60px;
-	height: 60px;
+	width: 64px;
+	height: 64px;
 	border: 2px dotted #E6E6E6;
 	margin: 5px;
 	z-index: 1;
@@ -20,8 +14,8 @@ body {
 
 #board {
 	padding: 5px;
-	width: 666px;
-	height: 666px;
+	width: 716px;
+	height: 716px;
 	background: linear-gradient(#594EC3, #30239A);
 	border: 20px solid #4E4E4E;
 	position: relative;
