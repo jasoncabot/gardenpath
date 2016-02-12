@@ -69,7 +69,7 @@ public class GameMapper implements ResultSetMapper<Game> {
         final Player p2 = new Player(player2Id, player2Name, player2Position, player2Fences);
 
 
-        boolean isMyTurn = isPlayerOneTurn ^ iAmPlayerOne;
+        boolean isMyTurn = isPlayerOneTurn ^ !iAmPlayerOne;
         return new Game(gameId, state, lastMoveAt, gameInfo, isMyTurn, iAmPlayerOne ? p1 : p2, iAmPlayerOne ? p2 : p1);
     }
 
