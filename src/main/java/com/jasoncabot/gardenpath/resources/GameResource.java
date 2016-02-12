@@ -1,11 +1,11 @@
 package com.jasoncabot.gardenpath.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.jasoncabot.gardenpath.GameService;
-import com.jasoncabot.gardenpath.model.Game;
-import com.jasoncabot.gardenpath.model.GameException;
-import com.jasoncabot.gardenpath.persistence.GameDao;
-import com.jasoncabot.gardenpath.services.GameServiceImpl;
+import com.jasoncabot.gardenpath.api.GameService;
+import com.jasoncabot.gardenpath.api.GameServiceImpl;
+import com.jasoncabot.gardenpath.core.Game;
+import com.jasoncabot.gardenpath.core.GameException;
+import com.jasoncabot.gardenpath.db.GameDao;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,11 +25,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class GameResource
 {
     private final GameService service;
-
-    public GameResource()
-    {
-        this.service = new GameServiceImpl(new GameDao());
-    }
 
     public GameResource(final GameService service)
     {

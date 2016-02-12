@@ -1,4 +1,4 @@
-package com.jasoncabot.gardenpath.model;
+package com.jasoncabot.gardenpath.core;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;

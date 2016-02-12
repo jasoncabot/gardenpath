@@ -1,36 +1,24 @@
 package com.jasoncabot.gardenpath;
 
-import com.jasoncabot.gardenpath.model.Game;
-import com.jasoncabot.gardenpath.model.GameException;
-import com.jasoncabot.gardenpath.persistence.InMemoryGameDao;
-import com.jasoncabot.gardenpath.services.GameServiceImpl;
-import org.junit.After;
-import org.junit.Before;
+
+import com.jasoncabot.gardenpath.api.GameService;
+import com.jasoncabot.gardenpath.api.GameServiceImpl;
+import com.jasoncabot.gardenpath.core.Game;
+import com.jasoncabot.gardenpath.core.GameException;
+import com.jasoncabot.gardenpath.db.GameDao;
+import com.jasoncabot.gardenpath.db.GameMapper;
 import org.junit.Test;
+import org.skife.jdbi.v2.DBI;
 
 import javax.ws.rs.NotFoundException;
-
 import java.util.Collection;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
-public class GameServiceTestIT
+public class GameServiceTestIT extends IntegrationTest
 {
     private GameService service;
-    private InMemoryGameDao dao;
-
-    @Before
-    public void setUp()
-    {
-        dao = new InMemoryGameDao();
-        this.service = new GameServiceImpl(dao);
-    }
-
-    @After
-    public void tearDown()
-    {
-        dao.clear();
-    }
 
     @Test
     public void shouldBeAbleToJoinAPublicGame()
@@ -39,12 +27,12 @@ public class GameServiceTestIT
         Game game2 = service.joinPublicGame(game1.getId(), "two", "player_two");
         game1 = service.findGame(game1.getId(), "one");
 
-        assertThat(game1.getId()).isEqualTo(game2.getId());
+        assertThat(game1.getId(), is(game2.getId()));
 
-        assertThat(game1.getMe().getName()).isEqualTo("player_one");
-        assertThat(game1.getYou().getName()).isEqualTo("player_two");
-        assertThat(game2.getMe().getName()).isEqualTo("player_two");
-        assertThat(game2.getYou().getName()).isEqualTo("player_one");
+        assertThat(game1.getMe().getName(), is("player_one"));
+        assertThat(game1.getYou().getName(), is("player_two"));
+        assertThat(game2.getMe().getName(), is("player_two"));
+        assertThat(game2.getYou().getName(), is("player_one"));
     }
 
     @Test
@@ -54,12 +42,12 @@ public class GameServiceTestIT
         Game game2 = service.joinPrivateGame("game", "secret", "two", "player_two");
         game1 = service.findGame(game1.getId(), "one");
 
-        assertThat(game1.getId()).isEqualTo(game2.getId());
+        assertThat(game1.getId(), is(game2.getId()));
 
-        assertThat(game1.getMe().getName()).isEqualTo("player_one");
-        assertThat(game1.getYou().getName()).isEqualTo("player_two");
-        assertThat(game2.getMe().getName()).isEqualTo("player_two");
-        assertThat(game2.getYou().getName()).isEqualTo("player_one");
+        assertThat(game1.getMe().getName(), is("player_one"));
+        assertThat(game1.getYou().getName(), is("player_two"));
+        assertThat(game2.getMe().getName(), is("player_two"));
+        assertThat(game2.getYou().getName(), is("player_one"));
     }
 
     @Test(expected = NotFoundException.class)
@@ -104,7 +92,13 @@ public class GameServiceTestIT
     {
         service.createPublicGame("id", "Jason");
         final Collection<Game> publicGames = service.findPublicGames();
-        assertThat(publicGames.iterator().next().getYou().getName()).isEqualTo("Jason");
+        assertThat(publicGames.iterator().next().getYou().getName(), is("Jason"));
     }
 
+    @Override
+    protected void setUpDataAccessObjects(final DBI dbi) {
+        dbi.registerMapper(new GameMapper());
+        final GameDao gameDAO = dbi.onDemand(GameDao.class);
+        service = new GameServiceImpl(gameDAO);
+    }
 }

@@ -1,4 +1,4 @@
-package com.jasoncabot.gardenpath.model;
+package com.jasoncabot.gardenpath.core;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;

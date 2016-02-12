@@ -1,4 +1,4 @@
-package com.jasoncabot.gardenpath.model;
+package com.jasoncabot.gardenpath.core;
 
 import java.util.ArrayList;
 import java.util.Collection;

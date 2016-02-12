@@ -1,13 +1,9 @@
-package com.jasoncabot.gardenpath.model;
+package com.jasoncabot.gardenpath.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_FENCE_POSTS;
-import static com.jasoncabot.gardenpath.model.Game.NUMBER_OF_SQUARES;
-import static com.jasoncabot.gardenpath.model.Game.TOTAL_FENCE_POSTS;
 
 public class Fence
 {
@@ -19,8 +15,8 @@ public class Fence
     public static Fence get(int id)
     {
         // convert our unique id back into start and end indexes
-        int s = id % TOTAL_FENCE_POSTS;
-        int e = id / TOTAL_FENCE_POSTS % TOTAL_FENCE_POSTS;
+        int s = id % Game.TOTAL_FENCE_POSTS;
+        int e = id / Game.TOTAL_FENCE_POSTS % Game.TOTAL_FENCE_POSTS;
         return Fence.get(s, e);
     }
 
@@ -49,7 +45,7 @@ public class Fence
             if (two.isVertical())
             {
                 // we can only interfere in 1 place
-                return one.startIndex == two.startIndex + NUMBER_OF_SQUARES;
+                return one.startIndex == two.startIndex + Game.NUMBER_OF_SQUARES;
             }
             else
             {
@@ -64,14 +60,14 @@ public class Fence
             if (two.isHorizontal())
             {
                 // we can only interfere in 1 place
-                return one.startIndex + NUMBER_OF_SQUARES == two.startIndex;
+                return one.startIndex + Game.NUMBER_OF_SQUARES == two.startIndex;
             }
             else
             {
                 // 3 possible interferences
                 return (two.startIndex == one.startIndex) ||
-                        (two.startIndex + NUMBER_OF_FENCE_POSTS == one.startIndex) ||
-                        (two.startIndex - NUMBER_OF_FENCE_POSTS == one.startIndex);
+                        (two.startIndex + Game.NUMBER_OF_FENCE_POSTS == one.startIndex) ||
+                        (two.startIndex - Game.NUMBER_OF_FENCE_POSTS == one.startIndex);
             }
         }
     }
@@ -116,7 +112,7 @@ public class Fence
         }
 
         // basic validation
-        if (!(startIndex == (endIndex - (NUMBER_OF_FENCE_POSTS * LENGTH)) || startIndex == (endIndex - LENGTH)))
+        if (!(startIndex == (endIndex - (Game.NUMBER_OF_FENCE_POSTS * LENGTH)) || startIndex == (endIndex - LENGTH)))
         {
             return false;
         }
@@ -124,7 +120,7 @@ public class Fence
         if (isVertical())
         {
             // we cannot be on the left or right wall
-            if (((startIndex % NUMBER_OF_FENCE_POSTS) == 0) || ((startIndex + 1) % NUMBER_OF_FENCE_POSTS) == 0)
+            if (((startIndex % Game.NUMBER_OF_FENCE_POSTS) == 0) || ((startIndex + 1) % Game.NUMBER_OF_FENCE_POSTS) == 0)
             {
                 return false;
             }
@@ -133,7 +129,7 @@ public class Fence
         {
             // we cannot be on the top or bottom wall
             // if our fence is on the top wall and we horizontal
-            if (startIndex < NUMBER_OF_FENCE_POSTS || startIndex >= (NUMBER_OF_FENCE_POSTS * NUMBER_OF_SQUARES))
+            if (startIndex < Game.NUMBER_OF_FENCE_POSTS || startIndex >= (Game.NUMBER_OF_FENCE_POSTS * Game.NUMBER_OF_SQUARES))
             {
                 return false;
             }
@@ -141,7 +137,7 @@ public class Fence
             // we cannot span/loop over the right hand wall
             for (int i = 1; i <= LENGTH; i++)
             {
-                if (((startIndex + i) % NUMBER_OF_FENCE_POSTS) == 0)
+                if (((startIndex + i) % Game.NUMBER_OF_FENCE_POSTS) == 0)
                 {
                     return false;
                 }
@@ -179,18 +175,18 @@ public class Fence
 
     public boolean blocksMove(final int start, final int end)
     {
-        int fenceStartRowNum = startIndex / NUMBER_OF_FENCE_POSTS;
+        int fenceStartRowNum = startIndex / Game.NUMBER_OF_FENCE_POSTS;
         int a = start > end ? end : start;
         int b = start > end ? start : end;
 
-        if (b - a == NUMBER_OF_SQUARES && !isVertical())
+        if (b - a == Game.NUMBER_OF_SQUARES && !isVertical())
         {
-            if (a == ((startIndex - fenceStartRowNum) - NUMBER_OF_SQUARES) && (b == startIndex - fenceStartRowNum))
+            if (a == ((startIndex - fenceStartRowNum) - Game.NUMBER_OF_SQUARES) && (b == startIndex - fenceStartRowNum))
             {
                 return true;
             }
 
-            if (a == (((startIndex - fenceStartRowNum) - NUMBER_OF_SQUARES) + 1) && (b == (startIndex - fenceStartRowNum) + 1))
+            if (a == (((startIndex - fenceStartRowNum) - Game.NUMBER_OF_SQUARES) + 1) && (b == (startIndex - fenceStartRowNum) + 1))
             {
                 return true;
             }
@@ -202,7 +198,7 @@ public class Fence
                 return true;
             }
 
-            if (a == ((startIndex - (fenceStartRowNum + 1)) + NUMBER_OF_SQUARES) && (b == (startIndex - fenceStartRowNum) + NUMBER_OF_SQUARES))
+            if (a == ((startIndex - (fenceStartRowNum + 1)) + Game.NUMBER_OF_SQUARES) && (b == (startIndex - fenceStartRowNum) + Game.NUMBER_OF_SQUARES))
             {
                 return true;
             }
@@ -214,7 +210,7 @@ public class Fence
     @Override
     public int hashCode()
     {
-        return (startIndex * TOTAL_FENCE_POSTS) + endIndex;
+        return (startIndex * Game.TOTAL_FENCE_POSTS) + endIndex;
     }
 
     @Override

@@ -1,81 +1,56 @@
 package com.jasoncabot.gardenpath;
 
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricFilter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.MetricSet;
-import com.codahale.metrics.graphite.Graphite;
-import com.codahale.metrics.graphite.GraphiteReporter;
-import com.codahale.metrics.jersey2.InstrumentedResourceMethodApplicationListener;
-import com.codahale.metrics.jvm.BufferPoolMetricSet;
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.jasoncabot.gardenpath.api.GameServiceImpl;
+import com.jasoncabot.gardenpath.db.GameDao;
+import com.jasoncabot.gardenpath.db.GameMapper;
 import com.jasoncabot.gardenpath.resources.GameResource;
+import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.jdbi.DBIFactory;
+import io.dropwizard.jdbi.bundles.DBIExceptionsBundle;
+import io.dropwizard.migrations.MigrationsBundle;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+import org.skife.jdbi.v2.DBI;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-import java.lang.management.ManagementFactory;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-@ApplicationPath(value = "/api/*")
-public class GardenPathApplication extends Application
+public class GardenpathApplication extends Application<GardenpathConfiguration>
 {
-    private static MetricRegistry metrics = new MetricRegistry();
 
-    public GardenPathApplication()
+    public static void main(final String[] args) throws Exception
     {
-        super();
-
-        registerAll("gc", new GarbageCollectorMetricSet(), metrics);
-        registerAll("buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()), metrics);
-        registerAll("memory", new MemoryUsageGaugeSet(), metrics);
-        registerAll("threads", new ThreadStatesGaugeSet(), metrics);
-
-        final JmxReporter reporter = JmxReporter.forRegistry(metrics)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
-        reporter.start();
-
-        final Graphite graphite = new Graphite("127.0.0.1", 2003);
-        final GraphiteReporter graphiteReporter = GraphiteReporter.forRegistry(metrics)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .filter(MetricFilter.ALL)
-                .build(graphite);
-        graphiteReporter.start(1, TimeUnit.MINUTES);
+        new GardenpathApplication().run(args);
     }
 
-    private void registerAll(String prefix, MetricSet metricSet, MetricRegistry registry)
+    @Override
+    public String getName()
     {
-        for (Map.Entry<String, Metric> entry : metricSet.getMetrics().entrySet())
+        return "Gardenpath";
+    }
+
+    @Override
+    public void initialize(final Bootstrap<GardenpathConfiguration> bootstrap)
+    {
+        bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
+        bootstrap.addBundle(new MigrationsBundle<GardenpathConfiguration>()
         {
-            if (entry.getValue() instanceof MetricSet)
+            @Override
+            public DataSourceFactory getDataSourceFactory(final GardenpathConfiguration configuration)
             {
-                registerAll(prefix + "." + entry.getKey(), (MetricSet) entry.getValue(), registry);
+                return configuration.getDataSourceFactory();
             }
-            else
-            {
-                registry.register(prefix + "." + entry.getKey(), entry.getValue());
-            }
-        }
+        });
+        bootstrap.addBundle(new DBIExceptionsBundle());
     }
 
     @Override
-    public Set<Class<?>> getClasses()
+    public void run(final GardenpathConfiguration configuration,
+                    final Environment environment)
     {
-        return Stream.of(GameResource.class).collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<Object> getSingletons()
-    {
-        return Stream.of(new InstrumentedResourceMethodApplicationListener(metrics)).collect(Collectors.toSet());
+        final DBIFactory factory = new DBIFactory();
+        final DBI jdbi = factory.build(environment, configuration.getDataSourceFactory(), "db");
+        jdbi.registerMapper(new GameMapper());
+        final GameDao gameDAO = jdbi.onDemand(GameDao.class);
+        environment.jersey().register(new GameResource(new GameServiceImpl(gameDAO)));
     }
 }

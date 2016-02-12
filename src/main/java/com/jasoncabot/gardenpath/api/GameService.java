@@ -1,7 +1,8 @@
-package com.jasoncabot.gardenpath;
+package com.jasoncabot.gardenpath.api;
 
-import com.jasoncabot.gardenpath.model.Game;
-import com.jasoncabot.gardenpath.model.GameException;
+
+import com.jasoncabot.gardenpath.core.Game;
+import com.jasoncabot.gardenpath.core.GameException;
 
 import java.util.Collection;
 
