@@ -12,19 +12,21 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class Player
 {
-
     private static final int NUM_FENCES = 10;
     private static final int[] P1_WINNING_POSITIONS = new int[] { 72, 73, 74, 75, 76, 77, 78, 79, 80 };
     private static final int[] P2_WINNING_POSITIONS = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-    private String identifier;
-    private String name;
-    private boolean isPlayerOne;
+    private final String identifier;
+    private final String name;
+    private final boolean isPlayerOne;
     private int position;
+    private final List<Fence> fences;
 
-    private List<Fence> fences;
-
-    public Player(final String id, final String name, final int position, final List<Fence> fences) {
-
+    public Player(final String id, final String name, final boolean isPlayerOne, final int position, final List<Fence> fences) {
+        this.identifier = id;
+        this.name = name;
+        this.isPlayerOne = isPlayerOne;
+        this.position = position;
+        this.fences = fences;
     }
 
     @JsonIgnore

@@ -47,7 +47,7 @@ public class GameMapper implements ResultSetMapper<Game> {
                 resultSet.getInt("p1_f10"))
                 .map(Fence::get)
                 .collect(Collectors.toList());
-        final Player p1 = new Player(player1Id, player1Name, player1Position, player1Fences);
+        final Player p1 = new Player(player1Id, player1Name, true, player1Position, player1Fences);
         // player 2
         final String player2Id = resultSet.getString("p2_id");
         final String player2Name = resultSet.getString("p2_name");
@@ -66,120 +66,10 @@ public class GameMapper implements ResultSetMapper<Game> {
                 .map(Fence::get)
                 .collect(Collectors.toList());
 
-        final Player p2 = new Player(player2Id, player2Name, player2Position, player2Fences);
+        final Player p2 = new Player(player2Id, player2Name, false, player2Position, player2Fences);
 
 
         boolean isMyTurn = isPlayerOneTurn ^ !iAmPlayerOne;
         return new Game(gameId, state, lastMoveAt, gameInfo, isMyTurn, iAmPlayerOne ? p1 : p2, iAmPlayerOne ? p2 : p1);
     }
-
-//    public static class GameBuilder {
-//        private Long id;
-//        private Player me;
-//        private Player you;
-//        private boolean isMyTurn;
-//        private Instant lastMoveAt;
-//        private Game.State state;
-//        private PrivateInfo privateInfo;
-//
-//        public GameBuilder withMe(final Player me) {
-//            this.me = me;
-//            return this;
-//        }
-//
-//        public GameBuilder withYou(final Player you) {
-//            this.you = you;
-//            return this;
-//        }
-//
-//        public GameBuilder withPrivateInfo(final PrivateInfo info) {
-//            this.privateInfo = info;
-//            return this;
-//        }
-//
-//        public GameBuilder withAnonymousMemento(final GameMemento memento) {
-//            Validate.notNull(memento);
-//
-//            this.lastMoveAt = memento.getLastMoveAt();
-//            this.state = State.valueOf(memento.getState());
-//            this.id = memento.getId();
-//            this.privateInfo = PrivateInfo.fromHashed(memento.getName(), memento.getHashedPassphrase());
-//            this.you = Player.fromMemento(memento, true).orElse(null);
-//
-//            return this;
-//        }
-//
-//        public GameBuilder withMemento(final GameMemento memento, final String myIdentifier) {
-//            this.withAnonymousMemento(memento);
-//
-//            this.me = null;
-//            this.you = null;
-//
-//            Stream.of(Player.fromMemento(memento, true), Player.fromMemento(memento, false))
-//                    .filter(Optional::isPresent)
-//                    .forEach(potentialPlayer -> {
-//                        final Player player = potentialPlayer.get();
-//                        if (myIdentifier != null && myIdentifier.equals(player.getIdentifier())) {
-//                            this.me = player;
-//                        } else {
-//                            this.you = player;
-//                        }
-//                    });
-//
-//            this.isMyTurn = this.me != null && (me.isPlayerOne() && memento.isPlayer1Turn() || (!me.isPlayerOne() && !memento.isPlayer1Turn()));
-//            return this;
-//        }
-//
-//        public Game build() {
-//            final Game game = new Game();
-//            game.id = id;
-//            game.me = me;
-//            game.you = you;
-//            game.isMyTurn = isMyTurn;
-//            game.lastMoveAt = lastMoveAt;
-//            game.state = state;
-//            game.privateInfo = privateInfo;
-//            return game;
-//        }
-//    }
-//
-//    public static Optional<Player> fromMemento(final GameMemento memento, final boolean p1) {
-//        final Player player = new Player();
-//        player.fences = new ArrayList<>(NUM_FENCES);
-//        player.isPlayerOne = p1;
-//        if (p1) {
-//            player.identifier = memento.getPlayer1Id();
-//            player.name = memento.getPlayer1Name();
-//            player.position = memento.getPlayer1Position();
-//            player.fences.add(Fence.get(memento.getPlayer1Fence1()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence2()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence3()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence4()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence5()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence6()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence7()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence8()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence9()));
-//            player.fences.add(Fence.get(memento.getPlayer1Fence10()));
-//        } else {
-//            player.identifier = memento.getPlayer2Id();
-//            player.name = memento.getPlayer2Name();
-//            player.position = memento.getPlayer2Position();
-//            player.fences.add(Fence.get(memento.getPlayer2Fence1()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence2()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence3()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence4()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence5()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence6()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence7()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence8()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence9()));
-//            player.fences.add(Fence.get(memento.getPlayer2Fence10()));
-//        }
-//
-//        if (isBlank(player.identifier)) {
-//            return Optional.empty();
-//        }
-//        return Optional.of(player);
-//    }
 }
