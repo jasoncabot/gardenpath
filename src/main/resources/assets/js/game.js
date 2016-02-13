@@ -285,8 +285,6 @@ function renderGame(game) {
     } else {
         infoView.innerHTML = infoView.innerHTML + "<br /><em>" + game.winner.name + " wins!</em>";
         infoView.innerHTML = infoView.innerHTML + "<br /><a href='#' onclick='reset()'>end game</a>";
-
-        document.getElementById('resetGame').style.display = 'block';
     }
 
     if (previousFencePost != null) {
