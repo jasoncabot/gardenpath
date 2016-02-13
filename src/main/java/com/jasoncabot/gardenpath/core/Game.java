@@ -97,8 +97,8 @@ public class Game {
 
         this.me = joiner;
 
-        if (!(me.isPlayerOne() ^ you.isPlayerOne())) {
-            throw new GameException("Cannot join game if two players are both player 1");
+        if (me.isPlayerOne() == you.isPlayerOne()) {
+            throw new GameException("Cannot join game if two players are not player 1 and player 2");
         }
 
         me.moveToStart();
