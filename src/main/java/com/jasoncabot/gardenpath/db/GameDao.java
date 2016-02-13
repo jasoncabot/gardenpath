@@ -13,7 +13,7 @@ public abstract class GameDao {
     private static final String FIELDS_FOR_SELECTION = "state, last_move_at, name, hashed_password, is_player_one_turn" +
             ", p1_id, p1_name, p1_position, p1_f1, p1_f2, p1_f3, p1_f4, p1_f5, p1_f6, p1_f7, p1_f8, p1_f9, p1_f10" +
             ", p2_id, p2_name, p2_position, p2_f1, p2_f2, p2_f3, p2_f4, p2_f5, p2_f6, p2_f7, p2_f8, p2_f9, p2_f10 ";
-    private static final String PLAY_UPDATE = "UPDATE games SET state = :state, last_move_at = current_timestamp()";
+    private static final String PLAY_UPDATE = "UPDATE games SET state = :state, last_move_at = current_timestamp(), is_player_one_turn = NOT(is_player_one_turn) ";
     private static final String PLAY_UPDATE_WHERE = "WHERE id = :id " +
             "AND state = 'IN_PROGRESS' " +
             "AND ((is_player_one_turn AND p1_id = :player_id) OR (NOT(is_player_one_turn) AND p2_id = :player_id))";
