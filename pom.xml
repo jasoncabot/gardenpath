@@ -58,6 +58,11 @@
             <artifactId>dropwizard-assets</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.dropwizard.modules</groupId>
+            <artifactId>dropwizard-java8-jdbi</artifactId>
+            <version>0.8.0-2</version>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>1.4.187</version>

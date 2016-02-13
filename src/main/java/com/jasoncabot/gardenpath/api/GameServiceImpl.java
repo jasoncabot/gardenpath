@@ -28,7 +28,8 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game findGame(final long gameId, final String playerId) {
         logger.trace(String.format("ENTER:findGame(%s, %s)", gameId, playerId));
-        final Game game = dao.find(gameId, playerId);
+        final Game game = dao.find(gameId, playerId)
+                .orElseThrow(() -> new GameException("Invalid game"));
         logger.trace(String.format("EXIT:findGame(%s)", game));
         return game;
     }
@@ -37,7 +38,8 @@ public class GameServiceImpl implements GameService {
     public Game createPublicGame(final String playerId, final String playerName) {
         logger.trace(String.format("ENTER:createPublicGame(%s, %s)", playerId, playerName));
         final long id = dao.createPublicGame(playerId, playerName);
-        final Game game = dao.find(id, playerId);
+        final Game game = dao.find(id, playerId)
+                .orElseThrow(() -> new GameException("Invalid game"));
         logger.trace(String.format("EXIT:createPublicGame(%s)", game));
         return game;
     }
@@ -47,7 +49,8 @@ public class GameServiceImpl implements GameService {
         logger.trace(String.format("ENTER:createPrivateGame(%s, %s, %s, [omitted])", playerId, playerName, gameName));
         final PrivateInfo privateInfo = PrivateInfo.fromPlaintext(gameName, gamePassword);
         long id = dao.createPrivateGame(playerId, playerName, privateInfo.getName(), privateInfo.getHashedPassword());
-        final Game game = dao.find(id, playerId);
+        final Game game = dao.find(id, playerId)
+                .orElseThrow(() -> new GameException("Invalid game"));
         logger.trace(String.format("EXIT:createPrivateGame(%s)", game));
         return game;
     }
@@ -55,11 +58,9 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game joinPublicGame(final long gameId, final String playerId, final String playerName) throws GameException {
         logger.trace(String.format("ENTER:joinPublicGame(%s, %s, %s)", gameId, playerId, playerName));
-        int rowCount = dao.joinPublicGame(new GameDao.StartGameData(gameId, playerId, playerName));
-        if (rowCount == 0) {
-            throw new GameException("Game no longer available");
-        }
-        final Game game = dao.find(gameId, playerId);
+        dao.joinPublicGame(new GameDao.StartGameData(gameId, playerId, playerName));
+        final Game game = dao.find(gameId, playerId)
+                .orElseThrow(() -> new GameException("Invalid game"));
         logger.trace(String.format("EXIT:joinPublicGame(%s)", game));
         return game;
     }
@@ -67,11 +68,9 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game joinPrivateGame(final String gameName, final String gamePassword, final String playerId, final String playerName) throws GameException {
         logger.trace(String.format("ENTER:joinPrivateGame(%s, [omitted], %s, %s)", gameName, playerId, playerName));
-        int rowCount = dao.joinPrivateGame(new GameDao.StartGameData(playerId, playerName, gameName, gamePassword));
-        if (rowCount == 0) {
-            throw new GameException("Private game not found");
-        }
-        final Game game = dao.find(gameName, gamePassword, playerId);
+        dao.joinPrivateGame(new GameDao.StartGameData(playerId, playerName, gameName, gamePassword));
+        final Game game = dao.find(gameName, gamePassword, playerId)
+                .orElseThrow(() -> new GameException("Invalid game"));
         logger.trace(String.format("EXIT:joinPrivateGame(%s)", game));
         return game;
     }
@@ -79,7 +78,8 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game addFence(final long gameId, final String playerId, final int start, final int end) throws GameException {
         logger.trace(String.format("ENTER:addFence(%s, %s, %s, %s)", gameId, playerId, start, end));
-        final Game currentGame = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
+        final Game currentGame = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString())
+                .orElseThrow(() -> new GameException("Invalid game"));
         currentGame.validateFence(Fence.get(start, end));
         final GameDao.FenceGameData fences = new GameDao.FenceGameData(currentGame.getMe().getFences());
         final String updatedState = currentGame.getState().toString();
@@ -88,7 +88,8 @@ public class GameServiceImpl implements GameService {
         } else {
             dao.updatePlayerTwoFences(gameId, playerId, fences, updatedState);
         }
-        final Game updatedGame = dao.find(gameId, playerId);
+        final Game updatedGame = dao.find(gameId, playerId)
+                .orElseThrow(() -> new GameException("Invalid game"));
         logger.trace(String.format("EXIT:addFence(%s)", updatedGame));
         return updatedGame;
     }
@@ -96,7 +97,9 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game move(final long gameId, final String playerId, final int end) throws GameException {
         logger.trace(String.format("ENTER:move(%s, %s, %s)", gameId, playerId, end));
-        final Game currentGame = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
+        final Optional<Game> game = dao.find(gameId, playerId, Game.State.IN_PROGRESS.toString());
+        final Game currentGame = game
+                .orElseThrow(() -> new GameException("Invalid game"));
         currentGame.validateMove(end);
         final int position = currentGame.getMe().getPosition();
         final String updatedState = currentGame.getState().toString();
@@ -105,7 +108,8 @@ public class GameServiceImpl implements GameService {
         } else {
             dao.updatePlayerTwoPosition(gameId, playerId, position, updatedState);
         }
-        final Game updatedGame = dao.find(gameId, playerId);
+        final Game updatedGame = dao.find(gameId, playerId)
+                .orElseThrow(() -> new GameException("Invalid game"));
         logger.trace(String.format("EXIT:move(%s)", updatedGame));
         return updatedGame;
     }

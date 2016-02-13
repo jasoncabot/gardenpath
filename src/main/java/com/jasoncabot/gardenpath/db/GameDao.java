@@ -3,9 +3,11 @@ package com.jasoncabot.gardenpath.db;
 import com.jasoncabot.gardenpath.core.Fence;
 import com.jasoncabot.gardenpath.core.Game;
 import org.skife.jdbi.v2.sqlobject.*;
+import org.skife.jdbi.v2.sqlobject.customizers.SingleValueResult;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class GameDao {
     private static final String FIELDS_FOR_SELECTION = "state, last_move_at, name, hashed_password, is_player_one_turn" +
@@ -29,23 +31,26 @@ public abstract class GameDao {
             "WHERE state = :state")
     public abstract Collection<Game> findAll(@Bind("state") final String state);
 
+    @SingleValueResult(Game.class)
     @SqlQuery("SELECT id, (:player_id = p1_id) as is_player_one, " +
             FIELDS_FOR_SELECTION +
             "FROM games " +
             "WHERE id = :id AND (p1_id = :player_id OR p2_id = :player_id)")
-    public abstract Game find(@Bind("id") long gameId, @Bind("player_id") String playerId);
+    public abstract Optional<Game> find(@Bind("id") long gameId, @Bind("player_id") String playerId);
 
+    @SingleValueResult(Game.class)
     @SqlQuery("SELECT id, (:player_id = p1_id) as is_player_one, " +
             FIELDS_FOR_SELECTION +
             "FROM games " +
             "WHERE name = :name AND hashed_password = :hashed_password AND (p1_id = :player_id OR p2_id = :player_id)")
-    public abstract Game find(@Bind("name") final String gameName, @Bind("hashed_password") final String gamePassword, @Bind("player_id") String playerId);
+    public abstract Optional<Game> find(@Bind("name") final String gameName, @Bind("hashed_password") final String gamePassword, @Bind("player_id") String playerId);
 
+    @SingleValueResult(Game.class)
     @SqlQuery("SELECT id, (:player_id = p1_id) as is_player_one, " +
             FIELDS_FOR_SELECTION +
             "FROM games " +
             "WHERE id = :id AND (p1_id = :player_id OR p2_id = :player_id) AND state = :state")
-    public abstract Game find(@Bind("id") final long gameId, @Bind("player_id") final String playerId, @Bind("state") final String state);
+    public abstract Optional<Game> find(@Bind("id") final long gameId, @Bind("player_id") final String playerId, @Bind("state") final String state);
 
     @SqlUpdate(PLAY_UPDATE +
             ", p1_position = :position " +
@@ -85,17 +90,15 @@ public abstract class GameDao {
             PLAY_UPDATE_WHERE)
     public abstract void updatePlayerTwoFences(@Bind("id") final long gameId, @Bind("player_id") final String playerId, @BindBean final FenceGameData fences, @Bind("state") final String state);
 
-    @GetGeneratedKeys
     @SqlUpdate("UPDATE games SET " +
             JOIN_GAME_UPDATE +
             "WHERE id = :gameId AND state = 'WAITING_OPPONENT' AND p1_id != :playerId")
-    public abstract int joinPublicGame(@BindBean final StartGameData data);
+    public abstract void joinPublicGame(@BindBean final StartGameData data);
 
-    @GetGeneratedKeys
     @SqlUpdate("UPDATE games SET " +
             JOIN_GAME_UPDATE +
             "WHERE id = :gameId, state = 'WAITING_OPPONENT' AND p1_id != :playerId AND name = :gameName AND hashed_password = :gamePassword")
-    public abstract int joinPrivateGame(@BindBean final StartGameData data);
+    public abstract void joinPrivateGame(@BindBean final StartGameData data);
 
     @GetGeneratedKeys
     @SqlUpdate("INSERT INTO games (state, last_move_at, p1_id, p1_name) VALUES ('WAITING_OPPONENT', current_timestamp(), :player_id, :player_name)")
@@ -118,6 +121,56 @@ public abstract class GameDao {
         final int fence8;
         final int fence9;
         final int fence10;
+
+        public int getFence1()
+        {
+            return fence1;
+        }
+
+        public int getFence2()
+        {
+            return fence2;
+        }
+
+        public int getFence3()
+        {
+            return fence3;
+        }
+
+        public int getFence4()
+        {
+            return fence4;
+        }
+
+        public int getFence5()
+        {
+            return fence5;
+        }
+
+        public int getFence6()
+        {
+            return fence6;
+        }
+
+        public int getFence7()
+        {
+            return fence7;
+        }
+
+        public int getFence8()
+        {
+            return fence8;
+        }
+
+        public int getFence9()
+        {
+            return fence9;
+        }
+
+        public int getFence10()
+        {
+            return fence10;
+        }
 
         public FenceGameData(final List<Fence> fences) {
             fence1 = fenceId(fences.get(0));
