@@ -97,7 +97,7 @@ public abstract class GameDao {
 
     @SqlUpdate("UPDATE games SET " +
             JOIN_GAME_UPDATE +
-            "WHERE id = :gameId, state = 'WAITING_OPPONENT' AND p1_id != :playerId AND name = :gameName AND hashed_password = :gamePassword")
+            "WHERE id = :gameId AND state = 'WAITING_OPPONENT' AND p1_id != :playerId AND name = :gameName AND hashed_password = :gamePassword")
     public abstract void joinPrivateGame(@BindBean final StartGameData data);
 
     @GetGeneratedKeys
