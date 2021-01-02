@@ -1,0 +1,9 @@
+.github
+backend
+res
+.gitignore
+.git
+.DS_Store
+LICENSE
+README.md
+Dockerfile.*
