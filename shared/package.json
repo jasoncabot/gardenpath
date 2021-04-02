@@ -1,0 +1,27 @@
+{
+  "name": "gardenpath-shared",
+  "version": "1.0.0",
+  "description": "Shared gardenpath library code between front and backend",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "rollup --config rollup.config.dev.js",
+    "build": "rollup --config rollup.config.dist.js",
+    "watch": "rollup --watch --config rollup.config.dev.js"
+  },
+  "author": "Jason Cabot <jasoncabot@gmail.com>",
+  "repository": {
+    "url": "https://github.com/jasoncabot/gardenpath"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "rollup": "^2.35.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {}
+}

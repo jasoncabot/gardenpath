@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Backend",
+            "program": "./src/index.ts",
+            "cwd": "${workspaceFolder}/backend",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "./dist/**/*.js"
+            ],
+        },
+        {
+            "name": "Launch Frontend",
+            "type": "firefox",
+            "request": "launch",
+            "reloadOnAttach": true,
+            "reAttach": true,
+            "url": "http://localhost:10001/",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "npm: watch - frontend",
+            "pathMappings": [
+                {
+                    "url": "http://localhost:10001/src",
+                    "path": "${workspaceFolder}/frontend/src"
+                },
+                {
+                    "url": "http://localhost:10001/node_modules",
+                    "path": "${workspaceFolder}/frontend/node_modules"
+                }
+            ],
+            "log": {
+                "consoleLevel": {
+                    "default": "Warn"
+                }
+            }
+        }
+    ]
+}

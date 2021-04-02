@@ -25,6 +25,21 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      - name: Build all code
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - run: |
+          cd shared
+          npm install
+          nnpm run build --if-present
+          cd ../frontend
+          npm install
+          nnpm run build --if-present
+          cd ../backend
+          npm install
+          nnpm run build --if-present
+
       - name: Build and push frontend
         run: |
           DOCKER_BUILDKIT=1 docker build -f Dockerfile.frontend frontend -t ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}/frontend:${{ steps.get_version.outputs.VERSION }}

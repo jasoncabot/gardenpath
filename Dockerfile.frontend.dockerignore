@@ -1,9 +1,11 @@
 .github
+.vscode
 backend
-res
+shared
 .gitignore
-.git
-.DS_Store
+Dockerfile.backend
+Dockerfile.backend.dockerignore
+Dockerfile.frontend
+Dockerfile.frontend.dockerignore
 LICENSE
 README.md
-Dockerfile.*

@@ -1,0 +1,31 @@
+{
+    "name": "gardenpath-frontend",
+    "description": "Frontend application for Gardenpath game",
+    "version": "1.0.0",
+    "main": "dist/game.js",
+    "scripts": {
+        "dev": "rollup --config rollup.config.dev.js",
+        "build": "rollup --config rollup.config.dist.js",
+        "watch": "rollup --watch --config rollup.config.dev.js"
+    },
+    "license": "MIT",
+    "author": "Jason Cabot <jasoncabot@gmail.com>",
+    "repository": {
+        "url": "https://github.com/jasoncabot/gardenpath"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^18.0.0",
+        "@rollup/plugin-html": "^0.2.3",
+        "@rollup/plugin-node-resolve": "^11.2.1",
+        "@rollup/plugin-replace": "^2.3.4",
+        "@rollup/plugin-typescript": "^8.2.1",
+        "@types/node": "^14.14.37",
+        "phaser": "^3.50.0",
+        "rollup": "^2.35.1",
+        "rollup-plugin-serve": "^1.1.0",
+        "rollup-plugin-terser": "^7.0.2",
+        "tslib": "^2.1.0",
+        "typescript": "^4.1.3"
+    }
+}

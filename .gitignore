@@ -25,3 +25,6 @@ hs_err_pid*
 gardenpath.yml
 data
 target
+
+*/dist
+*/node_modules
