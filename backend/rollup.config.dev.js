@@ -1,6 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
+import run from '@rollup/plugin-run';
 
 export default {
 
@@ -23,6 +24,8 @@ export default {
         commonjs({ sourcemap: true }),
 
         //  See https://www.npmjs.com/package/rollup-plugin-typescript2 for config options
-        typescript()
+        typescript(),
+
+        run()
     ]
 };
