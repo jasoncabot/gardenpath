@@ -19,19 +19,35 @@ export default class InProgress extends Phaser.Scene {
         const game: InProgressGame = {
             id: 1,
             me: {
-                name: "Jason",
-                position: 71,
+                name: "Player 1",
+                position: 76,
+                colour: 0x00C2FB,
                 fences: [
                 ],
                 target: [0, 1, 2, 3, 4, 5, 6, 7, 8]
             },
-            you: {
-                name: "Jason",
-                position: 70,
+            opponents: [{
+                name: "Player 2",
+                position: 4,
+                colour: 0x25D3BA,
                 fences: [
                 ],
                 target: [72, 73, 74, 75, 76, 77, 78, 79, 80]
-            },
+            }, {
+                name: "Player 3",
+                position: 36,
+                colour: 0xFF8119,
+                fences: [
+                ],
+                target: [8, 17, 26, 35, 44, 53, 62, 71, 80]
+            }, {
+                name: "Player 4",
+                position: 44,
+                colour: 0xAC47C7,
+                fences: [
+                ],
+                target: [0, 9, 18, 27, 36, 45, 54, 63, 72]
+            }],
             myTurn: true,
             lastMoveAt: Date.now(),
             state: "IN_PROGRESS",
@@ -41,12 +57,12 @@ export default class InProgress extends Phaser.Scene {
             posts: Phaser.GameObjects.Arc[],
             cells: Phaser.GameObjects.Rectangle[],
             me?: Phaser.GameObjects.GameObject,
-            you?: Phaser.GameObjects.GameObject
+            opponents: Phaser.GameObjects.GameObject[]
         } = {
             posts: [],
             cells: [],
             me: undefined,
-            you: undefined
+            opponents: []
         };
 
         const CELL_COLOUR = 0xE5E5E5;
@@ -111,7 +127,7 @@ export default class InProgress extends Phaser.Scene {
         }
 
         const me = this.positionForCell(game.me.position);
-        views.me = this.add.circle(me.x, me.y, CELL_WIDTH / 2, 0x00C2FB, 1.0)
+        views.me = this.add.circle(me.x, me.y, CELL_WIDTH / 2, game.me.colour, 1.0)
             .setInteractive({ draggable: true })
             .setData("id", game.me.position)
             .setData("type", "player")
@@ -143,11 +159,14 @@ export default class InProgress extends Phaser.Scene {
                 views.cells.forEach(e => e.setDepth(0));
             })
             ;
-        const you = this.positionForCell(game.you.position);
-        views.you = this.add.circle(you.x, you.y, CELL_WIDTH / 2, 0x25D3BA, 1.0)
-            .setData("id", game.you.position)
-            .setData("type", "player")
-            .setDepth(3);
+        game.opponents.forEach(opponent => {
+            const you = this.positionForCell(opponent.position);
+            views.opponents.push(this.add.circle(you.x, you.y, CELL_WIDTH / 2, opponent.colour, 1.0)
+                .setData("id", opponent.position)
+                .setData("type", "player")
+                .setDepth(3)
+            );
+        });
 
         const drawFence: (start: number, end: number, colour: number) => (void) = (start, end, colour) => {
             const rect = this.rectForFence(start, end);
@@ -155,7 +174,7 @@ export default class InProgress extends Phaser.Scene {
         }
 
         game.me.fences.forEach(fence => drawFence(fence.start, fence.end, POST_COLOUR));
-        game.you.fences.forEach(fence => drawFence(fence.start, fence.end, POST_COLOUR));
+        game.opponents.forEach(p => p.fences.forEach(fence => drawFence(fence.start, fence.end, POST_COLOUR)));
     }
 
     positionForPost = (index: number) => {

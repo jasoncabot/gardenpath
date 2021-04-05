@@ -8,6 +8,7 @@ interface Fence {
 interface Player {
     name: string,
     position: number,
+    colour: number,
     fences: Fence[],
     target: number[]
 }
@@ -15,7 +16,7 @@ interface Player {
 interface InProgressGame {
     id: number,
     me: Player,
-    you: Player,
+    opponents: Player[],
     myTurn: boolean,
     lastMoveAt: number,
     state: GameState
@@ -40,12 +41,16 @@ const buildNodes = (blockedPositions: number[], fences: Fence[]) => {
     return nodes;
 }
 
+const allFences: (game: InProgressGame) => (Fence[]) = (game) => {
+    let allFences = game.me.fences;
+    game.opponents.forEach(opponent => allFences = allFences.concat(opponent.fences));
+    return allFences;
+}
+
 const validDestinationsInGame = (game: InProgressGame) => {
     const myPosition = game.me.position;
-    const yourPosition = game.you.position;
-    const allFences = game.me.fences.concat(game.you.fences);
-
-    return validDestinationsFromPosition(myPosition, [yourPosition], allFences);
+    const opponentPositions = game.opponents.map(p => p.position);
+    return validDestinationsFromPosition(myPosition, opponentPositions, allFences(game));
 }
 
 const validDestinationsFromPosition = (from: number, blockedPositions: number[], fences: Fence[]) => {
@@ -143,7 +148,7 @@ const validDestinations = (id: number) => {
 
 const validPostsInGame = (from: number, game: InProgressGame) => {
     let valid: number[] = validPosts(from);
-    const currentFences = game.me.fences.concat(game.you.fences);
+    const currentFences = allFences(game);
 
     // ensure that this fence doesn't cross another
     valid = valid.filter(to => {
@@ -172,10 +177,14 @@ const validPostsInGame = (from: number, game: InProgressGame) => {
         // players can still reach their goal
         const fences: Fence[] = [{ start: from, end: to }].concat(currentFences);
 
-        // are we blocking me from reaching my winning positions?
-        if (!validPathToDestinations(game.me.target, game.me.position, [game.you.position], fences)) return false;
-        // are we blocking you from reaching your winning positions?
-        if (!validPathToDestinations(game.you.target, game.you.position, [game.me.position], fences)) return false;
+        const players: Player[] = [game.me].concat(game.opponents);
+        // is any player blocked from reaching their target position?
+        for (let index = 0; index < players.length; index++) {
+            const player = players[index];
+            const otherPlayers = players.filter(p => p.position !== player.position);
+            // are we blocking the player from reaching their winning positions?
+            if (!validPathToDestinations(player.target, player.position, otherPlayers.map(p => p.position), fences)) return false;
+        }
 
         // if no blocking fences are found, then this position is
         // ok to place a new one in

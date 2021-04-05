@@ -16,13 +16,13 @@ app.get("/", (req, res) => {
             ],
             target: [0, 1, 2, 3, 4, 5, 6, 7, 8]
         },
-        you: {
+        opponents: [{
             name: "Jason",
             position: 70,
             fences: [
             ],
             target: [72, 73, 74, 75, 76, 77, 78, 79, 80]
-        },
+        }],
         myTurn: true,
         lastMoveAt: Date.now(),
         state: "IN_PROGRESS",
