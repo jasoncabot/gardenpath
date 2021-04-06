@@ -100,6 +100,7 @@ const move = (gameId: GameId, move: PlayMove) => {
     game.players[move.identifier].position = move.position;
     const nextTurnIndex = game.turnOrder.indexOf(game.currentTurn) + 1;
     game.currentTurn = nextTurnIndex < game.turnOrder.length ? game.turnOrder[nextTurnIndex] : game.turnOrder[0];
+    game.lastMoveAt = Date.now();
 
     // If any player is at their target 
     Object.values(game.players).forEach(player => {
@@ -133,6 +134,7 @@ const fence = (gameId: GameId, fence: PlayFence) => {
     });
     const nextTurnIndex = game.turnOrder.indexOf(game.currentTurn) + 1;
     game.currentTurn = nextTurnIndex < game.turnOrder.length ? game.turnOrder[nextTurnIndex] : game.turnOrder[0];
+    game.lastMoveAt = Date.now();
 
     return game;
 }
