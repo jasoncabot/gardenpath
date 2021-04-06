@@ -3,6 +3,7 @@ import cors from 'cors';
 
 const load = async (origin: string) => {
     const app = express();
+    app.disable('x-powered-by');
     //options for cors midddleware
     const options: cors.CorsOptions = {
         allowedHeaders: [
