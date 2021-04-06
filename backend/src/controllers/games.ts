@@ -11,7 +11,7 @@ const registerRoutes = (router: IRouter) => {
         const numPlayers = parseInt(request.body.numberOfPlayers, 10) || 2;
         try {
             if ([2, 3, 4].indexOf(numPlayers) < 0) throw new Error("numberOfPlayers must be 2, 3 or 4");
-            const game = createGame({ name: request.body.name, identifier: request.user! }, { numberOfPlayers: numPlayers });
+            const game = createGame({ name: validatedName(request.body.name), identifier: request.user! }, { numberOfPlayers: numPlayers });
             const view = viewGameAsUser(game, request.user);
             response.status(201).json(view);
         } catch (error) {
@@ -48,7 +48,7 @@ const registerRoutes = (router: IRouter) => {
     // POST /games/10/players
     router.post("/games/:id/players", requireUser, (request: Request, response: Response) => {
         try {
-            const game = joinGame(request.params.id, { name: request.body.name, identifier: request.user! })
+            const game = joinGame(request.params.id, { name: validatedName(request.body.name), identifier: request.user! })
             const view = viewGameAsUser(game, request.user);
             response.status(200).json(view)
         } catch (error) {
@@ -88,6 +88,11 @@ const registerRoutes = (router: IRouter) => {
             response.status(500).json({ error: error.message });
         }
     });
+}
+
+const validatedName: (name: string) => (string) = (name: string) => {
+    if (name.length === 0 || name.length > 40) throw new Error("Invalid name");
+    return name;
 }
 
 export { registerRoutes };
