@@ -2,9 +2,12 @@
 @user2 = 3e24bce7-48a4-4103-9a8f-179b38ddb41c
 @createdGameId = bfec4e8f-1946-4d80-b210-8cd4c6391d0c
 
+@host = http://localhost:8080
+# @host = https://gardenpathapi.jasoncabot.me
+
 ### Create game
 
-POST http://localhost:8080/games
+POST {{host}}/games
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
@@ -15,7 +18,7 @@ Authorization: Bearer {{user1}}
 
 ### Player 2 - Join Game
 
-POST http://localhost:8080/games/{{createdGameId}}/players
+POST {{host}}/games/{{createdGameId}}/players
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
@@ -25,19 +28,19 @@ Authorization: Bearer {{user2}}
 
 ### Start Game as Player 1
 
-POST http://localhost:8080/games/{{createdGameId}}/turn
+POST {{host}}/games/{{createdGameId}}/turn
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
 ### Start Game as Player 2
 
-POST http://localhost:8080/games/{{createdGameId}}/turn
+POST {{host}}/games/{{createdGameId}}/turn
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
 ### Move as Player 1
 
-POST http://localhost:8080/games/{{createdGameId}}/move
+POST {{host}}/games/{{createdGameId}}/move
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
@@ -47,7 +50,7 @@ Authorization: Bearer {{user1}}
 
 ### Move as Player 2
 
-POST http://localhost:8080/games/{{createdGameId}}/move
+POST {{host}}/games/{{createdGameId}}/move
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
@@ -57,7 +60,7 @@ Authorization: Bearer {{user2}}
 
 ### Fence as Player 1
 
-POST http://localhost:8080/games/{{createdGameId}}/fence
+POST {{host}}/games/{{createdGameId}}/fence
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
@@ -68,7 +71,7 @@ Authorization: Bearer {{user1}}
 
 ### Fence as Player 2
 
-POST http://localhost:8080/games/{{createdGameId}}/fence
+POST {{host}}/games/{{createdGameId}}/fence
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
@@ -79,13 +82,13 @@ Authorization: Bearer {{user2}}
 
 ### View Game as Player 1
 
-GET http://localhost:8080/games/{{createdGameId}}
+GET {{host}}/games/{{createdGameId}}
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
 
 ### View Game as Player 2
 
-GET http://localhost:8080/games/{{createdGameId}}
+GET {{host}}/games/{{createdGameId}}
 Content-Type: application/json
 Authorization: Bearer {{user2}}
