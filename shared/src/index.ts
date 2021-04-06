@@ -13,8 +13,8 @@ interface Player {
     target: number[]
 }
 
-interface InProgressGame {
-    id: number,
+interface GameView {
+    id: string,
     me: Player,
     opponents: Player[],
     myTurn: boolean,
@@ -41,13 +41,13 @@ const buildNodes = (blockedPositions: number[], fences: Fence[]) => {
     return nodes;
 }
 
-const allFences: (game: InProgressGame) => (Fence[]) = (game) => {
+const allFences: (game: GameView) => (Fence[]) = (game) => {
     let allFences = game.me.fences;
     game.opponents.forEach(opponent => allFences = allFences.concat(opponent.fences));
     return allFences;
 }
 
-const validDestinationsInGame = (game: InProgressGame) => {
+const validDestinationsInGame = (game: GameView) => {
     const myPosition = game.me.position;
     const opponentPositions = game.opponents.map(p => p.position);
     return validDestinationsFromPosition(myPosition, opponentPositions, allFences(game));
@@ -146,7 +146,7 @@ const validDestinations = (id: number) => {
     return valid;
 }
 
-const validPostsInGame = (from: number, game: InProgressGame) => {
+const validPostsInGame = (from: number, game: GameView) => {
     let valid: number[] = validPosts(from);
     const currentFences = allFences(game);
 
@@ -235,8 +235,8 @@ const validPosts = (id: number) => {
 
 export {
     Player
-    , InProgressGame
-    , PathNode
+    , GameState
+    , GameView
     , Fence
     , validPostsInGame
     , validDestinationsInGame

@@ -14,13 +14,16 @@
   },
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^18.0.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
+    "@rollup/plugin-replace": "^2.4.2",
     "@rollup/plugin-run": "^2.0.2",
     "@rollup/plugin-typescript": "^8.2.1",
+    "@types/cors": "^2.8.10",
     "@types/express": "^4.17.11",
     "@types/node": "^14.14.37",
     "rollup": "^2.44.0",

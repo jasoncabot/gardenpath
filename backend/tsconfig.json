@@ -6,10 +6,17 @@
         "rootDir": "./src",
         "sourceMap": true,
         "strict": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "baseUrl": "./src",
+        "paths": {
+            "@shared/*": [
+                "./../../shared/dist/*"
+            ]
+        }
     },
     "include": [
-        "./src/**/*"
+        "./src/**/*",
+        "custom.d.ts"
     ],
     "exclude": [
         "node_modules",

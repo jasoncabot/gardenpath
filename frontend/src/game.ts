@@ -1,5 +1,5 @@
 import 'phaser';
-import { InProgressGame, validPostsInGame, validDestinationsInGame } from '../../shared/dist/index';
+import { GameView, validPostsInGame, validDestinationsInGame } from '../../shared/dist/index';
 
 const POST_GAP = 12;
 const POST_WIDTH = 44;
@@ -16,8 +16,8 @@ export default class InProgress extends Phaser.Scene {
 
     create() {
 
-        const game: InProgressGame = {
-            id: 1,
+        const game: GameView = {
+            id: "1",
             me: {
                 name: "Player 1",
                 position: 76,

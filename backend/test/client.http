@@ -1,0 +1,91 @@
+@user1 = 9cda3624-54a9-4c08-8d29-c9d9fe585995
+@user2 = 3e24bce7-48a4-4103-9a8f-179b38ddb41c
+@createdGameId = bfec4e8f-1946-4d80-b210-8cd4c6391d0c
+
+### Create game
+
+POST http://localhost:8080/games
+Content-Type: application/json
+Authorization: Bearer {{user1}}
+
+{
+    "name": "Player 1",
+    "numberOfPlayers": 2
+}
+
+### Player 2 - Join Game
+
+POST http://localhost:8080/games/{{createdGameId}}/players
+Content-Type: application/json
+Authorization: Bearer {{user2}}
+
+{
+    "name": "Player 2"
+}
+
+### Start Game as Player 1
+
+POST http://localhost:8080/games/{{createdGameId}}/turn
+Content-Type: application/json
+Authorization: Bearer {{user1}}
+
+### Start Game as Player 2
+
+POST http://localhost:8080/games/{{createdGameId}}/turn
+Content-Type: application/json
+Authorization: Bearer {{user2}}
+
+### Move as Player 1
+
+POST http://localhost:8080/games/{{createdGameId}}/move
+Content-Type: application/json
+Authorization: Bearer {{user1}}
+
+{
+    "position": 4
+}
+
+### Move as Player 2
+
+POST http://localhost:8080/games/{{createdGameId}}/move
+Content-Type: application/json
+Authorization: Bearer {{user2}}
+
+{
+    "position": 25
+}
+
+### Fence as Player 1
+
+POST http://localhost:8080/games/{{createdGameId}}/fence
+Content-Type: application/json
+Authorization: Bearer {{user1}}
+
+{
+    "start": 31,
+    "end": 33
+}
+
+### Fence as Player 2
+
+POST http://localhost:8080/games/{{createdGameId}}/fence
+Content-Type: application/json
+Authorization: Bearer {{user2}}
+
+{
+    "start": 33,
+    "end": 35
+}
+
+### View Game as Player 1
+
+GET http://localhost:8080/games/{{createdGameId}}
+Content-Type: application/json
+Authorization: Bearer {{user1}}
+
+
+### View Game as Player 2
+
+GET http://localhost:8080/games/{{createdGameId}}
+Content-Type: application/json
+Authorization: Bearer {{user2}}
