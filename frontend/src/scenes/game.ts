@@ -1,12 +1,12 @@
 import 'phaser';
-import { GameView, validPostsInGame, validDestinationsInGame } from '../../shared/dist/index';
+import { GameView, validPostsInGame, validDestinationsInGame } from '../../../shared/dist/index';
 
 const POST_GAP = 12;
 const POST_WIDTH = 44;
 const CELL_WIDTH = 44;
 const CELL_OVERLAP = (CELL_WIDTH - POST_GAP) / 2;
 
-export default class InProgress extends Phaser.Scene {
+export default class GameScene extends Phaser.Scene {
     constructor() {
         super('game');
     }
@@ -15,7 +15,6 @@ export default class InProgress extends Phaser.Scene {
     }
 
     create() {
-
         const game: GameView = {
             id: "1",
             me: {
@@ -205,20 +204,6 @@ export default class InProgress extends Phaser.Scene {
             , 'height': (POST_WIDTH + (Math.max(startPos.y, endPos.y) - Math.min(startPos.y, endPos.y))) - (2 * (CELL_OVERLAP + POST_GAP))
         };
     }
-
-
 }
 
-const config = {
-    type: Phaser.AUTO,
-    backgroundColor: '#F3F3F3',
-    width: 548,
-    height: 548,
-    scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
-    scene: InProgress
-};
-
-const game = new Phaser.Game(config);
+export { GameScene };
