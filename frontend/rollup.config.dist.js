@@ -4,13 +4,16 @@ import replace from '@rollup/plugin-replace';
 import html from '@rollup/plugin-html';
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
-import md5 from 'md5-file';
+
+const hash = require('child_process')
+    .execSync('git rev-parse --short HEAD')
+    .toString().trim()
 
 export default {
 
     //  Our games entry point (edit as required)
     input: [
-        './src/game.ts'
+        './src/index.ts'
     ],
 
     //  Where the build file is to be generated.
@@ -18,7 +21,7 @@ export default {
     //  You can also use 'umd' if you need to ingest your game into another system.
     //  The 'intro' property can be removed if using Phaser 3.21 or above. Keep it for earlier versions.
     output: {
-        file: `./dist/game.${md5.sync('./src/game.ts')}.js`,
+        file: `./dist/index.${hash}.js`,
         name: 'frontend',
         format: 'iife',
         sourcemap: false,
