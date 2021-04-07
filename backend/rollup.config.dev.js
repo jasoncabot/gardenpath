@@ -24,7 +24,7 @@ export default {
 
         replace({
             preventAssignment: true,
-            'process.env.ALLOWED_ORIGIN': JSON.stringify('http://localhost:10001/')
+            'process.env.ALLOWED_ORIGIN': JSON.stringify('http://localhost:10001')
         }),
 
         commonjs({ sourcemap: true }),
