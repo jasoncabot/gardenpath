@@ -4,6 +4,7 @@ import replace from '@rollup/plugin-replace';
 import html from '@rollup/plugin-html';
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
+import md5 from 'md5-file';
 
 export default {
 
@@ -17,7 +18,7 @@ export default {
     //  You can also use 'umd' if you need to ingest your game into another system.
     //  The 'intro' property can be removed if using Phaser 3.21 or above. Keep it for earlier versions.
     output: {
-        file: './dist/game.js',
+        file: `./dist/game.${md5.sync('./src/game.ts')}.js`,
         name: 'frontend',
         format: 'iife',
         sourcemap: false,
