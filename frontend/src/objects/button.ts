@@ -8,7 +8,7 @@ class ImageButton extends Phaser.GameObjects.Image {
 
     states: ImageButtonStateImages
 
-    constructor(scene: Phaser.Scene, x: number, y: number, states: ImageButtonStateImages, callback: () => (void)) {
+    constructor(scene: Phaser.Scene, x: number, y: number, states: ImageButtonStateImages, text: string, callback: () => (void)) {
         super(scene, x, y, 'blueSheet', states.rest);
 
         this.states = states;
@@ -21,6 +21,10 @@ class ImageButton extends Phaser.GameObjects.Image {
                 this.enterButtonHoverState();
                 callback();
             });
+
+        const label = scene.add.text(x, y, text, { color: '#DEF6FF' });
+        label.setOrigin(0.5, 0.5);
+        label.setDepth(this.depth + 1);
     }
 
     enterButtonHoverState() {

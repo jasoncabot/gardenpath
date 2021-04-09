@@ -14,11 +14,11 @@ export default class StartGameScene extends Phaser.Scene {
     }
 
     create() {
-        this.startButton = new ImageButton(this, 205, 90, {
+        this.startButton = new ImageButton(this, 274, 90, {
             active: 'blue_button03.png',
             rest: 'blue_button04.png',
             hover: 'blue_button02.png'
-        }, () => {
+        }, "Game", () => {
             this.scene.add('GameScene', GameScene, true);
             this.scene.remove('StartGameScene');
         });
