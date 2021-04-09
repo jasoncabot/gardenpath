@@ -4,6 +4,7 @@ import replace from '@rollup/plugin-replace';
 import html from '@rollup/plugin-html';
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
+import copy from 'rollup-plugin-copy';
 
 const hash = require('child_process')
     .execSync('git rev-parse --short HEAD')
@@ -56,6 +57,12 @@ export default {
             ],
             sourceMap: false,
             ignoreGlobal: true
+        }),
+
+        copy({
+            targets: [
+                { src: ['assets/*'], dest: './dist/assets/' }
+            ]
         }),
 
         html({ title: "GardenPath" }),

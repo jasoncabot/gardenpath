@@ -1,4 +1,5 @@
 import 'phaser';
+import { GameObjects } from 'phaser';
 import { GameView, validPostsInGame, validDestinationsInGame } from '../../../shared/dist/index';
 
 const POST_GAP = 12;
@@ -8,7 +9,7 @@ const CELL_OVERLAP = (CELL_WIDTH - POST_GAP) / 2;
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
-        super('game');
+        super('GameScene');
     }
 
     preload() {
@@ -81,6 +82,8 @@ export default class GameScene extends Phaser.Scene {
             }
         }
 
+        let fenceUnderConstruction: GameObjects.GameObject | undefined = undefined;
+
         for (let y = 0; y < 10; y++) {
             for (let x = 0; x < 10; x++) {
                 const postId = ((y * 10) + x);
@@ -92,17 +95,29 @@ export default class GameScene extends Phaser.Scene {
                     .setData("type", "post")
                     .setDepth(1)
                     .setAlpha(0)
+                    .setActive(false)
                     .on('dragstart', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
                         validPostsInGame(postId, game).forEach((id: number) => {
+                            views.posts[id].active = true;
                             views.posts[id].alpha = 0.5;
                             views.posts[id].setScale(1.1, 1.1);
                         });
                     })
                     .on('dragend', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
                         validPostsInGame(postId, game).forEach((id: number) => {
+                            views.posts[id].active = false;
                             views.posts[id].alpha = 0;
                             views.posts[id].setScale(1, 1);
                         });
+                    })
+                    .on('dragenter', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
+                        if (!target.active || target.getData('type') !== 'post') return;
+                        fenceUnderConstruction = drawFence(postId, target.getData('id'), POST_COLOUR);
+                    })
+                    .on('dragleave', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
+                        if (!target.active || target.getData('type') !== 'post') return;
+                        fenceUnderConstruction?.destroy();
+                        fenceUnderConstruction = undefined;
                     })
                     .on('drop', (_pointer: any, gameObject: any, _dropZone: any) => {
                         const valid = validPostsInGame(postId, game);
@@ -112,6 +127,7 @@ export default class GameScene extends Phaser.Scene {
                         // is this a valid construction?
                         if (!valid.includes(targetId)) return;
                         valid.forEach((id: number) => {
+                            views.posts[id].active = false;
                             views.posts[id].alpha = 0;
                             views.posts[id].setScale(1, 1);
                         });
@@ -167,9 +183,9 @@ export default class GameScene extends Phaser.Scene {
             );
         });
 
-        const drawFence: (start: number, end: number, colour: number) => (void) = (start, end, colour) => {
+        const drawFence: (start: number, end: number, colour: number) => (Phaser.GameObjects.GameObject) = (start, end, colour) => {
             const rect = this.rectForFence(start, end);
-            this.add.rectangle(rect.x + (rect.width / 2), rect.y + (rect.height / 2), rect.width, rect.height, colour, 1.0);
+            return this.add.rectangle(rect.x + (rect.width / 2), rect.y + (rect.height / 2), rect.width, rect.height, colour, 1.0);
         }
 
         game.me.fences.forEach(fence => drawFence(fence.start, fence.end, POST_COLOUR));
