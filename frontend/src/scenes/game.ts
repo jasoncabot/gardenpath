@@ -1,6 +1,6 @@
 import 'phaser';
 import { GameObjects } from 'phaser';
-import { GameView, validPostsInGame, validDestinationsInGame, Fence } from '../../../shared/dist/index';
+import { GameView, validPostsInGame, validDestinationsInGame } from '../../../shared/dist/index';
 import { GameController, FenceEvent, MoveEvent } from '../model/gamecontroller';
 
 const POST_GAP = 12;
