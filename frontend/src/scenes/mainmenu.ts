@@ -9,6 +9,7 @@ export default class MainMenuScene extends Phaser.Scene {
     }
 
     startButton: ImageButton | undefined
+    joinButton: ImageButton | undefined
 
     preload() {
         this.load.atlasXML('blueSheet', 'assets/buttons/blueSheet.png', 'assets/buttons/blueSheet.xml')
@@ -19,12 +20,21 @@ export default class MainMenuScene extends Phaser.Scene {
             active: 'blue_button03.png',
             rest: 'blue_button04.png',
             hover: 'blue_button02.png'
-        }, "Create", () => {
+        }, "Create Game", () => {
             this.scene.add('CreateGameScene', CreateGameScene, true);
             this.scene.remove('MainMenuScene');
         });
-
         this.add.existing(this.startButton);
+
+        this.joinButton = new ImageButton(this, 274, 140, {
+            active: 'blue_button03.png',
+            rest: 'blue_button04.png',
+            hover: 'blue_button02.png'
+        }, "Join Game", () => {
+            this.scene.add('CreateGameScene', CreateGameScene, true);
+            this.scene.remove('MainMenuScene');
+        });
+        this.add.existing(this.joinButton);
     }
 
 

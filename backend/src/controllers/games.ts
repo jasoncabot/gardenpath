@@ -10,7 +10,7 @@ const registerRoutes = (router: IRouter) => {
     router.post("/games", requireUser, (request: Request, response: Response) => {
         const numPlayers = parseInt(request.body.numberOfPlayers, 10) || 2;
         try {
-            if ([2, 3, 4].indexOf(numPlayers) < 0) throw new Error("numberOfPlayers must be 2, 3 or 4");
+            if ([1, 2, 3, 4].indexOf(numPlayers) < 0) throw new Error("numberOfPlayers must be 1, 2, 3 or 4");
             const game = createGame({ name: validatedName(request.body.name), identifier: request.user! }, { numberOfPlayers: numPlayers });
             const view = viewGameAsUser(game, request.user);
             response.status(201).json(view);
