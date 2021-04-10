@@ -7,6 +7,7 @@ interface ImageButtonStateImages {
 class ImageButton extends Phaser.GameObjects.Image {
 
     states: ImageButtonStateImages
+    label: Phaser.GameObjects.Text
 
     constructor(scene: Phaser.Scene, x: number, y: number, states: ImageButtonStateImages, text: string, callback: () => (void)) {
         super(scene, x, y, 'blueSheet', states.rest);
@@ -22,9 +23,9 @@ class ImageButton extends Phaser.GameObjects.Image {
                 callback();
             });
 
-        const label = scene.add.text(x, y, text, { color: '#DEF6FF' });
-        label.setOrigin(0.5, 0.5);
-        label.setDepth(this.depth + 1);
+        this.label = scene.add.text(x, y, text, { color: '#DEF6FF' });
+        this.label.setOrigin(0.5, 0.5);
+        this.label.setDepth(this.depth + 1);
     }
 
     enterButtonHoverState() {

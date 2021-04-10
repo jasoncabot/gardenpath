@@ -1,83 +1,60 @@
 import 'phaser';
 import { GameObjects } from 'phaser';
-import { GameView, validPostsInGame, validDestinationsInGame } from '../../../shared/dist/index';
-import { GameController, FenceEvent, MoveEvent } from '../model/gamecontroller';
+import { GameController, FenceViewModel, MoveViewModel, GameViewModel } from '../model/gamecontroller';
 
 const POST_GAP = 12;
 const POST_WIDTH = 44;
 const CELL_WIDTH = 44;
 const CELL_OVERLAP = (CELL_WIDTH - POST_GAP) / 2;
+const CELL_COLOUR = 0xE5E5E5;
+const CELL_COLOUR_HIGHLIGHT = 0xB5B5B5;
+const POST_COLOUR = 0xA5A5A5;
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super('GameScene');
-
-        this.controller = new GameController();
     }
 
-    controller: GameController
+    controller: GameController | undefined
+    views: {
+        posts: Phaser.GameObjects.Arc[],
+        cells: Phaser.GameObjects.Rectangle[],
+        players: Phaser.GameObjects.GameObject[]
+    } = { posts: [], cells: [], players: [] };
+
+    init(data: any) {
+        this.controller = new GameController(data.id);
+    }
 
     preload() {
     }
 
-    destroy() {
-        this.controller.off('fence');
-        this.controller.off('move');
+    create() {
+        this.controller!.on('game', this.onGameLoaded);
+        this.controller!.on('fence', (fence: FenceViewModel) => {
+            this.drawFence(fence.start, fence.end, POST_COLOUR);
+        });
+        this.controller!.on('move', (move: MoveViewModel) => {
+            // A player was moved, may not have been us
+            const { x, y } = this.positionForCell(move.to);
+            // so we look through all views (max. NUM_PLAYERS) until we find the one that corresponds to this event
+            const movedPlayer = this.views.players.find(playerView => {
+                return playerView?.getData('id') === move.from
+            });
+            // then we update it's position
+            (movedPlayer as Phaser.GameObjects.Arc).setPosition(x, y);
+            movedPlayer?.setData("id", move.to);
+        });
+        this.controller!.load();
     }
 
-    create() {
-        const game: GameView = {
-            id: "1",
-            me: {
-                name: "Player 1",
-                position: 76,
-                colour: 0x00C2FB,
-                fences: [
-                ],
-                target: [0, 1, 2, 3, 4, 5, 6, 7, 8]
-            },
-            opponents: [{
-                name: "Player 2",
-                position: 4,
-                colour: 0x25D3BA,
-                fences: [
-                ],
-                target: [72, 73, 74, 75, 76, 77, 78, 79, 80]
-            }, {
-                name: "Player 3",
-                position: 36,
-                colour: 0xFF8119,
-                fences: [
-                ],
-                target: [8, 17, 26, 35, 44, 53, 62, 71, 80]
-            }, {
-                name: "Player 4",
-                position: 44,
-                colour: 0xAC47C7,
-                fences: [
-                ],
-                target: [0, 9, 18, 27, 36, 45, 54, 63, 72]
-            }],
-            myTurn: true,
-            lastMoveAt: Date.now(),
-            state: "IN_PROGRESS",
-        };
+    destroy() {
+        this.controller!.off('game');
+        this.controller!.off('fence');
+        this.controller!.off('move');
+    }
 
-        let views: {
-            posts: Phaser.GameObjects.Arc[],
-            cells: Phaser.GameObjects.Rectangle[],
-            me?: Phaser.GameObjects.GameObject,
-            opponents: Phaser.GameObjects.GameObject[]
-        } = {
-            posts: [],
-            cells: [],
-            me: undefined,
-            opponents: []
-        };
-
-        const CELL_COLOUR = 0xE5E5E5;
-        const CELL_COLOUR_HIGHLIGHT = 0xB5B5B5;
-        const POST_COLOUR = 0xA5A5A5;
+    onGameLoaded = (game: GameViewModel) => {
 
         for (let y = 0; y < 9; y++) {
             for (let x = 0; x < 9; x++) {
@@ -88,40 +65,25 @@ export default class GameScene extends Phaser.Scene {
                     .setData("id", cellId)
                     .setData("type", "cell")
                     .setInteractive({ dropZone: true });
-                views.cells[cellId] = cell;
+                this.views.cells[cellId] = cell;
             }
         }
 
         let fenceUnderConstruction: GameObjects.GameObject | undefined = undefined;
         let validFencesForConstruction: number[] = [];
-        const onDraggingEnded = () => {
+        const onDraggingFenceEnded = () => {
             validFencesForConstruction.forEach((id: number) => {
-                views.posts[id].alpha = 0;
-                views.posts[id].setScale(1, 1);
+                this.views.posts[id].alpha = 0;
+                this.views.posts[id].setScale(1, 1);
             });
             validFencesForConstruction = [];
+
+            // destroy any temporary fences we had rendered
+            fenceUnderConstruction?.destroy();
+            fenceUnderConstruction = undefined;
         }
 
-        const drawFence: (start: number, end: number, colour: number) => (Phaser.GameObjects.GameObject) = (start, end, colour) => {
-            const rect = this.rectForFence(start, end);
-            return this.add.rectangle(rect.x + (rect.width / 2), rect.y + (rect.height / 2), rect.width, rect.height, colour, 1.0);
-        }
-
-        this.controller.on('fence', (fence: FenceEvent) => {
-            drawFence(fence.start, fence.end, POST_COLOUR);
-        });
-        this.controller.on('move', (move: MoveEvent) => {
-            // A player was moved, may not have been us
-            const { x, y } = this.positionForCell(move.to);
-            // so we look through all views (max. NUM_PLAYERS) until we find the one that corresponds to this event
-            const movedPlayer = [views.me].concat(views.opponents).find(playerView => {
-                return playerView?.getData('id') === move.from
-            });
-            // then we update it's position
-            (movedPlayer as Phaser.GameObjects.Arc).setPosition(x, y);
-            movedPlayer?.setData("id", move.to);
-        });
-
+        // Render all posts
         for (let y = 0; y < 10; y++) {
             for (let x = 0; x < 10; x++) {
                 const postId = ((y * 10) + x);
@@ -134,20 +96,20 @@ export default class GameScene extends Phaser.Scene {
                     .setDepth(1)
                     .setAlpha(0)
                     .on('dragstart', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
-                        validFencesForConstruction = validPostsInGame(postId, game);
+                        validFencesForConstruction = this.controller!.validPosts(postId);
                         validFencesForConstruction.forEach((id: number) => {
-                            views.posts[id].alpha = 0.5;
-                            views.posts[id].setScale(1.1, 1.1);
+                            this.views.posts[id].alpha = 0.5;
+                            this.views.posts[id].setScale(1.1, 1.1);
                         });
                     })
                     .on('dragend', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
-                        onDraggingEnded();
+                        onDraggingFenceEnded();
                     })
                     .on('dragenter', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
                         const targetId = target.getData('id');
                         if (target.getData('type') !== 'post' || !validFencesForConstruction.includes(targetId)) return;
                         // create temporary fence element
-                        fenceUnderConstruction = drawFence(postId, targetId, POST_COLOUR);
+                        fenceUnderConstruction = this.drawFence(postId, targetId, POST_COLOUR);
                     })
                     .on('dragleave', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
                         const targetId = target.getData('id');
@@ -160,60 +122,66 @@ export default class GameScene extends Phaser.Scene {
                         const targetId = target.getData('id');
                         if (target.getData('type') !== 'post' || !validFencesForConstruction.includes(targetId)) return;
 
-                        onDraggingEnded();
-                        this.controller.fence(game, { start: postId, end: targetId });
+                        onDraggingFenceEnded();
+                        this.controller!.fence(postId, targetId);
                     })
                     ;
                 post.input.alwaysEnabled = true;
 
-                views.posts[postId] = post;
+                this.views.posts[postId] = post;
             }
         }
 
         let validDestinations: number[] = [];
         const onDraggingPlayerEnded = () => {
             validDestinations.forEach((id: number) => {
-                views.cells[id].fillColor = CELL_COLOUR;
+                this.views.cells[id].fillColor = CELL_COLOUR;
             });
-            views.cells.forEach(e => e.setDepth(0));
+            this.views.cells.forEach(e => e.setDepth(0));
             validDestinations = [];
         }
 
-        const me = this.positionForCell(game.me.position);
-        views.me = this.add.circle(me.x, me.y, CELL_WIDTH / 2, game.me.colour, 1.0)
-            .setInteractive({ draggable: true })
-            .setData("id", game.me.position)
-            .setData("type", "player")
-            .setDepth(3)
-            .on('dragstart', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
-                validDestinations = validDestinationsInGame(game)
-                validDestinations.forEach((id: number) => {
-                    views.cells[id].fillColor = CELL_COLOUR_HIGHLIGHT;
-                });
-                views.cells.forEach(e => e.setDepth(2));
-            })
-            .on('dragend', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
-                onDraggingPlayerEnded();
-            })
-            .on('drop', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
-                if (target.getData('type') !== "cell") return;
-                if (!validDestinations.includes(target.getData("id"))) return;
-
-                onDraggingPlayerEnded();
-                this.controller.move(game, target.getData("id"));
-            })
-            ;
-        game.opponents.forEach(opponent => {
-            const you = this.positionForCell(opponent.position);
-            views.opponents.push(this.add.circle(you.x, you.y, CELL_WIDTH / 2, opponent.colour, 1.0)
-                .setData("id", opponent.position)
+        // Render all players
+        game.players.forEach(player => {
+            const { x, y } = this.positionForCell(player.position);
+            const view = this.add.circle(x, y, CELL_WIDTH / 2, player.colour, 1.0)
+                .setInteractive({ draggable: true })
+                .setData("id", player.position)
                 .setData("type", "player")
-                .setDepth(3)
-            );
+                .setDepth(3);
+
+            if (player.controllable) {
+                view
+                    .on('dragstart', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
+                        validDestinations = this.controller!.validDestinations();
+                        validDestinations.forEach((id: number) => {
+                            this.views.cells[id].fillColor = CELL_COLOUR_HIGHLIGHT;
+                        });
+                        this.views.cells.forEach(e => e.setDepth(2));
+                    })
+                    .on('dragend', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
+                        onDraggingPlayerEnded();
+                    })
+                    .on('drop', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
+                        if (target.getData('type') !== "cell") return;
+                        if (!validDestinations.includes(target.getData("id"))) return;
+
+                        onDraggingPlayerEnded();
+                        this.controller!.move(target.getData("id"));
+                    })
+                    ;
+            }
+
+            this.views.players.push(view);
         });
 
-        game.me.fences.forEach(fence => drawFence(fence.start, fence.end, POST_COLOUR));
-        game.opponents.forEach(p => p.fences.forEach(fence => drawFence(fence.start, fence.end, POST_COLOUR)));
+        // Render all fences
+        game.fences.forEach(fence => this.drawFence(fence.start, fence.end, POST_COLOUR));
+    }
+
+    drawFence: (start: number, end: number, colour: number) => (Phaser.GameObjects.GameObject) = (start, end, colour) => {
+        const rect = this.rectForFence(start, end);
+        return this.add.rectangle(rect.x + (rect.width / 2), rect.y + (rect.height / 2), rect.width, rect.height, colour, 1.0);
     }
 
     positionForPost = (index: number) => {
