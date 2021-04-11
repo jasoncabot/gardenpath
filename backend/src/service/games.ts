@@ -1,5 +1,5 @@
 import { GameView, Player, validDestinationsInGame, validPostsInGame } from "../../../shared/dist/index";
-import { findGameById, insertGame, uuidv4 } from "./database";
+import { findGameById, findGameByCode, insertGame, removeWaitingGame, uuidv4, shortCode } from "./database";
 import { GameId, PlayerId, GameOptions, GameModel, PlayerOptions, PlayMove, PlayFence } from "./model";
 
 interface StartReference {
@@ -28,6 +28,7 @@ const createGame: (player: PlayerOptions, options: GameOptions) => GameModel = (
 
     const game: GameModel = {
         id: uuidv4(),
+        code: shortCode(),
         currentTurn: player.identifier,
         lastMoveAt: Date.now(),
         numberOfPlayers: options.numberOfPlayers,
@@ -59,13 +60,14 @@ const startGame: (gameId: GameId, player: PlayerId) => (GameModel) = (gameId: Ga
     game.lastMoveAt = Date.now();
     game.currentTurn = game.turnOrder[0];
 
+    removeWaitingGame(game);
+
     return game;
 }
 
-const joinGame: (gameId: GameId, player: PlayerOptions) => (GameModel) = (gameId: GameId, player: PlayerOptions) => {
-    const game = findGameById(gameId);
+const joinGame: (code: string, player: PlayerOptions) => (GameModel) = (code: string, player: PlayerOptions) => {
+    const game = findGameByCode(code);
     if (!game) throw new Error("Unable to find game");
-    if (game.state !== "WAITING_OPPONENT") throw new Error("Can only join a waiting game");
     if (Object.keys(game.players).length >= game.numberOfPlayers) throw new Error("No room to join game");
     if (game.players[player.identifier]) throw new Error("Can't join game again");
 
@@ -147,6 +149,7 @@ const viewGameAsUser: (game: GameModel | undefined, playerId: PlayerId | undefin
 
     let view: GameView = {
         id: game.id,
+        code: game.code,
         lastMoveAt: game.lastMoveAt,
         state: game.state,
         myTurn: playerId === game.currentTurn,

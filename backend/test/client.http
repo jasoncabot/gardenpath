@@ -1,6 +1,7 @@
 @user1 = 9cda3624-54a9-4c08-8d29-c9d9fe585995
 @user2 = 3e24bce7-48a4-4103-9a8f-179b38ddb41c
-@createdGameId = bfec4e8f-1946-4d80-b210-8cd4c6391d0c
+@createdGameId = 54a18b53-0ad7-44c5-856a-050741a4a0ed
+@createdGameCode = 348G
 
 @host = http://localhost:8080
 # @host = https://gardenpathapi.jasoncabot.me
@@ -18,7 +19,7 @@ Authorization: Bearer {{user1}}
 
 ### Player 2 - Join Game
 
-POST {{host}}/games/{{createdGameId}}/players
+POST {{host}}/games/{{createdGameCode}}/players
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 

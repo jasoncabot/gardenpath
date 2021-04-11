@@ -4,9 +4,9 @@ import { UserController } from '../model/usercontroller';
 import { ImageButton } from '../objects/button';
 import { StartGameScene } from './startgame';
 
-export default class CreateGameScene extends Phaser.Scene {
+export default class JoinGameScene extends Phaser.Scene {
     constructor() {
-        super('CreateGameScene');
+        super('JoinGameScene');
 
         this.userController = new UserController();
     }
@@ -27,8 +27,8 @@ export default class CreateGameScene extends Phaser.Scene {
                     <input type="text" id="name" name="name" value="${this.userController.name}" placeholder="Enter your name" style="font-size: 14px; width: 222px; height: 27px; padding-left: 8px;">
                 </p>
                 <p>
-                    <label for="players">Players: </label>
-                    <input type="number" min="1" max="4" id="players" name="players" value="2" placeholder="Number of players" style="font-size: 14px; width: 222px; height: 27px; padding-left: 8px;">
+                    <label for="code">Code: </label>
+                    <input type="text" id="code" name="code" placeholder="Game code (e.g ABCD)" style="font-size: 14px; width: 222px; height: 27px; padding-left: 8px;">
                 </p>
             `);
 
@@ -39,35 +39,34 @@ export default class CreateGameScene extends Phaser.Scene {
         }, "OK", () => {
             // save the name in the user controller
             const name = (<HTMLInputElement>createForm.getChildByName('name')).value;
-            const numPlayers = parseInt((<HTMLInputElement>createForm.getChildByName('players')).value, 10);
+            const code = ((<HTMLInputElement>createForm.getChildByName('code')).value || '').toUpperCase();
             this.userController.storeName(name);
-            this.startGame(name, numPlayers);
+            this.startGame(name, code);
         });
 
         this.add.existing(this.startButton);
     }
 
-    startGame = (name: string, numPlayers: number) => {
-        fetch(`${process.env.API_ENDPOINT}/games`, {
+    startGame = (name: string, code: string) => {
+        fetch(`${process.env.API_ENDPOINT}/games/${code}/players`, {
             "method": "POST",
             "headers": {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${this.userController.userId}`
             },
             "body": JSON.stringify({
-                "name": name,
-                "numberOfPlayers": numPlayers
+                "name": name
             })
         }).then(response => {
             if (!response.ok) { return response.json().then(json => { throw json.error; }); }
             return response.json();
         }).then(response => {
             this.scene.add('StartGameScene', StartGameScene, true, { id: response.id });
-            this.scene.remove('CreateGameScene');
+            this.scene.remove('JoinGameScene');
         }).catch(err => {
             console.error(err);
         });
     }
 }
 
-export { CreateGameScene };
+export { JoinGameScene };

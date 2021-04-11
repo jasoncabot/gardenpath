@@ -2,6 +2,7 @@
 import 'phaser';
 import { ImageButton } from '../objects/button';
 import { CreateGameScene } from './creategame';
+import { JoinGameScene } from './joingame';
 
 export default class MainMenuScene extends Phaser.Scene {
     constructor() {
@@ -31,7 +32,7 @@ export default class MainMenuScene extends Phaser.Scene {
             rest: 'blue_button04.png',
             hover: 'blue_button02.png'
         }, "Join Game", () => {
-            this.scene.add('CreateGameScene', CreateGameScene, true);
+            this.scene.add('JoinGameScene', JoinGameScene, true);
             this.scene.remove('MainMenuScene');
         });
         this.add.existing(this.joinButton);

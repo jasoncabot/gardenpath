@@ -25,6 +25,7 @@ interface PlayFence {
 
 interface GameModel {
     id: GameId,
+    code: string,
     numberOfPlayers: number,
     players: Record<PlayerId, Player>,
     turnOrder: PlayerId[],

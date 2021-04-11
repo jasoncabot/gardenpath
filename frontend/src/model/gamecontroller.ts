@@ -15,12 +15,14 @@ interface MoveViewModel {
 }
 
 interface PlayerViewModel {
+    name: string
     controllable: boolean
     position: number
     colour: number
 }
 
 interface GameViewModel {
+    code: string
     players: PlayerViewModel[]
     fences: FenceViewModel[]
 }
@@ -119,8 +121,10 @@ class GameController extends Phaser.Events.EventEmitter {
 
     toViewModel: (game: GameView) => (GameViewModel) = (game: GameView) => {
         const vm: GameViewModel = {
+            code: game.code,
             players: [game.me].concat(game.opponents).map(p => {
                 return {
+                    name: p.name,
                     colour: p.colour,
                     controllable: p === game.me,
                     position: p.position

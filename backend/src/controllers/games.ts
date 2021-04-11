@@ -45,10 +45,10 @@ const registerRoutes = (router: IRouter) => {
     });
 
     // Join Game
-    // POST /games/10/players
-    router.post("/games/:id/players", requireUser, (request: Request, response: Response) => {
+    // POST /games/B12X/players
+    router.post("/games/:code/players", requireUser, (request: Request, response: Response) => {
         try {
-            const game = joinGame(request.params.id, { name: validatedName(request.body.name), identifier: request.user! })
+            const game = joinGame(request.params.code, { name: validatedName(request.body.name), identifier: request.user! })
             const view = viewGameAsUser(game, request.user);
             response.status(200).json(view)
         } catch (error) {
@@ -91,7 +91,8 @@ const registerRoutes = (router: IRouter) => {
 }
 
 const validatedName: (name: string) => (string) = (name: string) => {
-    if (name.length === 0 || name.length > 40) throw new Error("Invalid name");
+    if (name.length === 0 || name.length > 40) throw new Error("Name must be between 1 and 40 characters");
+    if (/^[\w ]+$/.test(name) === false) throw new Error("Name must only include alphanumeric characters");
     return name;
 }
 

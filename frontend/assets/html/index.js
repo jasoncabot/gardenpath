@@ -29,6 +29,8 @@ const htmlTemplate = ({ files, title }) => `<!DOCTYPE html>
     </head>
 
     <body>
+        <div id="root">
+        </div>
         ${files.js.map(f => `<script src="${f.fileName}"></script>`)}
     </body>
 

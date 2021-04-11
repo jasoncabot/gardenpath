@@ -15,6 +15,7 @@ interface Player {
 
 interface GameView {
     id: string,
+    code: string,
     me: Player,
     opponents: Player[],
     myTurn: boolean,

@@ -14,11 +14,18 @@ class UserController extends Phaser.Events.EventEmitter {
         const id = localStorage.getItem("userId") || uuidv4();
         localStorage.setItem("userId", id);
         this.userId = id;
+
+        this.name = localStorage.getItem("userName") || undefined;
     }
 
     userId: string
-}
+    name: string | undefined
 
+    storeName: (name: string) => (void) = (name: string) => {
+        this.name = name;
+        localStorage.setItem("userName", name);
+    }
+}
 
 export {
     UserController
