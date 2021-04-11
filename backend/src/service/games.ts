@@ -150,6 +150,7 @@ const viewGameAsUser: (game: GameModel | undefined, playerId: PlayerId | undefin
     let view: GameView = {
         id: game.id,
         code: game.code,
+        numberOfPlayers: game.numberOfPlayers,
         lastMoveAt: game.lastMoveAt,
         state: game.state,
         myTurn: playerId === game.currentTurn,

@@ -62,7 +62,7 @@ export default class CreateGameScene extends Phaser.Scene {
             if (!response.ok) { return response.json().then(json => { throw json.error; }); }
             return response.json();
         }).then(response => {
-            this.scene.add('StartGameScene', StartGameScene, true, { id: response.id });
+            this.scene.add('StartGameScene', StartGameScene, true, { id: response.id, playerCount: numPlayers });
             this.scene.remove('CreateGameScene');
         }).catch(err => {
             console.error(err);
