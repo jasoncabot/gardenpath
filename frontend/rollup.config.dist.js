@@ -1,10 +1,11 @@
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import replace from '@rollup/plugin-replace';
-import html from '@rollup/plugin-html';
-import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
+import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
+import html from '@rollup/plugin-html';
+import htmlTemplate from "./assets/html/index";
+import replace from '@rollup/plugin-replace';
+import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 
 const hash = require('child_process')
     .execSync('git rev-parse --short HEAD')
@@ -67,7 +68,7 @@ export default {
             ]
         }),
 
-        html({ title: "GardenPath" }),
+        html({ title: "GardenPath", template: htmlTemplate }),
 
         //  See https://www.npmjs.com/package/rollup-plugin-typescript2 for config options
         typescript(),

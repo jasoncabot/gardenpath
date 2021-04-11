@@ -1,10 +1,11 @@
 import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import replace from '@rollup/plugin-replace';
-import serve from 'rollup-plugin-serve';
-import html from '@rollup/plugin-html';
-import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy';
+import html from '@rollup/plugin-html';
+import htmlTemplate from "./assets/html/index";
+import replace from '@rollup/plugin-replace';
+import resolve from '@rollup/plugin-node-resolve';
+import serve from 'rollup-plugin-serve';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
 
@@ -66,7 +67,7 @@ export default {
             ]
         }),
 
-        html({ title: "GardenPath" }),
+        html({ title: "GardenPath", template: htmlTemplate }),
 
         //  See https://www.npmjs.com/package/rollup-plugin-serve for config options
         serve({
