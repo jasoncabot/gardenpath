@@ -40,10 +40,26 @@ const removeWaitingGame: (game: GameModel) => (void) = (game: GameModel) => {
     delete waitingGames[game.code];
 }
 
+const removeStaleGames: () => (void) = () => {
+    // Find all games where the last move was a long time ago and remove them
+    const now = Date.now();
+    const keys = Object.keys(games);
+    keys.forEach(key => {
+        const game = games[key];
+        const sinceLastMove = (now - game.lastMoveAt);
+        if (sinceLastMove >= 24 * 60 * 60 * 1000) {
+            console.log(`Removing old game with id ${game.id}`);
+            delete games[key];
+            delete waitingGames[game.code];
+        }
+    });
+}
+
 export {
     findGameByCode,
     findGameById,
     insertGame,
+    removeStaleGames,
     removeWaitingGame,
     shortCode,
     uuidv4,
