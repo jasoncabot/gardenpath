@@ -179,7 +179,7 @@ const validPostsInGame = (from: number, game: GameView) => {
         // players can still reach their goal
         const fences: Fence[] = [{ start: from, end: to }].concat(currentFences);
 
-        const players: Player[] = [game.me].concat(game.opponents);
+        const players: Player[] = [game.me].concat(game.opponents).filter(p => !!p);
         // is any player blocked from reaching their target position?
         for (let index = 0; index < players.length; index++) {
             const player = players[index];
