@@ -1,6 +1,7 @@
 import 'phaser';
 import { GameObjects } from 'phaser';
-import { GameController, FenceViewModel, MoveViewModel, GameViewModel } from '../model/gamecontroller';
+import { FenceViewModel, GameController, GameViewModel, MoveViewModel } from '../model/gamecontroller';
+import BaseScene from './BaseScene';
 
 const POST_GAP = 12;
 const POST_WIDTH = 44;
@@ -10,9 +11,11 @@ const CELL_COLOUR = 0xE5E5E5;
 const CELL_COLOUR_HIGHLIGHT = 0xB5B5B5;
 const POST_COLOUR = 0xA5A5A5;
 
-export default class GameScene extends Phaser.Scene {
+export default class GameScene extends BaseScene {
+    static key = "GameScene";
+
     constructor() {
-        super('GameScene');
+        super(GameScene.key);
     }
 
     controller: GameController | undefined

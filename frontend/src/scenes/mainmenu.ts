@@ -1,12 +1,13 @@
 
 import 'phaser';
 import { ImageButton } from '../objects/button';
-import { CreateGameScene } from './creategame';
-import { JoinGameScene } from './joingame';
+import BaseScene from './BaseScene';
 
-export default class MainMenuScene extends Phaser.Scene {
+export default class MainMenuScene extends BaseScene {
+    static key = "MainMenuScene";
+
     constructor() {
-        super('MainMenuScene');
+        super(MainMenuScene.key);
     }
 
     startButton: ImageButton | undefined
@@ -22,8 +23,7 @@ export default class MainMenuScene extends Phaser.Scene {
             rest: 'blue_button04.png',
             hover: 'blue_button02.png'
         }, "Create Game", () => {
-            this.scene.add('CreateGameScene', CreateGameScene, true);
-            this.scene.remove('MainMenuScene');
+            this.router.navigate("/games/new");
         });
         this.add.existing(this.startButton);
 
@@ -32,13 +32,10 @@ export default class MainMenuScene extends Phaser.Scene {
             rest: 'blue_button04.png',
             hover: 'blue_button02.png'
         }, "Join Game", () => {
-            this.scene.add('JoinGameScene', JoinGameScene, true);
-            this.scene.remove('MainMenuScene');
+            this.router.navigate("/games");
         });
         this.add.existing(this.joinButton);
     }
-
-
 }
 
 export { MainMenuScene };

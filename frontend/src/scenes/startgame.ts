@@ -3,22 +3,22 @@ import 'phaser';
 import { GameController, GameViewModel } from '../model/gamecontroller';
 import { UserController } from '../model/usercontroller';
 import { ImageButton } from '../objects/button';
-import { GameScene } from './game';
+import BaseScene from './BaseScene';
 
-export default class StartGameScene extends Phaser.Scene {
+export default class StartGameScene extends BaseScene {
+    static key = "StartGameScene";
+
     constructor() {
-        super('StartGameScene');
+        super(StartGameScene.key);
         this.userController = new UserController();
     }
 
-    playerCount: number = 2
     gameController: GameController | undefined
     userController: UserController
     startButton: ImageButton | undefined
 
     init(data: any) {
         this.gameController = new GameController(data.id);
-        this.playerCount = data.playerCount || 2;
     }
 
     preload() {
@@ -46,7 +46,7 @@ export default class StartGameScene extends Phaser.Scene {
     onGameUpdated: (game: GameViewModel) => (void) = (game: GameViewModel) => {
         this.add.text(8, 0, `Code: ${game.code}`, { color: '#1F2F3F' }).setOrigin(0, 0);
 
-        for (let index = 0; index < this.playerCount; index++) {
+        for (let index = 0; index < game.numberOfPlayers; index++) {
             const y = 24 + 22 + (index * 44) + (index * 8);
             const player = game.players[index] || { name: "Waiting ...", colour: 0x1ff1f1 };
 
@@ -66,8 +66,7 @@ export default class StartGameScene extends Phaser.Scene {
             if (!response.ok) { return response.json().then(json => { throw json.error; }); }
             return response.json();
         }).then(response => {
-            this.scene.add('GameScene', GameScene, true, { id: response.id });
-            this.scene.remove('StartGameScene');
+            this.router.navigate(`/games/${response.id}`);
         }).catch(err => {
             console.error(err);
         });

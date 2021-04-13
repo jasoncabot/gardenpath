@@ -1,5 +1,5 @@
 import 'phaser';
-import { GameView, Fence, validPostsInGame, validDestinationsInGame } from '../../../shared/dist/index';
+import { Fence, GameView, validDestinationsInGame, validPostsInGame } from '../../../shared/dist/index';
 import { UserController } from './usercontroller';
 
 // Don't expose dependency on shared code into the view
@@ -22,6 +22,7 @@ interface PlayerViewModel {
 }
 
 interface GameViewModel {
+    numberOfPlayers: number
     code: string
     players: PlayerViewModel[]
     fences: FenceViewModel[]
@@ -120,17 +121,20 @@ class GameController extends Phaser.Events.EventEmitter {
     }
 
     toViewModel: (game: GameView) => (GameViewModel) = (game: GameView) => {
+        // You can view a game you aren't playing, and therefore game.me may not exist
+        const me = game.me || { fences: [] };
         const vm: GameViewModel = {
+            numberOfPlayers: game.numberOfPlayers,
             code: game.code,
-            players: [game.me].concat(game.opponents).map(p => {
+            players: [me].concat(game.opponents).map(p => {
                 return {
                     name: p.name,
                     colour: p.colour,
-                    controllable: p === game.me,
+                    controllable: p === me,
                     position: p.position
                 }
             }),
-            fences: game.me.fences.concat(game.opponents.map(p => p.fences).reduce((acc, val) => acc.concat(val), []))
+            fences: me.fences.concat(game.opponents.map(p => p.fences).reduce((acc, val) => acc.concat(val), []))
         };
         return vm;
     }
@@ -141,4 +145,5 @@ export {
     MoveViewModel,
     GameViewModel,
     GameController
-}
+};
+

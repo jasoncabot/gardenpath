@@ -2,11 +2,13 @@
 import 'phaser';
 import { UserController } from '../model/usercontroller';
 import { ImageButton } from '../objects/button';
-import { StartGameScene } from './startgame';
+import BaseScene from './BaseScene';
 
-export default class CreateGameScene extends Phaser.Scene {
+export default class CreateGameScene extends BaseScene {
+    static key = "CreateGameScene";
+
     constructor() {
-        super('CreateGameScene');
+        super(CreateGameScene.key);
 
         this.userController = new UserController();
     }
@@ -62,8 +64,7 @@ export default class CreateGameScene extends Phaser.Scene {
             if (!response.ok) { return response.json().then(json => { throw json.error; }); }
             return response.json();
         }).then(response => {
-            this.scene.add('StartGameScene', StartGameScene, true, { id: response.id, playerCount: numPlayers });
-            this.scene.remove('CreateGameScene');
+            this.router.navigate(`/games/${response.id}/players`);
         }).catch(err => {
             console.error(err);
         });

@@ -29,4 +29,5 @@ class UserController extends Phaser.Events.EventEmitter {
 
 export {
     UserController
-}
+};
+

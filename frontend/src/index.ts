@@ -1,5 +1,5 @@
 import 'phaser';
-import { MainMenuScene } from './scenes/mainmenu';
+import { RouterPlugin } from './plugins/router';
 
 const config = {
     type: Phaser.AUTO,
@@ -8,15 +8,18 @@ const config = {
     width: 548,
     height: 548,
     parent: 'root',
-    resolution: 2,
+    plugins: {
+        global: [
+            { key: 'RouterPlugin', plugin: RouterPlugin, start: true, data: { window }, mapping: 'router' }
+        ]
+    },
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_HORIZONTALLY
     },
     dom: {
         createContainer: true
-    },
-    scene: MainMenuScene
+    }
 };
 
 const game = new Phaser.Game(config);
