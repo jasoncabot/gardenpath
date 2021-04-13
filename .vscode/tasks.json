@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "watch",
+			"script": "dev",
 			"path": "frontend/",
 			"group": "build",
 			"dependsOn": [
@@ -27,7 +27,7 @@
 					}
 				}
 			],
-			"label": "npm: watch - frontend",
+			"label": "npm: dev - frontend",
 			"detail": "rollup --watch --config rollup.config.dev.js"
 		},
 		{

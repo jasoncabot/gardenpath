@@ -31,7 +31,7 @@ const htmlTemplate = ({ files, title }) => `<!DOCTYPE html>
     <body>
         <div id="root">
         </div>
-        ${files.js.map(f => `<script src="${f.fileName}"></script>`)}
+        ${files.js.map(f => `<script src="/${f.fileName}"></script>`)}
     </body>
 
 </html>

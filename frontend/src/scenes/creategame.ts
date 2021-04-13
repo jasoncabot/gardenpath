@@ -15,7 +15,7 @@ export default class CreateGameScene extends Phaser.Scene {
     startButton: ImageButton | undefined
 
     preload() {
-        this.load.atlasXML('blueSheet', 'assets/buttons/blueSheet.png', 'assets/buttons/blueSheet.xml');
+        this.load.atlasXML('blueSheet', '/assets/buttons/blueSheet.png', '/assets/buttons/blueSheet.xml');
     }
 
     create() {

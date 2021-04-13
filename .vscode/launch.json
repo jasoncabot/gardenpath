@@ -27,7 +27,7 @@
             "reAttach": true,
             "url": "http://localhost:10001/",
             "webRoot": "${workspaceFolder}",
-            "preLaunchTask": "npm: watch - frontend",
+            "preLaunchTask": "npm: dev - frontend",
             "pathMappings": [
                 {
                     "url": "http://localhost:10001/src",

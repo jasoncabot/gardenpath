@@ -3,16 +3,14 @@
     "description": "Frontend application for Gardenpath game",
     "version": "1.0.0",
     "scripts": {
-        "dev": "rollup --config rollup.config.dev.js",
-        "build": "rollup --config rollup.config.dist.js",
-        "watch": "rollup --watch --config rollup.config.dev.js"
+        "dev": "rollup --watch --config rollup.config.dev.js",
+        "build": "rollup --config rollup.config.dist.js"
     },
     "license": "MIT",
     "author": "Jason Cabot <jasoncabot@gmail.com>",
     "repository": {
         "url": "https://github.com/jasoncabot/gardenpath"
     },
-    "dependencies": {},
     "devDependencies": {
         "@rollup/plugin-commonjs": "^18.0.0",
         "@rollup/plugin-html": "^0.2.3",
