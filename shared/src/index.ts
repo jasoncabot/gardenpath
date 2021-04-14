@@ -57,25 +57,42 @@ const validDestinationsInGame = (game: GameView) => {
 
 const validDestinationsFromPosition = (from: number, blockedPositions: number[], fences: Fence[]) => {
     // Finds all valid next steps for a current position, taking into account 1..n opponents
-    // although at the moment this is hardcoded to just be a single player, there's no reason it has to be
     let destinations = validDestinations(from)
         .filter(to => !pathBlockedByFences(from, to, fences));
 
+    const validDestinationsThatAreBlocked = destinations.filter(to => blockedPositions.indexOf(to) >= 0);
+
     // Check for being able to jump over the opponent
-    blockedPositions.forEach(blockedPosition => {
-        if (destinations.indexOf(blockedPosition) >= 0) {
-            const jumpedPositions = validDestinations(blockedPosition);
-            jumpedPositions.forEach(jumped => {
-                // If this would mean going back to where we started, ignore it
-                if (jumped === from) return;
-                // If we already know about this position, ignore it
-                if (destinations.indexOf(jumped) >= 0) return;
-                // If a fence is blocking
-                if (pathBlockedByFences(blockedPosition, jumped, fences)) return;
-                // Otherwise it's a valid destination
-                destinations.push(jumped);
-            })
+    validDestinationsThatAreBlocked.forEach(blockedPosition => {
+        const validMovesFromOpponent = validDestinations(blockedPosition);
+
+        // moving in this direction would land us on an opponent, so check if we can jump over them
+        const straightJump = blockedPosition - (from - blockedPosition);
+        // if straight jump is a valid move and not blocked by a fence, then that's it!
+        if (validMovesFromOpponent.indexOf(straightJump) >= 0 && !pathBlockedByFences(blockedPosition, straightJump, fences)) {
+            // if this lands us on another player, just return
+            // we don't need to carry on and explore diagonal moves as it's
+            // against the rules
+            if (blockedPositions.indexOf(straightJump) >= 0) return
+
+            // otherwise, record the fact we can jump straight over the player
+            // and don't bother exploring diagonals
+            destinations.push(straightJump);
+            return;
         }
+
+        // otherwise, if we can't straight jump them we are allowed to go diagonally
+        // provided we don't land on another player or pass through a fence
+        validMovesFromOpponent.forEach(jumped => {
+            // If this would mean going back to where we started, ignore it
+            if (jumped === from) return;
+            // If we already know about this position, ignore it
+            if (destinations.indexOf(jumped) >= 0) return;
+            // If a fence is blocking
+            if (pathBlockedByFences(blockedPosition, jumped, fences)) return;
+            // Otherwise it's a valid destination
+            destinations.push(jumped);
+        });
     });
 
     // You can't move on top of the opponent
@@ -240,6 +257,7 @@ export {
     , GameState
     , GameView
     , Fence
+    , validDestinationsFromPosition
     , validPostsInGame
     , validDestinationsInGame
 };
