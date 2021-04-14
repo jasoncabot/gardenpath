@@ -30,7 +30,7 @@ export default class JoinGameScene extends BaseScene {
                 </p>
                 <p>
                     <label for="code">Code: </label>
-                    <input type="text" id="code" name="code" placeholder="Game code (e.g ABCD)" style="font-size: 14px; width: 222px; height: 27px; padding-left: 8px;">
+                    <input type="text" id="code" name="code" placeholder="Game code (e.g ABCD)" maxlength="4" size="4" style="font-size: 14px; width: 222px; height: 27px; padding-left: 8px;">
                 </p>
             `);
 
