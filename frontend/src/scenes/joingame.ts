@@ -17,7 +17,7 @@ export default class JoinGameScene extends BaseScene {
     startButton: ImageButton | undefined
 
     preload() {
-        this.load.atlasXML('blueSheet', 'assets/buttons/blueSheet.png', 'assets/buttons/blueSheet.xml');
+        this.load.atlasXML('blueSheet', '/assets/buttons/blueSheet.png', '/assets/buttons/blueSheet.xml');
     }
 
     create() {
