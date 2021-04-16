@@ -6,7 +6,7 @@ const config = {
     pixelArt: false,
     backgroundColor: '#F0F0F0',
     width: 548,
-    height: 548,
+    height: 710,
     parent: 'root',
     plugins: {
         global: [

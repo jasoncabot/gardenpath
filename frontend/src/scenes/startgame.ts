@@ -22,6 +22,7 @@ export default class StartGameScene extends BaseScene {
     }
 
     preload() {
+        this.load.atlasXML('blueSheet', '/assets/buttons/blueSheet.png', '/assets/buttons/blueSheet.xml');
     }
 
     create() {

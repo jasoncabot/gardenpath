@@ -24,6 +24,7 @@ interface PlayerViewModel {
 interface GameViewModel {
     numberOfPlayers: number
     code: string
+    myTurn: boolean
     players: PlayerViewModel[]
     fences: FenceViewModel[]
 }
@@ -97,7 +98,7 @@ class GameController extends Phaser.Events.EventEmitter {
         return validPostsInGame(from, this.game);
     }
 
-    validDestinations: () => (number[]) = () => {
+    validDestinations: () => (Set<number>) = () => {
         if (!this.game) throw new Error("Game must have loaded before attempting to see which positions are valid");
         return validDestinationsInGame(this.game);
     }
@@ -126,11 +127,12 @@ class GameController extends Phaser.Events.EventEmitter {
         const vm: GameViewModel = {
             numberOfPlayers: game.numberOfPlayers,
             code: game.code,
+            myTurn: game.myTurn,
             players: [me].concat(game.opponents).map(p => {
                 return {
                     name: p.name,
                     colour: p.colour,
-                    controllable: p === me,
+                    controllable: game.myTurn && p === me,
                     position: p.position
                 }
             }),

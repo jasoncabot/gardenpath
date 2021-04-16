@@ -97,51 +97,49 @@ export default class GameScene extends BaseScene {
                     .setData("id", postId)
                     .setData("type", "post")
                     .setDepth(1)
-                    .setAlpha(0)
-                    .on('dragstart', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
+                    .setAlpha(0);
+
+                if (game.myTurn) {
+                    post.on('dragstart', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
                         validFencesForConstruction = this.controller!.validPosts(postId);
                         validFencesForConstruction.forEach((id: number) => {
                             this.views.posts[id].alpha = 0.5;
                             this.views.posts[id].setScale(1.1, 1.1);
                         });
-                    })
-                    .on('dragend', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
+                    }).on('dragend', (_pointer: Phaser.Input.Pointer, _dragX: number, _dragY: number) => {
                         onDraggingFenceEnded();
-                    })
-                    .on('dragenter', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
+                    }).on('dragenter', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
                         const targetId = target.getData('id');
                         if (target.getData('type') !== 'post' || !validFencesForConstruction.includes(targetId)) return;
                         // create temporary fence element
                         fenceUnderConstruction = this.drawFence(postId, targetId, POST_COLOUR);
-                    })
-                    .on('dragleave', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
+                    }).on('dragleave', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
                         const targetId = target.getData('id');
                         if (target.getData('type') !== 'post' || !validFencesForConstruction.includes(targetId)) return;
                         // destroy temporary fence element
                         fenceUnderConstruction?.destroy();
                         fenceUnderConstruction = undefined;
-                    })
-                    .on('drop', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject, _dropZone: any) => {
+                    }).on('drop', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject, _dropZone: any) => {
                         const targetId = target.getData('id');
                         if (target.getData('type') !== 'post' || !validFencesForConstruction.includes(targetId)) return;
 
                         onDraggingFenceEnded();
                         this.controller!.fence(postId, targetId);
-                    })
-                    ;
-                post.input.alwaysEnabled = true;
+                    });
+                    post.input.alwaysEnabled = true;
+                }
 
                 this.views.posts[postId] = post;
             }
         }
 
-        let validDestinations: number[] = [];
+        let validDestinations: Set<number> = new Set();
         const onDraggingPlayerEnded = () => {
             validDestinations.forEach((id: number) => {
                 this.views.cells[id].fillColor = CELL_COLOUR;
             });
             this.views.cells.forEach(e => e.setDepth(0));
-            validDestinations = [];
+            validDestinations.clear();
         }
 
         // Render all players
@@ -167,7 +165,7 @@ export default class GameScene extends BaseScene {
                     })
                     .on('drop', (_pointer: Phaser.Input.Pointer, target: Phaser.GameObjects.GameObject) => {
                         if (target.getData('type') !== "cell") return;
-                        if (!validDestinations.includes(target.getData("id"))) return;
+                        if (!validDestinations.has(target.getData("id"))) return;
 
                         onDraggingPlayerEnded();
                         this.controller!.move(target.getData("id"));

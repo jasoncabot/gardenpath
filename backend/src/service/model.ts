@@ -1,4 +1,4 @@
-import { Player, GameState } from "@shared/index";
+import { Player, GameState } from "../../../shared/dist/index";
 
 type GameId = string;
 type PlayerId = string;

@@ -96,7 +96,7 @@ const move = (gameId: GameId, move: PlayMove) => {
     const view = viewGameAsUser(game, move.identifier);
     if (!view) throw new Error("Unable to view game as user");
     const validDestinations = validDestinationsInGame(view);
-    if (validDestinations.indexOf(move.position) < 0) throw new Error("Invalid move destination, must be one of " + JSON.stringify(validDestinations));
+    if (!validDestinations.has(move.position)) throw new Error("Invalid move destination, must be one of " + JSON.stringify(validDestinations));
 
     // all good, update game
     game.players[move.identifier].position = move.position;
@@ -155,6 +155,7 @@ const viewGameAsUser: (game: GameModel | undefined, playerId: PlayerId | undefin
         state: game.state,
         myTurn: playerId === game.currentTurn,
         me: game.players[playerId],
+        // TODO: these should be sorted by joined time - perhaps store game.joinedPlayerIds as an array
         opponents: Object.keys(game.players).filter(p => p !== playerId).map(id => game.players[id])
     }
     return view;
