@@ -42,6 +42,10 @@ const createGame: (player: PlayerOptions, options: GameOptions) => GameModel = (
     return game;
 }
 
+const isFull: (game: GameModel) => (boolean) = (game: GameModel) => {
+    return Object.keys(game.players).length === game.numberOfPlayers;
+}
+
 const startGame: (gameId: GameId, player: PlayerId) => (GameModel) = (gameId: GameId, player: PlayerId) => {
     const game = findGameById(gameId);
 
@@ -51,7 +55,7 @@ const startGame: (gameId: GameId, player: PlayerId) => (GameModel) = (gameId: Ga
     if (game.turnOrder[0] !== player) throw new Error("You can only start a game that you created");
 
     // check we have the right number of players
-    if (Object.keys(game.players).length !== game.numberOfPlayers) throw new Error("Wrong number of players");
+    if (isFull(game)) throw new Error("Wrong number of players");
 
     if (game.state !== "WAITING_OPPONENT") throw new Error("Can only start game that is waiting for opponent");
 
@@ -68,7 +72,7 @@ const startGame: (gameId: GameId, player: PlayerId) => (GameModel) = (gameId: Ga
 const joinGame: (code: string, player: PlayerOptions) => (GameModel) = (code: string, player: PlayerOptions) => {
     const game = findGameByCode(code);
     if (!game) throw new Error("Unable to find game");
-    if (Object.keys(game.players).length >= game.numberOfPlayers) throw new Error("No room to join game");
+    if (isFull(game)) throw new Error("No room to join game");
     if (game.players[player.identifier]) throw new Error("Can't join game again");
 
     // all good, let's join
@@ -155,8 +159,7 @@ const viewGameAsUser: (game: GameModel | undefined, playerId: PlayerId | undefin
         state: game.state,
         myTurn: playerId === game.currentTurn,
         me: game.players[playerId],
-        // TODO: these should be sorted by joined time - perhaps store game.joinedPlayerIds as an array
-        opponents: Object.keys(game.players).filter(p => p !== playerId).map(id => game.players[id])
+        opponents: game.turnOrder.filter(id => id !== playerId).map(id => game.players[id])
     }
     return view;
 }
