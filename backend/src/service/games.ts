@@ -1,22 +1,9 @@
-import { GameView, Player, validDestinationsInGame, validPostsInGame } from "../../../shared/dist/index";
+import { GameView, initialConfiguration, Player, validDestinationsInGame, validPostsInGame } from "../../../shared/dist/index";
 import { findGameById, findGameByCode, insertGame, removeWaitingGame, uuidv4, shortCode } from "./database";
 import { GameId, PlayerId, GameOptions, GameModel, PlayerOptions, PlayMove, PlayFence } from "./model";
 
-interface StartReference {
-    start: number,
-    end: number[],
-    colour: number
-};
-
-const reference: StartReference[] = [
-    { start: 76, end: [0, 1, 2, 3, 4, 5, 6, 7, 8], colour: 0x00C2FB },
-    { start: 4, end: [72, 73, 74, 75, 76, 77, 78, 79, 80], colour: 0x25D3BA },
-    { start: 36, end: [8, 17, 26, 35, 44, 53, 62, 71, 80], colour: 0xFF8119 },
-    { start: 44, end: [0, 9, 18, 27, 36, 45, 54, 63, 72], colour: 0xAC47C7 },
-];
-
 const createGame: (player: PlayerOptions, options: GameOptions) => GameModel = (player: PlayerOptions, options: GameOptions) => {
-    const ref = reference[0];
+    const ref = initialConfiguration[0];
     let players: Record<PlayerId, Player> = {};
     players[player.identifier] = {
         fences: [],
@@ -76,7 +63,7 @@ const joinGame: (code: string, player: PlayerOptions) => (GameModel) = (code: st
     if (game.players[player.identifier]) throw new Error("Can't join game again");
 
     // all good, let's join
-    const ref = reference[Object.keys(game.players).length];
+    const ref = initialConfiguration[Object.keys(game.players).length];
     game.players[player.identifier] = {
         fences: [],
         name: player.name,

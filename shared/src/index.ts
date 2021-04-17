@@ -29,6 +29,19 @@ interface PathNode {
     children: Set<number>
 }
 
+interface StartReference {
+    start: number,
+    end: number[],
+    colour: number
+};
+
+const initialConfiguration: StartReference[] = [
+    { start: 76, end: [0, 1, 2, 3, 4, 5, 6, 7, 8], colour: 0x00C2FB },
+    { start: 4, end: [72, 73, 74, 75, 76, 77, 78, 79, 80], colour: 0x25D3BA },
+    { start: 36, end: [8, 17, 26, 35, 44, 53, 62, 71, 80], colour: 0xFF8119 },
+    { start: 44, end: [0, 9, 18, 27, 36, 45, 54, 63, 72], colour: 0xAC47C7 },
+];
+
 const buildNodes = (blockedPositions: Set<number>, fences: Fence[]) => {
     let nodes: PathNode[] = [];
 
@@ -261,11 +274,13 @@ const validPosts = (id: number) => {
 }
 
 export {
-    Player
+    Fence
     , GameState
     , GameView
-    , Fence
+    , initialConfiguration
+    , Player
+    , StartReference
     , validDestinationsFromPosition
-    , validPostsInGame
     , validDestinationsInGame
+    , validPostsInGame
 };
