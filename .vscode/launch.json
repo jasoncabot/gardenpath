@@ -2,6 +2,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug Jest Tests",
+            "type": "node",
+            "request": "launch",
+            "preLaunchTask": "npm: build - shared",
+            "cwd": "${workspaceFolder}/shared",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/shared/node_modules/.bin/jest",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch Backend",

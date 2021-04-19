@@ -1,3 +1,7 @@
+
+import { mulberry32, predictNextMove } from './ai';
+import { Queue } from './priorityqueue';
+
 type GameState = "UNKNOWN" | "WAITING_OPPONENT" | "IN_PROGRESS" | "GAME_OVER";
 
 interface Fence {
@@ -42,6 +46,49 @@ const initialConfiguration: StartReference[] = [
     { start: 44, end: [0, 9, 18, 27, 36, 45, 54, 63, 72], colour: 0xAC47C7 },
 ];
 
+const nextPositionOnShortestPath: (start: number, goal: Set<number>, blocked: Set<number>, fences: Fence[]) => (number) = (start: number, goal: Set<number>, blocked: Set<number>, fences: Fence[]) => {
+
+    let nodes: PathNode[] = buildNodes(blocked, fences);
+
+    const findNextOnPath = (position: number, edges: Record<number, number>) => {
+        let current = position;
+        while (edges[current] !== start) {
+            current = edges[current];
+        }
+        return current;
+    }
+
+    const scores: Record<number, number> = {};
+    const cameFrom: Record<number, number> = {};
+
+    const open = new Queue();
+    open.enqueue(0, start);
+
+    while (!open.isEmpty()) {
+        const item = open.dequeue();
+        if (goal.has(item.value)) {
+            return findNextOnPath(item.value, cameFrom);
+        }
+
+        nodes[item.value].children.forEach((neighbour: number) => {
+
+            const tentative = item.priority + 1;
+            let existingScore = scores[neighbour];
+            if (!existingScore) {
+                existingScore = Infinity;
+            }
+            if (tentative < existingScore) {
+                scores[neighbour] = tentative;
+                cameFrom[neighbour] = item.value;
+            }
+            open.enqueue(tentative, neighbour);
+        });
+    }
+
+    return 0;
+}
+
+
 const buildNodes = (blockedPositions: Set<number>, fences: Fence[]) => {
     let nodes: PathNode[] = [];
 
@@ -56,16 +103,16 @@ const buildNodes = (blockedPositions: Set<number>, fences: Fence[]) => {
     return nodes;
 }
 
-const allFences: (game: GameView) => (Fence[]) = (game) => {
-    let allFences = game.me.fences;
-    game.opponents.forEach(opponent => allFences = allFences.concat(opponent.fences));
+const allFences: (players: Player[]) => (Fence[]) = (players) => {
+    let allFences: Fence[] = [];
+    players.forEach(player => allFences = allFences.concat(player.fences));
     return allFences;
 }
 
 const validDestinationsInGame = (game: GameView) => {
     const myPosition = game.me.position;
     const opponentPositions = new Set(game.opponents.map(p => p.position));
-    return validDestinationsFromPosition(myPosition, opponentPositions, allFences(game));
+    return validDestinationsFromPosition(myPosition, opponentPositions, allFences(allPlayers(game)));
 }
 
 const validDestinationsFromPosition = (from: number, blockedPositions: Set<number>, fences: Fence[]) => {
@@ -182,12 +229,19 @@ const validDestinations = (id: number) => {
     return valid;
 }
 
-const validPostsInGame = (from: number, game: GameView) => {
-    let valid: number[] = validPosts(from);
-    const currentFences = allFences(game);
+const allPlayers: (game: GameView) => Player[] = (game: GameView) => {
+    return [game.me].concat(game.opponents).filter(p => !!p);
+}
+
+const validPostsInGame: (from: number, game: GameView) => (number[]) = (from: number, game: GameView) => {
+    return validPostsForPlayers(from, allPlayers(game));
+}
+
+const validPostsForPlayers: (from: number, players: Player[]) => number[] = (from: number, players: Player[]) => {
+    const currentFences = allFences(players);
 
     // ensure that this fence doesn't cross another
-    valid = valid.filter(to => {
+    let valid: number[] = validPosts(from).filter(to => {
 
         // for each fence played in the game
         // check if it crosses this proposed position
@@ -213,7 +267,6 @@ const validPostsInGame = (from: number, game: GameView) => {
         // players can still reach their goal
         const fences: Fence[] = [{ start: from, end: to }].concat(currentFences);
 
-        const players: Player[] = [game.me].concat(game.opponents).filter(p => !!p);
         // is any player blocked from reaching their target position?
         for (let index = 0; index < players.length; index++) {
             const player = players[index];
@@ -274,13 +327,16 @@ const validPosts = (id: number) => {
 }
 
 export {
-    Fence
+    allFences
+    , Fence
     , GameState
     , GameView
     , initialConfiguration
+    , nextPositionOnShortestPath
     , Player
     , StartReference
     , validDestinationsFromPosition
     , validDestinationsInGame
     , validPostsInGame
+    , validPostsForPlayers
 };

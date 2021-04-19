@@ -1,22 +1,20 @@
-import { PredictionView, predictNextMove } from '../src/ai';
+import { GameState, mulberry32, predictNextMove } from '../src/ai';
 import { Fence, initialConfiguration, Player } from '../src/index';
 import { expect, test } from '@jest/globals';
 
 test('should predict next move in game', () => {
-    const game: PredictionView = {
-        player: playerOne(initialConfiguration[0].start, []),
-        opponents: [
+    const game: GameState = {
+        currentPlayerIndex: 0,
+        players: [
+            playerOne(initialConfiguration[0].start, []),
             playerTwo(initialConfiguration[1].start, []),
             playerThree(initialConfiguration[2].start, []),
             playerFour(initialConfiguration[3].start, [])
         ]
-    }
-    const nextMove = predictNextMove(game);
+    };
+    const nextMove = predictNextMove(mulberry32(1337), game);
     expect(nextMove.type).toBe("MOVE");
-    expect(nextMove.result).toEqual({
-        start: 0,
-        end: 1
-    });
+    expect(nextMove.result).toEqual(67);
 });
 
 const buildPlayer: (index: number, position: number, fences: Fence[]) => Player = (index, position, fences) => {

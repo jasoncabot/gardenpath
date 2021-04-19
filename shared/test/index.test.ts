@@ -1,4 +1,4 @@
-import { validDestinationsFromPosition } from '../src/index';
+import { nextPositionOnShortestPath, validDestinationsFromPosition } from '../src/index';
 import { expect, test } from '@jest/globals';
 
 const emptySet: Set<number> = new Set();
@@ -64,4 +64,9 @@ test('may not jump over a player when another player blocks jump', () => {
 
 test('may not land on another player when jumping diagonally over a player', () => {
     expect(validDestinationsFromPosition(40, new Set([39, 48]), [{ start: 63, end: 43 }])).toEqual(new Set([30, 31, 41, 49]));
+});
+
+test('shortest path in empty game is straight line', () => {
+    const nextPositionInEmptyGame = nextPositionOnShortestPath(76, new Set([4]), new Set(), []);
+    expect(nextPositionInEmptyGame).toEqual(67);
 });
