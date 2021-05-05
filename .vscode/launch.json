@@ -9,6 +9,7 @@
             "cwd": "${workspaceFolder}/shared",
             "runtimeArgs": [
                 "--inspect-brk",
+                "--cpu-prof",
                 "${workspaceRoot}/shared/node_modules/.bin/jest",
                 "--runInBand"
             ],

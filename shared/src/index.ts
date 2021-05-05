@@ -164,67 +164,84 @@ const validDestinationsFromPosition = (from: number, blockedPositions: Set<numbe
 }
 
 const pathBlockedByFences = (start: number, end: number, fences: Fence[]) => {
-    const blocking = fencesThatBlock(start, end);
-    for (let index = 0; index < blocking.length; index++) {
-        const fence = blocking[index];
-
-        // Check if we have played any fences that would block this move
-        for (let fenceIndex = 0; fenceIndex < fences.length; fenceIndex++) {
-            const potential = fences[fenceIndex];
-            if (
-                (potential.start === fence.start && potential.end === fence.end) ||
-                (potential.start === fence.end && potential.end === fence.start)
-            ) return true;
-        }
+    for (let index = 0; index < fences.length; index++) {
+        const fence = fences[index];
+        if (isPathBlockedByFence(start, end, fence)) return true;
     }
     return false;
 }
 
-const fencesThatBlock: (start: number, end: number) => Fence[] = (start: number, end: number) => {
-    // normalise our endpoints as it doesn't matter which direction
-    // you move through a fence, it is still blocked
-    const min = Math.min(start, end);
-    const max = Math.max(start, end);
-
-    let fences: Fence[] = [];
-
-    // 1) Find the two posts that would block this move
-    // 2) Find both fences that would include these two posts
-    if (min === max - 1) { // horizontal
-        const a = min + (Math.floor(min / 9) + 1);
-        const b = a + 10;
-        if (a >= 9) {
-            fences.push({ start: a - 10, end: b });
-        }
-        if (b <= 89) {
-            fences.push({ start: a, end: b + 10 });
-        }
-    } else { // vertical
-        const a = min + 9 + (Math.floor(min / 9) + 1);
-        const b = a + 1;
-        if (a % 10 !== 0) {
-            fences.push({ start: a - 1, end: b });
-        }
-        if ((b + 1) % 10 !== 0) {
-            fences.push({ start: a, end: b + 1 });
-        }
-    }
-    return fences;
+const isPathBlockedByFence = (start: number, end: number, fence: Fence) => {
+    const fenceHash = hashPair(fence.start, fence.end);
+    return movementBlockers(start, end).has(fenceHash);
 }
 
-const validDestinations = (id: number) => {
-    let valid: Set<number> = new Set();
-    if (id >= 1 && (id % 9) !== 0) {
-        valid.add(id - 1);
+const hashPair: (a: number, b: number) => number = (a: number, b: number) => {
+    if (a > b) {
+        return (b << 2) ^ a;
+    } else {
+        return (a << 2) ^ b;
     }
-    if (id <= 79 && ((id + 1) % 9) !== 0) {
-        valid.add(id + 1);
+}
+
+const movementBlockerCache: Record<number, Set<number>> = {};
+const movementBlockers: (start: number, end: number) => Set<number> = (start: number, end: number) => {
+    // normalise our endpoints as it doesn't matter which direction
+    // you move through a fence, it is still blocked
+    const movement = hashPair(start, end);
+
+    let blockers = movementBlockerCache[movement];
+    if (blockers === undefined) {
+
+        blockers = new Set();
+        const min = Math.min(start, end);
+        const max = Math.max(start, end);
+
+        // 1) Find the two posts that would block this move
+        // 2) Find both fences that would include these two posts
+        if (min === max - 1) { // horizontal
+            const a = min + (Math.floor(min / 9) + 1);
+            const b = a + 10;
+            if (a >= 9) {
+                blockers.add(hashPair(a - 10, b));
+            }
+            if (b <= 89) {
+                blockers.add(hashPair(a, b + 10));
+            }
+        } else { // vertical
+            const a = min + 9 + (Math.floor(min / 9) + 1);
+            const b = a + 1;
+            if (a % 10 !== 0) {
+                blockers.add(hashPair(a - 1, b));
+            }
+            if ((b + 1) % 10 !== 0) {
+                blockers.add(hashPair(a, b + 1));
+            }
+        }
+        movementBlockerCache[movement] = blockers;
     }
-    if (id >= 9) {
-        valid.add(id - 9);
-    }
-    if (id <= 71) {
-        valid.add(id + 9);
+
+    return blockers;
+}
+
+const validDestinationCache: Record<number, Set<number>> = {};
+const validDestinations: (id: number) => Set<number> = (id: number) => {
+    let valid = validDestinationCache[id];
+    if (valid === undefined) {
+        valid = new Set();
+        if (id >= 1 && (id % 9) !== 0) {
+            valid.add(id - 1);
+        }
+        if (id <= 79 && ((id + 1) % 9) !== 0) {
+            valid.add(id + 1);
+        }
+        if (id >= 9) {
+            valid.add(id - 9);
+        }
+        if (id <= 71) {
+            valid.add(id + 9);
+        }
+        validDestinationCache[id] = valid;
     }
     return valid;
 }
@@ -335,6 +352,7 @@ export {
     , nextPositionOnShortestPath
     , Player
     , StartReference
+    , validPathToDestinations
     , validDestinationsFromPosition
     , validDestinationsInGame
     , validPostsInGame
