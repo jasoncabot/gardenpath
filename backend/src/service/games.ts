@@ -42,7 +42,7 @@ const startGame: (gameId: GameId, player: PlayerId) => (GameModel) = (gameId: Ga
     if (game.turnOrder[0] !== player) throw new Error("You can only start a game that you created");
 
     // check we have the right number of players
-    if (isFull(game)) throw new Error("Wrong number of players");
+    if (!isFull(game)) throw new Error("Wrong number of players");
 
     if (game.state !== "WAITING_OPPONENT") throw new Error("Can only start game that is waiting for opponent");
 
