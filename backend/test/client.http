@@ -1,47 +1,49 @@
 @user1 = 9cda3624-54a9-4c08-8d29-c9d9fe585995
 @user2 = 3e24bce7-48a4-4103-9a8f-179b38ddb41c
-@createdGameId = 54a18b53-0ad7-44c5-856a-050741a4a0ed
-@createdGameCode = 348G
 
 @host = http://localhost:8080
 # @host = https://gardenpathapi.jasoncabot.me
 
-### Create game
-
+### Create Game
+# @name createGame
 POST {{host}}/games
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
 {
     "name": "Player 1",
+    "colour": 512321,
     "numberOfPlayers": 2
 }
 
 ### Player 2 - Join Game
-
-POST {{host}}/games/{{createdGameCode}}/players
+# @name joinGame
+POST {{host}}/games/{{createGame.response.body.code}}/players
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
 {
-    "name": "Player 2"
+    "name": "Player 2",
+    "colour": 2
 }
 
 ### Start Game as Player 1
+# @name startGame1
 
-POST {{host}}/games/{{createdGameId}}/turn
+POST {{host}}/games/{{createGame.response.body.id}}/turn
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
 ### Start Game as Player 2
+# @name startGame2
 
-POST {{host}}/games/{{createdGameId}}/turn
+POST {{host}}/games/{{createGame.response.body.id}}/turn
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
 ### Move as Player 1
 
-POST {{host}}/games/{{createdGameId}}/move
+POST {{host}}/games/{{createGame.response.body.id}}/move
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
@@ -51,7 +53,7 @@ Authorization: Bearer {{user1}}
 
 ### Move as Player 2
 
-POST {{host}}/games/{{createdGameId}}/move
+POST {{host}}/games/{{createGame.response.body.id}}/move
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
@@ -61,7 +63,7 @@ Authorization: Bearer {{user2}}
 
 ### Fence as Player 1
 
-POST {{host}}/games/{{createdGameId}}/fence
+POST {{host}}/games/{{createGame.response.body.id}}/fence
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
@@ -72,7 +74,7 @@ Authorization: Bearer {{user1}}
 
 ### Fence as Player 2
 
-POST {{host}}/games/{{createdGameId}}/fence
+POST {{host}}/games/{{createGame.response.body.id}}/fence
 Content-Type: application/json
 Authorization: Bearer {{user2}}
 
@@ -83,13 +85,13 @@ Authorization: Bearer {{user2}}
 
 ### View Game as Player 1
 
-GET {{host}}/games/{{createdGameId}}
+GET {{host}}/games/{{createGame.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{user1}}
 
 
 ### View Game as Player 2
 
-GET {{host}}/games/{{createdGameId}}
+GET {{host}}/games/{{createGame.response.body.id}}
 Content-Type: application/json
 Authorization: Bearer {{user2}}

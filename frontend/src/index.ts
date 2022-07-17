@@ -1,4 +1,5 @@
 import 'phaser';
+import 'bulma/css/bulma.css';
 import { RouterPlugin } from './plugins/router';
 
 const config = {

@@ -45,7 +45,7 @@ class GameController extends Phaser.Events.EventEmitter {
     fence = (start: number, end: number) => {
         if (!this.game) throw new Error("Game must have loaded before attempting to play fence");
         const fence: Fence = { start, end };
-        this.game?.me.fences.push(fence);
+        this.game.players.find(p => p.isMe)?.fences.push(fence);
         const fenceViewModel: FenceViewModel = fence;
         this.emit("fence", fenceViewModel);
 
@@ -70,8 +70,9 @@ class GameController extends Phaser.Events.EventEmitter {
 
     move = (position: number) => {
         if (!this.game) throw new Error("Game must have loaded before attempting to move");
-        const oldPosition = this.game.me.position;
-        this.game.me.position = position;
+        const me = this.game.players.find(p => p.isMe)!;
+        const oldPosition = me.position;
+        me.position = position;
         this.emit("move", { from: oldPosition, to: position });
 
         // Submit move to server
@@ -123,20 +124,21 @@ class GameController extends Phaser.Events.EventEmitter {
 
     toViewModel: (game: GameView) => (GameViewModel) = (game: GameView) => {
         // You can view a game you aren't playing, and therefore game.me may not exist
-        const me = game.me || { fences: [] };
+        const me = game.players.find(p => p.isMe);
+
         const vm: GameViewModel = {
             numberOfPlayers: game.numberOfPlayers,
             code: game.code,
-            myTurn: game.myTurn,
-            players: [me].concat(game.opponents).map(p => {
+            myTurn: me?.isTurn || false,
+            players: game.players.map(p => {
                 return {
                     name: p.name,
                     colour: p.colour,
-                    controllable: game.myTurn && p === me,
+                    controllable: p.isTurn,
                     position: p.position
                 }
             }),
-            fences: me.fences.concat(game.opponents.map(p => p.fences).reduce((acc, val) => acc.concat(val), []))
+            fences: game.players.reduce((acc, player) => acc.concat(player.fences), [] as Fence[])
         };
         return vm;
     }

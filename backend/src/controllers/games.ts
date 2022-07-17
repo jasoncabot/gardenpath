@@ -11,10 +11,10 @@ const registerRoutes = (router: IRouter) => {
         const numPlayers = parseInt(request.body.numberOfPlayers, 10) || 2;
         try {
             if ([1, 2, 3, 4].indexOf(numPlayers) < 0) throw new Error("numberOfPlayers must be 1, 2, 3 or 4");
-            const game = createGame({ name: validatedName(request.body.name), identifier: request.user! }, { numberOfPlayers: numPlayers });
+            const game = createGame({ name: validatedName(request.body.name), colour: validateColour(request.body.colour), identifier: request.user! }, { numberOfPlayers: numPlayers });
             const view = viewGameAsUser(game, request.user);
             response.status(201).json(view);
-        } catch (error) {
+        } catch (error: any) {
             response.status(500).json({ error: error.message });
         }
     })
@@ -27,7 +27,7 @@ const registerRoutes = (router: IRouter) => {
             const game = findGameById(request.params.id);
             const view = viewGameAsUser(game, request.user);
             response.status(200).json(view)
-        } catch (error) {
+        } catch (error: any) {
             response.status(404).json({ error: error.message });
         }
     });
@@ -39,7 +39,7 @@ const registerRoutes = (router: IRouter) => {
             const game = startGame(request.params.id, request.user!);
             const view = viewGameAsUser(game, request.user);
             response.status(200).json(view)
-        } catch (error) {
+        } catch (error: any) {
             response.status(500).json({ error: error.message });
         }
     });
@@ -48,10 +48,10 @@ const registerRoutes = (router: IRouter) => {
     // POST /games/B12X/players
     router.post("/games/:code/players", requireUser, (request: Request, response: Response) => {
         try {
-            const game = joinGame(request.params.code, { name: validatedName(request.body.name), identifier: request.user! })
+            const game = joinGame(request.params.code, { name: validatedName(request.body.name), colour: validateColour(request.body.colour), identifier: request.user! })
             const view = viewGameAsUser(game, request.user);
             response.status(200).json(view)
-        } catch (error) {
+        } catch (error: any) {
             response.status(500).json({ error: error.message });
         }
     });
@@ -67,7 +67,7 @@ const registerRoutes = (router: IRouter) => {
             const view = viewGameAsUser(game, request.user);
 
             response.status(200).json(view)
-        } catch (error) {
+        } catch (error: any) {
             response.status(500).json({ error: error.message });
         }
     });
@@ -84,7 +84,7 @@ const registerRoutes = (router: IRouter) => {
             const view = viewGameAsUser(game, request.user);
 
             response.status(200).json(view)
-        } catch (error) {
+        } catch (error: any) {
             response.status(500).json({ error: error.message });
         }
     });
@@ -94,6 +94,12 @@ const validatedName: (name: string) => (string) = (name: string) => {
     if (name.length === 0 || name.length > 40) throw new Error("Name must be between 1 and 40 characters");
     if (/^[\w ]+$/.test(name) === false) throw new Error("Name must only include alphanumeric characters");
     return name;
+}
+
+const validateColour: (colour: number) => (number) = (colour: number) => {
+    if (colour < 0x000000) return 0x000000;
+    if (colour > 0xFFFFFF) return 0xFFFFFF;
+    return Math.round(colour);
 }
 
 export { registerRoutes };

@@ -9,6 +9,7 @@ interface GameOptions {
 
 interface PlayerOptions {
     name: string,
+    colour?: number,
     identifier: PlayerId
 }
 

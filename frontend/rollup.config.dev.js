@@ -1,6 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
 import html from '@rollup/plugin-html';
+import styles from "rollup-plugin-styles";
 import htmlTemplate from "./assets/html/index";
 import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
@@ -67,6 +68,8 @@ export default {
             ]
         }),
 
+        styles(),
+
         html({ title: "GardenPath", template: htmlTemplate }),
 
         //  See https://www.npmjs.com/package/rollup-plugin-serve for config options
@@ -74,7 +77,7 @@ export default {
             open: false,
             historyApiFallback: true,
             contentBase: 'dist',
-            host: '0.0.0.0',
+            host: 'localhost',
             port: 10001
         })
 

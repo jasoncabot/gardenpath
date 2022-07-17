@@ -19,13 +19,6 @@ const htmlTemplate = ({ files, title }) => `<!DOCTYPE html>
 
         <title>${title}</title>
 
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-            }
-        </style>
-
     </head>
 
     <body>

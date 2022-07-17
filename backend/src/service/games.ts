@@ -10,7 +10,9 @@ const createGame: (player: PlayerOptions, options: GameOptions) => GameModel = (
         name: player.name,
         position: ref.start,
         target: ref.end,
-        colour: ref.colour
+        colour: player.colour !== undefined ? player.colour : ref.colour,
+        isMe: true,
+        isTurn: false
     };
 
     const game: GameModel = {
@@ -69,10 +71,17 @@ const joinGame: (code: string, player: PlayerOptions) => (GameModel) = (code: st
         name: player.name,
         position: ref.start,
         target: ref.end,
-        colour: ref.colour
+        colour: player.colour !== undefined ? player.colour : ref.colour,
+        isMe: true,
+        isTurn: false
     }
     game.lastMoveAt = Date.now();
     game.turnOrder.push(player.identifier);
+
+    // now if we have enough players, start the game
+    if (isFull(game)) {
+        return startGame(game.id, game.turnOrder[0]);
+    }
 
     return game;
 }
@@ -87,7 +96,7 @@ const move = (gameId: GameId, move: PlayMove) => {
     const view = viewGameAsUser(game, move.identifier);
     if (!view) throw new Error("Unable to view game as user");
     const validDestinations = validDestinationsInGame(view);
-    if (!validDestinations.has(move.position)) throw new Error("Invalid move destination, must be one of " + JSON.stringify(validDestinations));
+    if (!validDestinations.has(move.position)) throw new Error("Invalid move destination, must be one of " + Array.from(validDestinations).toString());
 
     // all good, update game
     game.players[move.identifier].position = move.position;
@@ -118,7 +127,7 @@ const fence = (gameId: GameId, fence: PlayFence) => {
     const view = viewGameAsUser(game, fence.identifier);
     if (!view) throw new Error("Unable to view game as user");
     const validEnds = validPostsInGame(fence.start, view);
-    if (validEnds.indexOf(fence.end) < 0) throw new Error(`Invalid fence construction. From ${fence.start} valid endpoints are ${JSON.stringify(validEnds)} not ${fence.end}`);
+    if (validEnds.indexOf(fence.end) < 0) throw new Error(`Invalid fence construction. From ${fence.start} valid endpoints are ${Array.from(validEnds).toString()} not ${fence.end}`);
 
     // all good, update game
     game.players[fence.identifier].fences.push({
@@ -144,9 +153,12 @@ const viewGameAsUser: (game: GameModel | undefined, playerId: PlayerId | undefin
         numberOfPlayers: game.numberOfPlayers,
         lastMoveAt: game.lastMoveAt,
         state: game.state,
-        myTurn: playerId === game.currentTurn,
-        me: game.players[playerId],
-        opponents: game.turnOrder.filter(id => id !== playerId).map(id => game.players[id])
+        players: game.turnOrder.map(id => {
+            const player = game.players[id];
+            player.isMe = id === playerId;
+            player.isTurn = id === game.currentTurn;
+            return player;
+        })
     }
     return view;
 }

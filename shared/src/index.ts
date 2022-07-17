@@ -14,16 +14,16 @@ interface Player {
     position: number,
     colour: number,
     fences: Fence[],
-    target: number[]
+    target: number[],
+    isMe: boolean
+    isTurn: boolean
 }
 
 interface GameView {
     id: string,
     code: string,
     numberOfPlayers: number,
-    me: Player,
-    opponents: Player[],
-    myTurn: boolean,
+    players: Player[],
     lastMoveAt: number,
     state: GameState
 }
@@ -110,9 +110,16 @@ const allFences: (players: Player[]) => (Fence[]) = (players) => {
 }
 
 const validDestinationsInGame = (game: GameView) => {
-    const myPosition = game.me.position;
-    const opponentPositions = new Set(game.opponents.map(p => p.position));
-    return validDestinationsFromPosition(myPosition, opponentPositions, allFences(allPlayers(game)));
+    let myPosition: number;
+    let opponentPositions = new Set<number>();
+    game.players.forEach(player => {
+        if (player.isMe) {
+            myPosition = player.position;
+        } else {
+            opponentPositions.add(player.position);
+        }
+    });
+    return validDestinationsFromPosition(myPosition!, opponentPositions, allFences(allPlayers(game)));
 }
 
 const validDestinationsFromPosition = (from: number, blockedPositions: Set<number>, fences: Fence[]) => {
@@ -230,7 +237,7 @@ const validDestinations = (id: number) => {
 }
 
 const allPlayers: (game: GameView) => Player[] = (game: GameView) => {
-    return [game.me].concat(game.opponents).filter(p => !!p);
+    return game.players.filter(p => !!p);
 }
 
 const validPostsInGame: (from: number, game: GameView) => (number[]) = (from: number, game: GameView) => {
