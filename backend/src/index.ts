@@ -1,20 +1,9 @@
-import { load as loadExpress } from "loaders/expressLoader";
-import { registerJobs } from "controllers/jobs";
+import { greeter } from "@app/shared";
 
-const initialise = async () => {
-    console.log(`Loading express with allowed origin: ${process.env.ALLOWED_ORIGIN}`);
-    const express = await loadExpress(process.env.ALLOWED_ORIGIN!);
-    console.log('Express loaded');
-
-    registerJobs();
-    console.log('Jobs registered');
+export async function handleRequest(request: Request, env: Bindings) {
+    return new Response(greeter());
 }
 
-initialise()
-    .then(() => {
-        console.log(`Application initialised`);
-    })
-    .catch((e) => {
-        console.error(`Failed to initialise`);
-        console.error(e);
-    });
+const worker: ExportedHandler<Bindings> = { fetch: handleRequest };
+
+export default worker;

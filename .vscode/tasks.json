@@ -1,70 +1,58 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "dev",
-			"path": "frontend/",
-			"group": "build",
-			"dependsOn": [
-				"npm: build - shared"
-			],
-			"isBackground": true,
-			"problemMatcher": [
-				{
-					"pattern": [
-						{
-							"regexp": ".",
-							"file": 1,
-							"location": 2,
-							"message": 3
-						}
-					],
-					"background": {
-						"activeOnStart": true,
-						"beginsPattern": "rollup",
-						"endsPattern": "waiting for changes"
-					}
-				}
-			],
-			"label": "npm: dev - frontend",
-			"detail": "rollup --watch --config rollup.config.dev.js"
-		},
-		{
-			"type": "npm",
-			"script": "build",
-			"path": "shared/",
-			"group": "build",
-			"isBackground": true,
-			"problemMatcher": [
-				{
-					"pattern": [
-						{
-							"regexp": ".",
-							"file": 1,
-							"location": 2,
-							"message": 3
-						}
-					],
-					"background": {
-						"activeOnStart": true,
-						"beginsPattern": "rollup",
-						"endsPattern": "created ./dist/index.js in"
-					}
-				}
-			],
-			"label": "npm: build - shared",
-			"detail": "rollup --config rollup.config.dist.js"
-		},
-		{
-			"type": "typescript",
-			"tsconfig": "backend/tsconfig.json",
-			"option": "watch",
-			"problemMatcher": [
-				"$tsc-watch"
-			],
-			"group": "build",
-			"label": "tsc: watch - backend/tsconfig.json",
-		}
-	]
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "start",
+            "path": "frontend",
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "source": "react-script",
+                    "base": "$tsc",
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": {
+                            "regexp": "yarn run"
+                        },
+                        "endsPattern": {
+                            "regexp": "Starting the development server..."
+                        }
+                    }
+                }
+            ],
+            "label": "yarn start - frontend",
+            "detail": "yarn start",
+            "dependsOn": [
+                "yarn start - shared"
+            ],
+            "presentation": {
+                "group": "app"
+            }
+        },
+        {
+            "type": "npm",
+            "script": "start",
+            "path": "shared",
+            "label": "yarn start - shared",
+            "detail": "yarn start",
+            "isBackground": true,
+            "problemMatcher": {
+                "source": "esbuild",
+                "base": "$tsc",
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": {
+                        "regexp": "\\[esbuild\\] start"
+                    },
+                    "endsPattern": {
+                        "regexp": "\\[esbuild\\] finish"
+                    }
+                }
+            },
+            "presentation": {
+                "group": "app"
+            }
+        }
+    ]
 }
